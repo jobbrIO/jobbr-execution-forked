@@ -56,7 +56,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-server\source</PreBuildEvent>
+    <PreBuildEvent>$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-runtime\source\submodules\jobbr-server\source
+$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-runtime\source
+$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-server\source
+</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

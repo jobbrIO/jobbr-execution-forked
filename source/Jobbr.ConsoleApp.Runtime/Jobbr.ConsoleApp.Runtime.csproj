@@ -43,9 +43,18 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\submodules\jobbr-runtime\source\Jobbr.Runtime\Jobbr.Runtime.csproj">
+      <Project>{78139b11-2048-410b-b316-00813fe1c45f}</Project>
+      <Name>Jobbr.Runtime</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-server\source</PreBuildEvent>
+    <PreBuildEvent>$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-runtime\source\submodules\jobbr-server\source
+$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-runtime\source
+$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-server\source
+</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
