@@ -2,3 +2,6 @@
 	path = source/submodules/jobbr-server
 	url = https://github.com/jobbrIO/jobbr-server.git
 	branch = develop
+[submodule "source/submodules/jobbr-runtime"]
+	path = source/submodules/jobbr-runtime
+	url = https://github.com/jobbrIO/jobbr-runtime.git
