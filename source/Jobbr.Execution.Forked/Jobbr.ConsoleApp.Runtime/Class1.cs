@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Jobbr.Server.ForkedExecution
+namespace Jobbr.ConsoleApp.Runtime
 {
-    class Class1
+    public class Class1
     {
     }
 }
