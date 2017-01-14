@@ -1,3 +1,4 @@
 [submodule "source/submodules/jobbr-server"]
 	path = source/submodules/jobbr-server
 	url = https://github.com/jobbrIO/jobbr-server.git
+	branch = develop
