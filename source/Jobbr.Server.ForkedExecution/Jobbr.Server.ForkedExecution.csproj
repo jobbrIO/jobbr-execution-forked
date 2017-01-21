@@ -78,8 +78,13 @@
     <Compile Include="BackChannel\DefaultController.cs" />
     <Compile Include="BackChannel\DependencyResolverAdapter.cs" />
     <Compile Include="BackChannel\Startup.cs" />
+    <Compile Include="Core\DefaultJobExecutor.cs" />
+    <Compile Include="Core\JobRunContext.cs" />
+    <Compile Include="Core\JobRunEndedEventArgs.cs" />
+    <Compile Include="Core\JobRunModificationEventArgs.cs" />
+    <Compile Include="Core\JobTriggerEventArgs.cs" />
     <Compile Include="ForkedExecutionConfiguration.cs" />
-    <Compile Include="ForkedJobExecutor.cs" />
+    <Compile Include="Core\ForkedJobExecutor.cs" />
     <Compile Include="JobbrBuilderExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
