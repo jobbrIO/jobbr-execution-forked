@@ -1,16 +1,15 @@
-//using System;
-//using System.Diagnostics;
+using System;
+using System.Diagnostics;
+using Jobbr.ComponentModel.Execution.Model;
 
-//using Jobbr.Common.Model;
+namespace Jobbr.Server.ForkedExecution.Core
+{
+    internal class JobRunEndedEventArgs : EventArgs
+    {
+        public int ExitCode { get; set; }
 
-//namespace Jobbr.Server.Core
-//{
-//    internal class JobRunEndedEventArgs : EventArgs
-//    {
-//        public int ExitCode { get; set; }
+        public JobRunInfo JobRun { get; set; }
 
-//        public JobRun JobRun { get; set; }
-
-//        public Process ProcInfo { get; set; }
-//    }
-//}
+        public Process ProcInfo { get; set; }
+    }
+}
