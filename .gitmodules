@@ -8,3 +8,6 @@
 [submodule "source/submodules/jobbr-cm-execution"]
 	path = source/submodules/jobbr-cm-execution
 	url = https://github.com/jobbrIO/jobbr-cm-execution.git
+[submodule "source/submodules/jobbr-cm-registration"]
+	path = source/submodules/jobbr-cm-registration
+	url = https://github.com/jobbrIO/jobbr-cm-registration.git
