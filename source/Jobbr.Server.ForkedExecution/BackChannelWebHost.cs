@@ -2,7 +2,7 @@
 
 namespace Jobbr.Server.ForkedExecution
 {
-    public class ControllingEndpoint : IJobbrComponent
+    public class BackChannelWebHost : IJobbrComponent
     {
         public void Dispose()
         {

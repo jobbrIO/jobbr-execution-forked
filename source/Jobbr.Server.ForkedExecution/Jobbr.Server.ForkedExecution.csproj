@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ControllingEndpoint.cs" />
+    <Compile Include="BackChannelWebHost.cs" />
     <Compile Include="ForkedJobExecutor.cs" />
     <Compile Include="JobbrBuilderExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

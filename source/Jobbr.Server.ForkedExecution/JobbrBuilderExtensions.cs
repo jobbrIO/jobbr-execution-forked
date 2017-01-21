@@ -9,7 +9,7 @@ namespace Jobbr.Server.ForkedExecution
     {
         public static void AddForkedExecution(this IJobbrBuilder builder)
         {
-            builder.Register<IJobbrComponent>(typeof(ControllingEndpoint));
+            builder.Register<IJobbrComponent>(typeof(BackChannelWebHost));
             builder.Register<IJobExecutor>(typeof(ForkedJobExecutor));
         }
     }
