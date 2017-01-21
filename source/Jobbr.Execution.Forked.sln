@@ -25,13 +25,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.ComponentModel.Manage
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.ComponentModel.Registration", "submodules\jobbr-server\source\submodules\jobbr-cm-registration\source\Jobbr.ComponentModel.Registration\Jobbr.ComponentModel.Registration.csproj", "{DA63448E-F6CD-4519-9284-09028659AD28}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Execution.Forked.Tests", "Jobbr.Execution.Forked.Tests\Jobbr.Execution.Forked.Tests.csproj", "{13884A29-7077-49F2-99A1-A71A921773B2}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Submodules", "Submodules", "{CC6F989D-8A7A-480D-BF42-DD31E75BFA3C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.ComponentModel.Execution", "submodules\jobbr-cm-execution\source\Jobbr.ComponentModel.Execution\Jobbr.ComponentModel.Execution.csproj", "{60E632D9-B2BE-4701-991E-C7113689FBF0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.ComponentModel.Registration", "submodules\jobbr-cm-registration\source\Jobbr.ComponentModel.Registration\Jobbr.ComponentModel.Registration.csproj", "{12CAB6D9-5E35-4AF5-88EB-EC81EE61C620}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Server.ForkedExecution.Tests", "Jobbr.Server.ForkedExecution.Tests\Jobbr.Server.ForkedExecution.Tests.csproj", "{13884A29-7077-49F2-99A1-A71A921773B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Server.ForkedExecution.TestEcho", "Jobbr.Server.ForkedExecution.TestEcho\Jobbr.Server.ForkedExecution.TestEcho.csproj", "{ADFEEB77-10B0-4028-AD62-2D505FD29757}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,10 +77,6 @@ Global
 		{DA63448E-F6CD-4519-9284-09028659AD28}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA63448E-F6CD-4519-9284-09028659AD28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA63448E-F6CD-4519-9284-09028659AD28}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13884A29-7077-49F2-99A1-A71A921773B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13884A29-7077-49F2-99A1-A71A921773B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13884A29-7077-49F2-99A1-A71A921773B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13884A29-7077-49F2-99A1-A71A921773B2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{60E632D9-B2BE-4701-991E-C7113689FBF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{60E632D9-B2BE-4701-991E-C7113689FBF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60E632D9-B2BE-4701-991E-C7113689FBF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,6 +85,14 @@ Global
 		{12CAB6D9-5E35-4AF5-88EB-EC81EE61C620}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12CAB6D9-5E35-4AF5-88EB-EC81EE61C620}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12CAB6D9-5E35-4AF5-88EB-EC81EE61C620}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13884A29-7077-49F2-99A1-A71A921773B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13884A29-7077-49F2-99A1-A71A921773B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13884A29-7077-49F2-99A1-A71A921773B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13884A29-7077-49F2-99A1-A71A921773B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADFEEB77-10B0-4028-AD62-2D505FD29757}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADFEEB77-10B0-4028-AD62-2D505FD29757}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADFEEB77-10B0-4028-AD62-2D505FD29757}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADFEEB77-10B0-4028-AD62-2D505FD29757}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

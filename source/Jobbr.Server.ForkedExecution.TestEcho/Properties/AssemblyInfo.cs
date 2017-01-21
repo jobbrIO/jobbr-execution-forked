@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Jobbr.Server.ForkedExecution.Tests")]
+[assembly: AssemblyTitle("Jobbr.Server.ForkedExecution.TestEcho")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Jobbr.Server.ForkedExecution.Tests")]
+[assembly: AssemblyProduct("Jobbr.Server.ForkedExecution.TestEcho")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("13884a29-7077-49f2-99a1-a71a921773b2")]
+[assembly: Guid("adfeeb77-10b0-4028-ad62-2d505fd29757")]
 
 // Version information for an assembly consists of the following four values:
 //
