@@ -1,12 +1,10 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using Jobbr.Server.Builder;
-using Jobbr.Server.ForkedExecution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Jobbr.Execution.Forked.Tests
+namespace Jobbr.Server.ForkedExecution.Tests
 {
     [TestClass]
     public class ServerRegistration

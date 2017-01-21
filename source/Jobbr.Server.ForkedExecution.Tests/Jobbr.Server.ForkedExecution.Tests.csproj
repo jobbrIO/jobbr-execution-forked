@@ -6,8 +6,8 @@
     <ProjectGuid>{13884A29-7077-49F2-99A1-A71A921773B2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Jobbr.Execution.Forked.Tests</RootNamespace>
-    <AssemblyName>Jobbr.Execution.Forked.Tests</AssemblyName>
+    <RootNamespace>Jobbr.Server.ForkedExecution.Tests</RootNamespace>
+    <AssemblyName>Jobbr.Server.ForkedExecution.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
