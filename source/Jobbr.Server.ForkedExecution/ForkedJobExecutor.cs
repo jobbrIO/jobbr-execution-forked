@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
+using Jobbr.Server.ForkedExecution.BackChannel;
 
 namespace Jobbr.Server.ForkedExecution
 {
