@@ -97,10 +97,6 @@
       <Project>{12cab6d9-5e35-4af5-88eb-ec81ee61c620}</Project>
       <Name>Jobbr.ComponentModel.Registration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\jobbr-server\source\Jobbr.Server\Jobbr.Server.csproj">
-      <Project>{A45F729D-8629-4C7A-96B8-29EAA8D52919}</Project>
-      <Name>Jobbr.Server</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
