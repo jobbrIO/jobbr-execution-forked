@@ -20,6 +20,8 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 
         public BackChannelWebHost(IJobbrServiceProvider jobbrServiceProvider, ForkedExecutionConfiguration configuration)
         {
+            Logger.Debug("Constructing new BackChannelWebHost");
+
             this.jobbrServiceProvider = jobbrServiceProvider;
             this.configuration = configuration;
         }
@@ -49,7 +51,6 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 this.configuration.BackendAddress = $"http://localhost:{port}";
             }
 
-
             var services = (ServiceProvider)ServicesFactory.Create();
             var options = new StartOptions()
             {
@@ -64,8 +65,11 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             this.webHost = hostingStarter.Start(options);
 
             Logger.InfoFormat($"Started OWIN-Host for WebAPI at '{this.configuration.BackendAddress}'.");
+            this.BackendAddress = this.configuration.BackendAddress;
 
         }
+
+        public string BackendAddress { get; private set; }
 
         public void Stop()
         {
