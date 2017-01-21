@@ -1,4 +1,5 @@
-﻿using Jobbr.Server.Builder;
+﻿using Jobbr.ComponentModel.Registration;
+using Jobbr.Server.Builder;
 using Jobbr.Server.Common;
 
 namespace Jobbr.Server.ForkedExecution
