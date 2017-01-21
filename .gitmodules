@@ -5,3 +5,6 @@
 [submodule "source/submodules/jobbr-runtime"]
 	path = source/submodules/jobbr-runtime
 	url = https://github.com/jobbrIO/jobbr-runtime.git
+[submodule "source/submodules/jobbr-cm-execution"]
+	path = source/submodules/jobbr-cm-execution
+	url = https://github.com/jobbrIO/jobbr-cm-execution.git
