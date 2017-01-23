@@ -22,19 +22,24 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.jobRunInformationService = new JobRunInfoServiceMock(this.jobRunFakeTuples);
         }
 
+        private static ForkedExecutionConfiguration GivenAMinimalConfiguration()
+        {
+            var forkedExecutionConfiguration = new ForkedExecutionConfiguration()
+            {
+                BackendAddress = "notNeeded",
+                JobRunDirectory = Path.GetTempPath(),
+                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
+
+            };
+            return forkedExecutionConfiguration;
+        }
+
         [TestMethod]
         public void StartEmpty_GetsNewPlanWithOneJob_ExecutesJob()
         {
             // Setup
-            var forkedExecutionConfiguration = new ForkedExecutionConfiguration()
-            {
-                BackendAddress = "any",
-                JobRunDirectory = Path.GetTempPath(),
-                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe"
-            };
-
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
-            executor.Start();
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act
             var fakeJobRun = this.jobRunFakeTuples.CreateFakeJobRun();
@@ -50,19 +55,21 @@ namespace Jobbr.Server.ForkedExecution.Tests
             Assert.AreEqual(JobRunStates.Started, allStatesForJob[1], "The last state should be 'Started' even if the process has exited sucesfully because the runtime needs to set the 'Complete'-State");
         }
 
+        private ForkedJobExecutor GivenAStartedExecutor(ForkedExecutionConfiguration forkedExecutionConfiguration)
+        {
+            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
+
+            executor.Start();
+
+            return executor;
+        }
+
         [TestMethod]
         public void StartEmpty_GetsMultipleJobs_ExecutesMultipleJobs()
         {
             // Setup
-            var forkedExecutionConfiguration = new ForkedExecutionConfiguration()
-            {
-                BackendAddress = "any",
-                JobRunDirectory = Path.GetTempPath(),
-                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
-            };
-
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
-            executor.Start();
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act: create jobruns & send plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
@@ -92,15 +99,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
         public void ContainsAItemInPlan_GetsAdditional_ExecutesMultipleJobs()
         {
             // Setup
-            var forkedExecutionConfiguration = new ForkedExecutionConfiguration()
-            {
-                BackendAddress = "any",
-                JobRunDirectory = Path.GetTempPath(),
-                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
-            };
-
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
-            executor.Start();
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act: Create & send First Plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
@@ -122,18 +122,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
         public void ContainsAItemInPlan_DifferentList_ExecutesOnlySecondJob()
         {
             // Setup
-            var forkedExecutionConfiguration = new ForkedExecutionConfiguration()
-            {
-                BackendAddress = "any",
-                JobRunDirectory = Path.GetTempPath(),
-                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
-
-                // Manual limit so that we minimize the concurrency of multiple jobs
-                MaxConcurrentJobs = 1
-            };
-
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
-            executor.Start();
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+            forkedExecutionConfiguration.MaxConcurrentJobs = 1;
+            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act: Create & send first plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
@@ -155,18 +146,11 @@ namespace Jobbr.Server.ForkedExecution.Tests
         public void LimitTo2Jobs_GetsNewPlanWith3Jobs_ExecutesMaxConfiguredJobs()
         {
             // Setup
-            var forkedExecutionConfiguration = new ForkedExecutionConfiguration()
-            {
-                BackendAddress = "any",
-                JobRunDirectory = Path.GetTempPath(),
-                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
-
-                // Only run 2 jobs at a time
-                MaxConcurrentJobs = 2
-            };
-
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
-            executor.Start();
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+            
+            // Only run 2 jobs at a time
+            forkedExecutionConfiguration.MaxConcurrentJobs = 2;
+            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act 1: Create & Send only first plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
