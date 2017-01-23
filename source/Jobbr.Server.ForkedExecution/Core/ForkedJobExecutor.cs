@@ -30,7 +30,7 @@ namespace Jobbr.Server.ForkedExecution.Core
         private readonly object syncRoot = new object();
 
 
-        public ForkedJobExecutor(IJobRunInformationService jobRunInformationService, ForkedExecutionConfiguration configuration, IJobRunProgressChannel progressChannel)
+        public ForkedJobExecutor(IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel, ForkedExecutionConfiguration configuration)
         {
             this.jobRunInformationService = jobRunInformationService;
             this.configuration = configuration;

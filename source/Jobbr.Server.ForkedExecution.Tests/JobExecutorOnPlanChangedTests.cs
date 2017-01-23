@@ -37,7 +37,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
         private ForkedJobExecutor GivenAStartedExecutor(ForkedExecutionConfiguration forkedExecutionConfiguration)
         {
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
+            var executor = new ForkedJobExecutor(this.jobRunInformationService, this.storedProgressUpdates, forkedExecutionConfiguration);
 
             executor.Start();
 
