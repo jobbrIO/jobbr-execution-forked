@@ -72,7 +72,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Wait
-            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeJobRun1.UniqueId].Count + allUpdates[fakeJobRun2.UniqueId].Count + allUpdates[fakeJobRun3.UniqueId].Count == 6, 3000);
+            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(kvp => kvp.Value).Count() == 6, 3000);
 
             // Test
             var allStatesForJob1 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun1.UniqueId];
