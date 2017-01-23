@@ -88,7 +88,12 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public void PublicArtefact(Guid uniqueId, string fileName, Stream result)
         {
-            
+            if (!this.jobRunArtefactUploads.ContainsKey(uniqueId))
+            {
+                this.jobRunArtefactUploads.Add(uniqueId, new List<string>());
+            }
+
+            this.jobRunArtefactUploads[uniqueId].Add(fileName);
         }
     }
 }
