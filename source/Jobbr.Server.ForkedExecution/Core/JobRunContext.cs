@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
+using Jobbr.Server.ForkedExecution.Core.ServiceMessaging;
 using Jobbr.Server.ForkedExecution.Logging;
 
 namespace Jobbr.Server.ForkedExecution.Core
@@ -16,19 +17,11 @@ namespace Jobbr.Server.ForkedExecution.Core
 
         private readonly JobRunInfo jobRunInfo;
 
-        /// <summary>
-        /// The job service.
-        /// </summary>
-        // TODO: private readonly IStateService stateService;
-
-        /// <summary>
-        /// The configuration.
-        /// </summary>
         private readonly ForkedExecutionConfiguration configuration;
 
         private readonly IJobRunProgressChannel progressChannel;
 
-        // TODO: private readonly ServiceMessageParser serviceMessageParser;
+        private readonly ServiceMessageParser serviceMessageParser;
 
         public event EventHandler<JobRunEndedEventArgs> Ended;
 
@@ -41,15 +34,9 @@ namespace Jobbr.Server.ForkedExecution.Core
             this.configuration = configuration;
             this.progressChannel = progressChannel;
 
-            // TODO: this.serviceMessageParser = new ServiceMessageParser();
+            this.serviceMessageParser = new ServiceMessageParser();
         }
 
-        /// <summary>
-        /// The start.
-        /// </summary>
-        /// <param name="jobRun">
-        /// The job run.
-        /// </param>
         public void Start()
         {
             Logger.InfoFormat("[{0}] A new JobRunContext is starting for JobRun with id: '{1}'. (JobId: '{2}', TriggerId: '{3}'", this.jobRunInfo.UniqueId, this.jobRunInfo.Id, this.jobRunInfo.JobId, this.jobRunInfo.TriggerId);
@@ -61,9 +48,8 @@ namespace Jobbr.Server.ForkedExecution.Core
                 var proc = this.StartProcess(this.jobRunInfo, workDir);
 
                 this.progressChannel.PublishStatusUpdate(this.jobRunInfo, JobRunStates.Started);
-                //TODO: this.stateService.SetJobRunStartTime(jobRun, DateTime.UtcNow);
 
-                //TODO: Still needed??? this.stateService.SetPidForJobRun(jobRun, proc.Id);
+                //TODO???: Still needed??? this.stateService.SetPidForJobRun(jobRun, proc.Id);
             }
             catch (Exception e)
             {
@@ -139,7 +125,7 @@ namespace Jobbr.Server.ForkedExecution.Core
             Directory.CreateDirectory(workDir);
             Logger.InfoFormat("[{0}] Created Working-Directory '{1}'", jobRun.UniqueId, workDir);
 
-            // TODO??? Do we still need that somewhere else?: this.stateService.UpdateJobRunDirectories(this.jobRun, workDir, tempDir);
+            // TODO???: Do we still need that somewhere else?: this.stateService.UpdateJobRunDirectories(this.jobRun, workDir, tempDir);
             return workDir;
         }
 
@@ -147,64 +133,58 @@ namespace Jobbr.Server.ForkedExecution.Core
         {
             Logger.InfoFormat("[{0}] The Runner with ProcessId '{1}' has ended at '{2}'. ExitCode: '{3}'", this.jobRunInfo.UniqueId, e.ProcInfo.Id, e.ProcInfo.ExitTime, e.ProcInfo.ExitCode);
 
-            var handler = this.Ended;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
+            this.Ended?.Invoke(this, e);
         }
 
         private void ProcOnOutputDataReceived(object sender, DataReceivedEventArgs dataReceivedEventArgs)
         {
-            //string data = dataReceivedEventArgs.Data;
+            string data = dataReceivedEventArgs.Data;
 
-            //if (data == null)
-            //{
-            //    return;
-            //}
+            if (data == null)
+            {
+                return;
+            }
 
-            //var lines = data.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            var lines = data.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-            //foreach (var line in lines)
-            //{
-            //    // Detect ServiceMessage
-            //    if (line.StartsWith("##jobbr"))
-            //    {
-            //        var message = this.serviceMessageParser.Parse(line);
+            foreach (var line in lines)
+            {
+                // Detect ServiceMessage
+                if (line.StartsWith("##jobbr"))
+                {
+                    var message = this.serviceMessageParser.Parse(line);
 
-            //        try
-            //        {
-            //            if (message != null)
-            //            {
-            //                if (this.HandleMessage(message as dynamic))
-            //                {
-            //                    Logger.DebugFormat("[{0}] Handled service-message of type '{1}'. RawValue: '{2}'", this.jobRun.UniqueId, message.GetType().Name, line);
-            //                }
-            //                else
-            //                {
-            //                    // TODO: Implement this type!
-            //                    Logger.WarnFormat("[{0}] Cannot handle messages of type '{1}'. RawValue: '{2}'", this.jobRun.UniqueId, message.GetType().Name, line);
-            //                }
-            //            }
-            //            else
-            //            {
-            //                Logger.WarnFormat("[{0}] Parsing Error while processing service message '{1}'", this.jobRun.UniqueId, line);
-            //            }
-            //        }
-            //        catch (Exception e)
-            //        {
-            //            Logger.ErrorException(string.Format("[{0}] Exception while processing service message '{1}'", this.jobRun.UniqueId, line), e);
-            //        }
-            //    }
-            //}
+                    try
+                    {
+                        if (message != null)
+                        {
+                            if (this.HandleMessage(message as dynamic))
+                            {
+                                Logger.DebugFormat("[{0}] Handled service-message of type '{1}'. RawValue: '{2}'", this.jobRunInfo.UniqueId, message.GetType().Name, line);
+                            }
+                            else
+                            {
+                                // TODO: Implement this type!
+                                Logger.WarnFormat("[{0}] Cannot handle messages of type '{1}'. RawValue: '{2}'", this.jobRunInfo.UniqueId, message.GetType().Name, line);
+                            }
+                        }
+                        else
+                        {
+                            Logger.WarnFormat("[{0}] Parsing Error while processing service message '{1}'", this.jobRunInfo.UniqueId, line);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.ErrorException(string.Format("[{0}] Exception while processing service message '{1}'", this.jobRunInfo.UniqueId, line), e);
+                    }
+                }
+            }
         }
 
-        //private bool HandleMessage(ProgressServiceMessage message)
-        //{
-        //    this.jobRun.Progress = message.Percent;
-        //    this.stateService.UpdateJobRunProgress(this.jobRun.Id, message.Percent);
-
-        //    return true;
-        //}
+        private bool HandleMessage(ProgressServiceMessage message)
+        {
+            this.progressChannel.PublishProgressUpdate(this.jobRunInfo, message.Percent);
+            return true;
+        }
     }
 }

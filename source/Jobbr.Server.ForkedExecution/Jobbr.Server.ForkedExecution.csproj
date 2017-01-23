@@ -83,6 +83,8 @@
     <Compile Include="Core\JobRunEndedEventArgs.cs" />
     <Compile Include="Core\JobRunModificationEventArgs.cs" />
     <Compile Include="Core\JobTriggerEventArgs.cs" />
+    <Compile Include="Core\ServiceMessaging\ServiceMessage.cs" />
+    <Compile Include="Core\ServiceMessaging\ServiceMessageParser.cs" />
     <Compile Include="ForkedExecutionConfiguration.cs" />
     <Compile Include="Core\ForkedJobExecutor.cs" />
     <Compile Include="JobbrBuilderExtensions.cs" />

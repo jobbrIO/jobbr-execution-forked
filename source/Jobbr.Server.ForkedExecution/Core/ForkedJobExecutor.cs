@@ -107,13 +107,14 @@ namespace Jobbr.Server.ForkedExecution.Core
 
             if (hadChanges > 0)
             {
+                // Immediately handle changes
                 this.timer.Change(TimeSpan.FromMilliseconds(0), TimeSpan.FromSeconds(StartNewJobsEverySeconds));
             }
         }
 
         public bool OnJobRunCanceled(Guid uniqueId)
         {
-            return false;
+            throw new NotImplementedException();
         }
 
         private void StartReadyJobsFromQueue(object state)
@@ -140,7 +141,7 @@ namespace Jobbr.Server.ForkedExecution.Core
 
                     try
                     {
-                        Logger.Debug("Getting Metadata for a job that needs to be started.");
+                        Logger.Debug($"Getting Metadata for a job (UniqueId '{jobRun.UniqueId}') that needs to be started.");
                         var jobRunInfo = this.jobRunInformationService.GetByUniqueId(jobRun.UniqueId);
 
                         var wrapper = new JobRunContext(jobRunInfo, this.configuration, this.progressChannel);
