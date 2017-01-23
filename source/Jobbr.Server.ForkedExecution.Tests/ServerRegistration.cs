@@ -19,7 +19,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
-        public void WhenComponentIsRegistered_ServerStarts_EndpointIsAvailable()
+        public void WithInMemoryServer_ServerHasStarted_StatusEndpointIsAvailable()
         {
             var backendAddress = "http://localhost:" + NextFreeTcpPort();
 
@@ -36,6 +36,26 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var statusResponse = new HttpClient().GetAsync(backendAddress + "/fex/status").Result;
 
             Assert.AreEqual(HttpStatusCode.OK, statusResponse.StatusCode);
+        }
+
+        [TestMethod]
+        public void WithInMemoryServer_ServerHasStarted_JobRunInfoEndpointIsAvailable()
+        {
+            var backendAddress = "http://localhost:" + NextFreeTcpPort();
+
+            var builder = new JobbrBuilder();
+            builder.AddForkedExecution(config =>
+            {
+                config.BackendAddress = backendAddress;
+            });
+
+            var server = builder.Create();
+
+            server.Start();
+
+            var statusResponse = new HttpClient().GetAsync(backendAddress + "/fex/jobrun/524868244").Result;
+
+            Assert.AreEqual(HttpStatusCode.NotFound, statusResponse.StatusCode);
         }
     }
 }
