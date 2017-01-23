@@ -1,49 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Jobbr.ComponentModel.Execution.Model;
-using Jobbr.Server.ForkedExecution.Core;
-using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
 {
     [TestClass]
-    public class JobExecutorOnPlanChangedTests
+    public class JobExecutorOnPlanChangedTests : TestBase
     {
-        private readonly FakeGeneratedJobRunsStore jobRunFakeTuples;
-        private readonly JobRunProgressUpdateStore storedProgressUpdates;
-        private readonly JobRunInfoServiceMock jobRunInformationService;
-
-        public JobExecutorOnPlanChangedTests()
-        {
-            this.jobRunFakeTuples = new FakeGeneratedJobRunsStore();
-            this.storedProgressUpdates = new JobRunProgressUpdateStore();
-            this.jobRunInformationService = new JobRunInfoServiceMock(this.jobRunFakeTuples);
-        }
-
-        private static ForkedExecutionConfiguration GivenAMinimalConfiguration()
-        {
-            var forkedExecutionConfiguration = new ForkedExecutionConfiguration()
-            {
-                BackendAddress = "notNeeded",
-                JobRunDirectory = Path.GetTempPath(),
-                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
-
-            };
-
-            return forkedExecutionConfiguration;
-        }
-
-        private ForkedJobExecutor GivenAStartedExecutor(ForkedExecutionConfiguration forkedExecutionConfiguration)
-        {
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, this.storedProgressUpdates, forkedExecutionConfiguration);
-
-            executor.Start();
-
-            return executor;
-        }
-
         [TestMethod]
         public void StartEmpty_GetsNewPlanWithOneJob_ExecutesJob()
         {
