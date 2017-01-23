@@ -136,6 +136,8 @@ namespace Jobbr.Server.ForkedExecution.Core
 
                 foreach (var jobRun in jobsToStart)
                 {
+                    Logger.Debug($"Trying to start job with UniqueId '{jobRun.UniqueId}' which was planned for {jobRun.PlannedStartDateTimeUtc}.");
+
                     try
                     {
                         Logger.Debug("Getting Metadata for a job that needs to be started.");
