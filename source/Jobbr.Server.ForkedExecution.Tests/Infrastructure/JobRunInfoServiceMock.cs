@@ -18,12 +18,12 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public JobRunInfo GetByUniqueId(Guid uniqueId)
         {
-            return this.fakeStore.GetByUniqueUid(uniqueId).JobRunInfo;
+            return this.fakeStore.GetByUniqueUid(uniqueId)?.JobRunInfo;
         }
 
         public JobRunInfo GetByJobRunId(long jobRunId)
         {
-            return this.fakeStore.GetByJobRunId(jobRunId).JobRunInfo;
+            return this.fakeStore.GetByJobRunId(jobRunId)?.JobRunInfo;
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         {
             lock (this.syncRoot)
             {
-                return this.store.Single(e => e.Id == id);
+                return this.store.SingleOrDefault(e => e.Id == id);
             }
         }
 
@@ -58,7 +58,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         {
             lock (this.syncRoot)
             {
-                return this.store.Single(e => e.UniqueId == uniqueId);
+                return this.store.SingleOrDefault(e => e.UniqueId == uniqueId);
             }
         }
     }
