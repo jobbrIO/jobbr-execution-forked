@@ -77,6 +77,9 @@
     <Compile Include="BackChannel\BackChannelWebHost.cs" />
     <Compile Include="BackChannel\DefaultController.cs" />
     <Compile Include="BackChannel\DependencyResolverAdapter.cs" />
+    <Compile Include="BackChannel\ForkedExecutionController.cs" />
+    <Compile Include="BackChannel\Model\JobRunInfoDto.cs" />
+    <Compile Include="BackChannel\Model\JobRunUpdateDto.cs" />
     <Compile Include="BackChannel\Startup.cs" />
     <Compile Include="Core\DefaultJobExecutor.cs" />
     <Compile Include="Core\JobRunContext.cs" />
@@ -104,6 +107,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-runtime\source
