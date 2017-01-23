@@ -20,7 +20,10 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         private readonly Dictionary<Func<Dictionary<Guid, List<JobRunStates>>, bool>, AutoResetEvent> statusUpdateWaitCallBacks = new Dictionary<Func<Dictionary<Guid, List<JobRunStates>>, bool>, AutoResetEvent>();
 
+        private readonly Dictionary<Func<Dictionary<Guid, List<double>>, bool>, AutoResetEvent> progressUpdateWaitCallBacks = new Dictionary<Func<Dictionary<Guid, List<double>>, bool>, AutoResetEvent>();
+
         public Dictionary<Guid, List<JobRunStates>> AllStatusUpdates => this.jobRunStatusUpdates;
+
         public Dictionary<Guid, List<double>> AllProgressUpdates => this.jobRunProgressUpdates;
 
         public Dictionary<Guid, List<string>> AllUploadedArtefacts => this.jobRunArtefactUploads;
@@ -72,6 +75,28 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
             var successful = are.WaitOne(millisecondsTimeout, false);
             this.statusUpdateWaitCallBacks.Remove(allUpdates);
+
+            return successful;
+        }
+
+        public bool WaitForProgressUpdate(Func<Dictionary<Guid, List<double>>, bool> allUpdates, int millisecondsTimeout)
+        {
+            try
+            {
+                var alreadyTrue = allUpdates(this.jobRunProgressUpdates);
+                if (alreadyTrue)
+                {
+                    return true;
+                }
+            }
+            catch { }
+
+            var are = new AutoResetEvent(false);
+
+            this.progressUpdateWaitCallBacks.Add(allUpdates, are);
+
+            var successful = are.WaitOne(millisecondsTimeout, false);
+            this.progressUpdateWaitCallBacks.Remove(allUpdates);
 
             return successful;
         }
