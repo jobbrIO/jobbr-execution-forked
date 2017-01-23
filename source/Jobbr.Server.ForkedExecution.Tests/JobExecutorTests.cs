@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.Core;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
@@ -85,6 +86,65 @@ namespace Jobbr.Server.ForkedExecution.Tests
             Assert.AreEqual(JobRunStates.Started, allStatesForJob1[1], "The last state of job1 should be 'Started'");
             Assert.AreEqual(JobRunStates.Started, allStatesForJob2[1], "The last state of job2 should be 'Started'");
             Assert.AreEqual(JobRunStates.Started, allStatesForJob3[1], "The last state of job3 should be 'Started'");
+        }
+
+        [TestMethod]
+        public void ContainsAItemInPlan_GetsAdditional_ExecutesMultipleJobs()
+        {
+            // Setup
+            var forkedExecutionConfiguration = new ForkedExecutionConfiguration()
+            {
+                BackendAddress = "any",
+                JobRunDirectory = Path.GetTempPath(),
+                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
+            };
+
+            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
+
+            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
+
+            // Act
+            executor.Start();
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun2.PlannedJobRun }));
+
+            // Wait
+            var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(kvp => kvp.Value).Count() == 2, 3000);
+
+            // Test
+            Assert.IsTrue(didStart2Jobs, "There should be two jobs that have been started");
+        }
+
+        [TestMethod]
+        public void ContainsAItemInPlan_DifferentList_ExecutesOnlySecondJob()
+        {
+            // Setup
+            var forkedExecutionConfiguration = new ForkedExecutionConfiguration()
+            {
+                BackendAddress = "any",
+                JobRunDirectory = Path.GetTempPath(),
+                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
+
+                // Manual limit so that we minimize the concurrency of multiple jobs
+                MaxConcurrentJobs = 1
+            };
+
+            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
+
+            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
+            executor.Start();
+
+            // Act
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun2.PlannedJobRun }));
+
+            // Wait
+            var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(kvp => kvp.Value).Count() == 2, 3000);
+
+            // Test
+            Assert.IsTrue(didStart2Jobs, "There should be two jobs that have been started");
         }
 
         [TestMethod]
