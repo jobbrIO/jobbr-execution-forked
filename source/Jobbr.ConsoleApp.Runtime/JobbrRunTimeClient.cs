@@ -34,7 +34,7 @@ namespace Jobbr.Runtime
             this.jobRunId = jobRunId;
 
             this.httpClient = new HttpClient();
-            this.httpClient.BaseAddress = new Uri(jobServer + (jobServer.EndsWith("/") ? string.Empty : "/") + "client/");
+            this.httpClient.BaseAddress = new Uri(jobServer + (jobServer.EndsWith("/") ? string.Empty : "/") + "fex/");
         }
 
         public bool PublishState(JobRunState state)
