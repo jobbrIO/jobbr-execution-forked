@@ -64,7 +64,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             var hostingStarter = services.GetService<IHostingStarter>();
             this.webHost = hostingStarter.Start(options);
 
-            Logger.InfoFormat($"Started OWIN-Host for WebAPI at '{this.configuration.BackendAddress}'.");
+            Logger.InfoFormat($"Started OWIN-Host for Backchannel at '{this.configuration.BackendAddress}'.");
             this.BackendAddress = this.configuration.BackendAddress;
 
         }
