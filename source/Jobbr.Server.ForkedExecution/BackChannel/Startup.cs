@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Web.Http;
+using System.Web.Http.ExceptionHandling;
 using Jobbr.ComponentModel.Registration;
+using Jobbr.Server.ForkedExecution.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Owin;
@@ -14,6 +16,8 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// The dependency resolver from the JobbrServer which needs to be passed through the OWIN stack to WebAPI
         /// </summary>
         private readonly IJobbrServiceProvider dependencyResolver;
+
+        private static readonly ILog Logger = LogProvider.For<Startup>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup"/> class.
@@ -38,8 +42,8 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             // Set the resolved to the service provider that gets injected when constructing this component
             config.DependencyResolver = new DependencyResolverAdapter(this.dependencyResolver);
 
-            // TODO: Add trace logger for exceptions
-            // config.Services.Add(typeof(IExceptionLogger), new TraceSourceExceptionLogger(Logger));
+            // Add trace logger for exceptions
+            config.Services.Add(typeof(IExceptionLogger), new TraceSourceExceptionLogger(Logger));
 
             // Controllers all have attributes
             config.MapHttpAttributeRoutes();
