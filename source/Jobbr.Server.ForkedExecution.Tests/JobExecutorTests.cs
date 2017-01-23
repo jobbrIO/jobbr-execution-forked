@@ -33,11 +33,11 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe"
             };
 
-            var fakeJobRun = this.jobRunFakeTuples.CreateFakeJobRun();
             var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
+            executor.Start();
 
             // Act
-            executor.Start();
+            var fakeJobRun = this.jobRunFakeTuples.CreateFakeJobRun();
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeJobRun.PlannedJobRun, }));
 
             // Wait
@@ -61,14 +61,14 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
             };
 
+            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
+            executor.Start();
+
+            // Act: create jobruns & send plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
             var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
             var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun();
 
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
-
-            // Act
-            executor.Start();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Wait
@@ -99,14 +99,16 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
             };
 
+            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
+            executor.Start();
+
+            // Act: Create & send First Plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
             var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
 
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
-
-            // Act
-            executor.Start();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
+            
+            // Act: Second Plan
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun2.PlannedJobRun }));
 
             // Wait
@@ -130,14 +132,16 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 MaxConcurrentJobs = 1
             };
 
-            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
-            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
-
             var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
             executor.Start();
 
-            // Act
+            // Act: Create & send first plan
+            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
+
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
+
+            // Act: Send second plan
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun2.PlannedJobRun }));
 
             // Wait
@@ -161,19 +165,23 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 MaxConcurrentJobs = 2
             };
 
+            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
+            executor.Start();
+
+            // Act 1: Create & Send only first plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
             var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
             var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun();
 
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
-            // Act
-            executor.Start();
+            // Act 2: Send updated plan
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Wait
             this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeJobRun1.UniqueId].Count + allUpdates[fakeJobRun2.UniqueId].Count == 4, 3000);
 
+            // Test
             Assert.IsFalse(this.storedProgressUpdates.AllStatusUpdates.ContainsKey(fakeJobRun3.UniqueId), "There should be no updates for the third job");
         }
     }
