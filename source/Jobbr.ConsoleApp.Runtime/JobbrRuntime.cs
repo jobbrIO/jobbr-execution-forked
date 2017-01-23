@@ -149,7 +149,7 @@ namespace Jobbr.Runtime
             {
                 this.client.PublishState(JobRunState.Collecting);
 
-                var allFiles = Directory.GetFiles(this.jobInfo.WorkingDir);
+                var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
 
                 this.client.SendFiles(allFiles);
             }
