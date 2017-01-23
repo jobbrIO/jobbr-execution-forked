@@ -40,9 +40,11 @@ namespace Jobbr.Runtime
         public bool PublishState(JobRunState state)
         {
             var url = string.Format("jobRun/{0}", this.jobRunId);
-            var content = new JobRunUpdateDto { State = state };
+            var content = new JobRunUpdateDto { State = state.ToString() };
 
-            var request = this.httpClient.PutAsync(url, new StringContent(JsonConvert.SerializeObject(content), Encoding.UTF8, "application/json"));
+            var serializeObject = JsonConvert.SerializeObject(content);
+
+            var request = this.httpClient.PutAsync(url, new StringContent(serializeObject, Encoding.UTF8, "application/json"));
             var result = request.Result;
 
             return result.StatusCode == HttpStatusCode.Accepted;

@@ -4,6 +4,6 @@ namespace Jobbr.Shared
 {
     public class JobRunUpdateDto
     {
-        public JobRunState State { get; set; }
+        public string State { get; set; }
     }
 }
