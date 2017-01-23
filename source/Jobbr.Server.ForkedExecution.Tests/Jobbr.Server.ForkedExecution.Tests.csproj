@@ -66,7 +66,7 @@
   <ItemGroup>
     <Compile Include="Infrastructure\FakeJobRunStoreTuple.cs" />
     <Compile Include="Infrastructure\FakeGeneratedJobRunsStore.cs" />
-    <Compile Include="JobExecutorTests.cs" />
+    <Compile Include="JobExecutorOnPlanChangedTests.cs" />
     <Compile Include="Infrastructure\JobRunInfoServiceMock.cs" />
     <Compile Include="Infrastructure\JobRunProgressUpdateStore.cs" />
     <Compile Include="ServerRegistration.cs" />

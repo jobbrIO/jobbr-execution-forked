@@ -9,13 +9,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Jobbr.Server.ForkedExecution.Tests
 {
     [TestClass]
-    public class JobExecutorTests
+    public class JobExecutorOnPlanChangedTests
     {
         private readonly FakeGeneratedJobRunsStore jobRunFakeTuples;
         private readonly JobRunProgressUpdateStore storedProgressUpdates;
         private readonly JobRunInfoServiceMock jobRunInformationService;
 
-        public JobExecutorTests()
+        public JobExecutorOnPlanChangedTests()
         {
             this.jobRunFakeTuples = new FakeGeneratedJobRunsStore();
             this.storedProgressUpdates = new JobRunProgressUpdateStore();
@@ -31,7 +31,17 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
 
             };
+
             return forkedExecutionConfiguration;
+        }
+
+        private ForkedJobExecutor GivenAStartedExecutor(ForkedExecutionConfiguration forkedExecutionConfiguration)
+        {
+            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
+
+            executor.Start();
+
+            return executor;
         }
 
         [TestMethod]
@@ -53,15 +63,6 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             Assert.AreEqual(2, allStatesForJob.Count, "There should be two transitions instead of a timeout");
             Assert.AreEqual(JobRunStates.Started, allStatesForJob[1], "The last state should be 'Started' even if the process has exited sucesfully because the runtime needs to set the 'Complete'-State");
-        }
-
-        private ForkedJobExecutor GivenAStartedExecutor(ForkedExecutionConfiguration forkedExecutionConfiguration)
-        {
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, forkedExecutionConfiguration, this.storedProgressUpdates);
-
-            executor.Start();
-
-            return executor;
         }
 
         [TestMethod]
