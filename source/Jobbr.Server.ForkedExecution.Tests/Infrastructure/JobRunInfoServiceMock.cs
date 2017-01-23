@@ -20,5 +20,10 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         {
             return this.fakeStore.GetByUniqueUid(uniqueId).JobRunInfo;
         }
+
+        public JobRunInfo GetByJobRunId(long jobRunId)
+        {
+            return this.fakeStore.GetByJobRunId(jobRunId).JobRunInfo;
+        }
     }
 }

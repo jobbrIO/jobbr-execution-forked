@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
@@ -78,6 +79,11 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             }
 
             this.jobRunProgressUpdates[jobRunInfo.UniqueId].Add(progress);
+        }
+
+        public void PublicArtefact(Guid uniqueId, string fileName, Stream result)
+        {
+            
         }
     }
 }
