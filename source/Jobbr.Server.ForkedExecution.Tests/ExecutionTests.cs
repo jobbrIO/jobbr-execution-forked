@@ -101,6 +101,27 @@ namespace Jobbr.Server.ForkedExecution.Tests
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
             Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.UniqueId].Contains(JobRunStates.Completed), "There should be a completed state for this jobRun");
         }
+        [TestMethod]
+        public void RunnerExecutable_JobWithProgress_SendsPogress()
+        {
+            // Setup
+            var config = GivenAMinimalConfiguration();
+            config.JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestRunner.exe";
+
+            this.GivenAStartedBackChannelHost(config);
+            var executor = this.GivenAStartedExecutor(config);
+
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun();
+            fakeRun.JobRunInfo.Type = "JobWithOneProgress";
+
+            // Act
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
+
+            // Test
+            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Completed), 3000);
+
+            Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
+            Assert.AreEqual(1, this.storedProgressUpdates.AllProgressUpdates[fakeRun.UniqueId].Count, "There should be exact one progress update!");
         }
     }
 }

@@ -16,9 +16,14 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         private readonly Dictionary<Guid, List<double>> jobRunProgressUpdates = new Dictionary<Guid, List<double>>();
 
+        private readonly Dictionary<Guid, List<string>> jobRunArtefactUploads = new Dictionary<Guid, List<string>>();
+
         private readonly Dictionary<Func<Dictionary<Guid, List<JobRunStates>>, bool>, AutoResetEvent> statusUpdateWaitCallBacks = new Dictionary<Func<Dictionary<Guid, List<JobRunStates>>, bool>, AutoResetEvent>();
 
         public Dictionary<Guid, List<JobRunStates>> AllStatusUpdates => this.jobRunStatusUpdates;
+        public Dictionary<Guid, List<double>> AllProgressUpdates => this.jobRunProgressUpdates;
+
+        public Dictionary<Guid, List<string>> AllUploadedArtefacts => this.jobRunArtefactUploads;
 
         public void PublishStatusUpdate(JobRunInfo jobRunInfo, JobRunStates state)
         {
