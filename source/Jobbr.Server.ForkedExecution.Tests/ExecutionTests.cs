@@ -29,8 +29,30 @@ namespace Jobbr.Server.ForkedExecution.Tests
             Assert.AreEqual(HttpStatusCode.NotFound, statusResponse.StatusCode);
         }
 
+        [TestMethod]
         public void PlannedJob_AfterStart_WillCallback()
         {
+            // Setup
+            var config = GivenAMinimalConfiguration();
+            config.JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestRunner.exe";
+
+            this.GivenAStartedBackChannelHost(config);
+            var executor = this.GivenAStartedExecutor(config);
+
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun();
+
+            // Act
+            executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeRun.PlannedJobRun }));
+
+            // Test
+            var hasConnected = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Connected), 1000);
+
+            Assert.IsTrue(hasConnected, "The runner executable should connect within 3s");
+
+            // Tearddown: Wait for Failing or Completed state to that the executable is able to exit
+            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Failed) || allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Completed), 10000);
+        }
+
         }
     }
 }
