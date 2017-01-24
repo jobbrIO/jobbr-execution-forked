@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -42,7 +43,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.GivenAStartedBackChannelHost(config);
             var executor = this.GivenAStartedExecutor(config);
 
-            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
             // Act
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeRun.PlannedJobRun }));
@@ -66,7 +67,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.GivenAStartedBackChannelHost(config);
             var executor = this.GivenAStartedExecutor(config);
 
-            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "NotExistentClrType";
 
             // Act
@@ -89,7 +90,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.GivenAStartedBackChannelHost(config);
             var executor = this.GivenAStartedExecutor(config);
 
-            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "SimpleJob";
 
             // Act
@@ -112,7 +113,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.GivenAStartedBackChannelHost(config);
             var executor = this.GivenAStartedExecutor(config);
 
-            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "JobWithArtefacts";
 
             // Act
@@ -135,7 +136,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.GivenAStartedBackChannelHost(config);
             var executor = this.GivenAStartedExecutor(config);
 
-            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "JobWithOneProgress";
 
             // Act

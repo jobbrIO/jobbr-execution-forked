@@ -90,6 +90,19 @@ namespace Jobbr.Server.ForkedExecution.Core
 
                 Logger.InfoFormat("Got a plan with {0} scheduled JobRuns with an upcoming startdate", newPlan.Count);
 
+                // Update startdates of existing
+                foreach (var plannedJobRun in newPlan)
+                {
+                    var existing = this.plannedJobRuns.SingleOrDefault(e => e.UniqueId == plannedJobRun.UniqueId);
+
+                    if (existing != null && existing.PlannedStartDateTimeUtc != plannedJobRun.PlannedStartDateTimeUtc)
+                    {
+                        existing.PlannedStartDateTimeUtc = plannedJobRun.PlannedStartDateTimeUtc;
+                        hadChanges++;
+                        Logger.Info($"Changed startdate of jobrun '{existing.UniqueId}' to '{plannedJobRun.PlannedStartDateTimeUtc}'");
+                    }
+                }
+                
                 // Add only new
                 var toAdd = newPlan.Where(newItem => this.plannedJobRuns.All(existingItem => existingItem.UniqueId != newItem.UniqueId)).ToList();
                 this.plannedJobRuns.AddRange(toAdd);
@@ -101,9 +114,6 @@ namespace Jobbr.Server.ForkedExecution.Core
                 var toRemove = this.plannedJobRuns.Where(existingItem => newPlan.All(newItem => existingItem.UniqueId != newItem.UniqueId)).ToList();
                 this.plannedJobRuns.RemoveAll(p => toRemove.Contains(p));
                 hadChanges += toRemove.Count;
-
-                // Update startdates of existing
-                // TODO
 
                 Logger.InfoFormat("Removed {0} previously planned jobruns.", toRemove.Count);
             }

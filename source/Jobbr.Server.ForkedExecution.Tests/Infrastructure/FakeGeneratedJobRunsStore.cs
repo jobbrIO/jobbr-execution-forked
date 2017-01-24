@@ -11,7 +11,12 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         private readonly object syncRoot = new object();
 
-        public FakeJobRunStoreTuple CreateFakeJobRun()
+        internal FakeJobRunStoreTuple CreateFakeJobRun()
+        {
+            return this.CreateFakeJobRun(DateTime.UtcNow);
+        }
+
+        public FakeJobRunStoreTuple CreateFakeJobRun(DateTime plannedStartDateTimeUtc)
         {
             long id;
             lock (this.syncRoot)
@@ -26,7 +31,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
                 UniqueId = uniqueId,
                 PlannedJobRun = new PlannedJobRun
                 {
-                    PlannedStartDateTimeUtc = DateTime.UtcNow,
+                    PlannedStartDateTimeUtc = plannedStartDateTimeUtc,
                     UniqueId = uniqueId
                 },
                 JobRunInfo = new JobRunInfo()

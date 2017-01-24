@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Jobbr.ComponentModel.Execution.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,7 +17,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act
-            var fakeJobRun = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeJobRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeJobRun.PlannedJobRun, }));
 
             // Wait
@@ -37,9 +38,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act: create jobruns & send plan
-            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
-            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
-            var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
@@ -68,8 +69,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act: Create & send First Plan
-            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
-            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
             
@@ -92,8 +93,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act: Create & send first plan
-            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
-            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
 
@@ -108,6 +109,30 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
+        public void StartdateInFuture_GetsChangedToNow_ShouldExecute()
+        {
+            // Setup
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+            forkedExecutionConfiguration.MaxConcurrentJobs = 1;
+            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
+
+            // Act: Create & send first plan
+            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow.AddDays(1));
+
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
+
+            // Act: Send second plan
+            var updatedJobRun1 = new PlannedJobRun() { UniqueId = fakeJobRun1.UniqueId, PlannedStartDateTimeUtc = DateTime.UtcNow };
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { updatedJobRun1 }));
+
+            // Wait
+            var didStartJob = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(kvp => kvp.Value).Count() == 2, 3000);
+
+            // Test
+            Assert.IsTrue(didStartJob, "A job should have been started.");
+        }
+
+        [TestMethod]
         public void LimitTo2Jobs_GetsNewPlanWith3Jobs_ExecutesMaxConfiguredJobs()
         {
             // Setup
@@ -118,9 +143,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act 1: Create & Send only first plan
-            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun();
-            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun();
-            var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun();
+            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
