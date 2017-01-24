@@ -76,7 +76,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="ExecutionTests.cs" />
+    <Compile Include="ExecutorRuntimeIntegrationTests.cs" />
     <Compile Include="Infrastructure\FakeJobRunStoreTuple.cs" />
     <Compile Include="Infrastructure\FakeGeneratedJobRunsStore.cs" />
     <Compile Include="Infrastructure\JobbrServiceProviderMock.cs" />
