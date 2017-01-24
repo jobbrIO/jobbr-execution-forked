@@ -50,7 +50,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Test
             var hasConnected = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Connected), 1000);
 
-            Assert.IsTrue(hasConnected, "The runner executable should connect within 3s");
+            Assert.IsTrue(hasConnected, "The runner executable should connect within 1s");
 
             // Tearddown: Wait for Failing or Completed state to that the executable is able to exit
             this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Failed) || allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Completed), 10000);
