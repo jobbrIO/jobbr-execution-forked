@@ -102,6 +102,9 @@ namespace Jobbr.Server.ForkedExecution.Core
                 this.plannedJobRuns.RemoveAll(p => toRemove.Contains(p));
                 hadChanges += toRemove.Count;
 
+                // Update startdates of existing
+                // TODO
+
                 Logger.InfoFormat("Removed {0} previously planned jobruns.", toRemove.Count);
             }
 
