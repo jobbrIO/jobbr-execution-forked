@@ -23,8 +23,6 @@ namespace Jobbr.Server.ForkedExecution.Core
 
         private readonly ServiceMessageParser serviceMessageParser;
 
-        public event EventHandler<JobRunEndedEventArgs> Ended;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="JobRunContext"/> class.
         /// </summary>
@@ -37,6 +35,8 @@ namespace Jobbr.Server.ForkedExecution.Core
             this.serviceMessageParser = new ServiceMessageParser();
         }
 
+        public event EventHandler<JobRunEndedEventArgs> Ended;
+
         public void Start()
         {
             Logger.InfoFormat("[{0}] A new JobRunContext is starting for JobRun with id: '{1}'. (JobId: '{2}', TriggerId: '{3}'", this.jobRunInfo.UniqueId, this.jobRunInfo.Id, this.jobRunInfo.JobId, this.jobRunInfo.TriggerId);
@@ -45,19 +45,26 @@ namespace Jobbr.Server.ForkedExecution.Core
             {
                 var workDir = this.SetupDirectories(this.jobRunInfo);
 
-                var proc = this.StartProcess(this.jobRunInfo, workDir);
+                this.StartProcess(this.jobRunInfo, workDir);
 
                 this.progressChannel.PublishStatusUpdate(this.jobRunInfo, JobRunStates.Started);
 
-                //TODO: Discuss if this information is still needed??? this.stateService.SetPidForJobRun(jobRun, proc.Id);
+                // TODO: Discuss if this information is still needed??? this.stateService.SetPidForJobRun(jobRun, proc.Id);
             }
             catch (Exception e)
             {
-                Logger.ErrorException(string.Format("[{0}] Exception thrown while starting JobRun with id: '{1}'. (JobId: '{2}', TriggerId: '{3}'", this.jobRunInfo.UniqueId, this.jobRunInfo.Id, this.jobRunInfo.JobId, this.jobRunInfo.TriggerId), e);
+                Logger.ErrorException($"[{this.jobRunInfo.UniqueId}] Exception thrown while starting JobRun with id: '{this.jobRunInfo.Id}'. (JobId: '{this.jobRunInfo.JobId}', TriggerId: '{this.jobRunInfo.TriggerId}'", e);
             }
         }
 
-        private Process StartProcess(JobRunInfo jobRun, string workDir)
+        protected virtual void OnEnded(JobRunEndedEventArgs e)
+        {
+            Logger.InfoFormat("[{0}] The Runner with ProcessId '{1}' has ended at '{2}'. ExitCode: '{3}'", this.jobRunInfo.UniqueId, e.ProcInfo.Id, e.ProcInfo.ExitTime, e.ProcInfo.ExitCode);
+
+            this.Ended?.Invoke(this, e);
+        }
+
+        private void StartProcess(JobRunInfo jobRun, string workDir)
         {
             var runnerFileExe = Path.GetFullPath(this.configuration.JobRunnerExeResolver());
             Logger.InfoFormat("[{0}] Preparing to start the runner from '{1}' in '{2}'", jobRun.UniqueId, runnerFileExe, workDir);
@@ -106,7 +113,6 @@ namespace Jobbr.Server.ForkedExecution.Core
             Logger.InfoFormat("[{0}] Started Runner with ProcessId '{1}' at '{2}'", jobRun.UniqueId, proc.Id, proc.StartTime);
 
             proc.BeginOutputReadLine();
-            return proc;
         }
 
         private string SetupDirectories(JobRunInfo jobRun)
@@ -127,13 +133,6 @@ namespace Jobbr.Server.ForkedExecution.Core
 
             // TODO???: Do we still need that somewhere else?: this.stateService.UpdateJobRunDirectories(this.jobRun, workDir, tempDir);
             return workDir;
-        }
-
-        protected virtual void OnEnded(JobRunEndedEventArgs e)
-        {
-            Logger.InfoFormat("[{0}] The Runner with ProcessId '{1}' has ended at '{2}'. ExitCode: '{3}'", this.jobRunInfo.UniqueId, e.ProcInfo.Id, e.ProcInfo.ExitTime, e.ProcInfo.ExitCode);
-
-            this.Ended?.Invoke(this, e);
         }
 
         private void ProcOnOutputDataReceived(object sender, DataReceivedEventArgs dataReceivedEventArgs)

@@ -6,20 +6,11 @@ using Jobbr.Server.ForkedExecution.Logging;
 
 namespace Jobbr.Server.ForkedExecution
 {
-    public class ConfigurationValidator: IConfigurationValidator
+    public class ConfigurationValidator : IConfigurationValidator
     {
         private static readonly ILog Logger = LogProvider.For<ConfigurationValidator>();
 
         public Type ConfigurationType { get; set; } = typeof(ForkedExecutionConfiguration);
-
-        private static int NextFreeTcpPort()
-        {
-            var l = new TcpListener(IPAddress.Loopback, 0);
-            l.Start();
-            var port = ((IPEndPoint)l.LocalEndpoint).Port;
-            l.Stop();
-            return port;
-        }
 
         public bool Validate(object configuration)
         {
@@ -52,14 +43,23 @@ namespace Jobbr.Server.ForkedExecution
 
             // TODO: Move this check to forked executor
             // TODO: Discuss why this check was commented out.
-            //var executableFullPath = Path.GetFullPath(this.configuration.JobRunnerExeResolver());
+            ////var executableFullPath = Path.GetFullPath(this.configuration.JobRunnerExeResolver());
 
-            //if (!File.Exists(executableFullPath))
-            //{
-            //    throw new ArgumentException(string.Format("The RunnerExecutable '{0}' cannot be found!", executableFullPath));
-            //}
+            ////if (!File.Exists(executableFullPath))
+            ////{
+            ////    throw new ArgumentException(string.Format("The RunnerExecutable '{0}' cannot be found!", executableFullPath));
+            ////}
 
             return true;
+        }
+
+        private static int NextFreeTcpPort()
+        {
+            var l = new TcpListener(IPAddress.Loopback, 0);
+            l.Start();
+            var port = ((IPEndPoint)l.LocalEndpoint).Port;
+            l.Stop();
+            return port;
         }
     }
 }

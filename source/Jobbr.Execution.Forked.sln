@@ -37,6 +37,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Server.ForkedExecutio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Server.ForkedExecution.TestRunner", "Jobbr.Server.ForkedExecution.TestRunner\Jobbr.Server.ForkedExecution.TestRunner.csproj", "{1D9A0A7D-0752-4A66-B3EF-7FC33E4AA1B6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFiles", "{4336F7A8-CD00-4EAF-9E57-BBDF06961131}"
+	ProjectSection(SolutionItems) = preProject
+		JobbrRuleSet.ruleset = JobbrRuleSet.ruleset
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

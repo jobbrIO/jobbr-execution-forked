@@ -14,7 +14,7 @@ namespace Jobbr.Server.ForkedExecution.Core
     {
         private static readonly ILog Logger = LogProvider.For<ForkedJobExecutor>();
 
-        private static long MaxWebHostStartWait = 2000;
+        private static readonly long MaxWebHostStartWait = 2000;
 
         private static readonly int StartNewJobsEverySeconds = 1;
 
@@ -24,11 +24,10 @@ namespace Jobbr.Server.ForkedExecution.Core
 
         private readonly List<PlannedJobRun> plannedJobRuns = new List<PlannedJobRun>();
 
-        private List<JobRunContext> activeContexts = new List<JobRunContext>();
+        private readonly List<JobRunContext> activeContexts = new List<JobRunContext>();
 
         private readonly Timer timer;
         private readonly object syncRoot = new object();
-
 
         public ForkedJobExecutor(IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel, ForkedExecutionConfiguration configuration)
         {
@@ -41,11 +40,11 @@ namespace Jobbr.Server.ForkedExecution.Core
 
         public void Dispose()
         {
-            
         }
 
         public void Start()
         {
+            // ReSharper disable once InconsistentlySynchronizedField
             Logger.Debug($"Starting ForkedJobExecutor asynchonously...");
             var duration = new Stopwatch();
             duration.Start();
@@ -64,8 +63,10 @@ namespace Jobbr.Server.ForkedExecution.Core
                     throw new Exception("Unable to information about the BackChannel Connection readyness. Executor will be in unhealthy state");
                 }
 
+                // ReSharper disable once InconsistentlySynchronizedField
                 Logger.Debug($"ForkedJobExecutor started. Backchannel will be available @ '{this.configuration.BackendAddress}'");
 
+                // ReSharper disable once InconsistentlySynchronizedField
                 Logger.InfoFormat("Enabling periodic check for JobRuns to start every {0}s", StartNewJobsEverySeconds);
                 this.timer.Change(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(StartNewJobsEverySeconds));
             });
@@ -102,7 +103,7 @@ namespace Jobbr.Server.ForkedExecution.Core
                         Logger.Info($"Changed startdate of jobrun '{existing.UniqueId}' to '{plannedJobRun.PlannedStartDateTimeUtc}'");
                     }
                 }
-                
+
                 // Add only new
                 var toAdd = newPlan.Where(newItem => this.plannedJobRuns.All(existingItem => existingItem.UniqueId != newItem.UniqueId)).ToList();
                 this.plannedJobRuns.AddRange(toAdd);
@@ -166,7 +167,7 @@ namespace Jobbr.Server.ForkedExecution.Core
                     }
                     catch (Exception e)
                     {
-                        Logger.ErrorException(string.Format("Exception was thrown while starting a new JobRun with UniqueId: {0}.", jobRun.UniqueId), e);
+                        Logger.ErrorException($"Exception was thrown while starting a new JobRun with UniqueId: {jobRun.UniqueId}.", e);
                     }
                 }
             }
@@ -174,12 +175,16 @@ namespace Jobbr.Server.ForkedExecution.Core
 
         private void ContextOnEnded(object sender, JobRunEndedEventArgs args)
         {
+            var jobRunContext = sender as JobRunContext;
+            if (jobRunContext == null)
+            {
+                return;
+            }
+
             JobRunInfo run;
 
             lock (this.syncRoot)
             {
-                var jobRunContext = sender as JobRunContext;
-
                 jobRunContext.Ended -= this.ContextOnEnded;
 
                 run = args.JobRun;
@@ -210,20 +215,22 @@ namespace Jobbr.Server.ForkedExecution.Core
                     Logger.ErrorException(string.Format("Exception while setting the 'Failed'-State to the jobRun with id: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId), e);
                 }
             }
-            else
-            {
-                //if (args.JobRun.Progress > 0)
-                //{
-                //    try
-                //    {
-                //        // TODO: this.stateService.UpdateJobRunProgress(args.JobRun.Id, 100);
-                //    }
-                //    catch (Exception e)
-                //    {
-                //        Logger.ErrorException(string.Format("Exception while setting progress to 100% after completion of the jobRun with id: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId), e);
-                //    }
-                //}
-            }
+
+            ////else
+            ////{
+                // TODO: Validate of this is still needed? Was that a race-condition
+                ////if (args.JobRun.Progress > 0)
+                ////{
+                ////    try
+                ////    {
+                ////        // TODO: this.stateService.UpdateJobRunProgress(args.JobRun.Id, 100);
+                ////    }
+                ////    catch (Exception e)
+                ////    {
+                ////        Logger.ErrorException(string.Format("Exception while setting progress to 100% after completion of the jobRun with id: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId), e);
+                ////    }
+                ////}
+            ////}
         }
     }
 }
