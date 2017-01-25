@@ -9,7 +9,6 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
     {
         private readonly IJobbrServiceProvider serviceProvider;
 
-
         public DependencyResolverAdapter(IJobbrServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;

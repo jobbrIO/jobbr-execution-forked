@@ -12,12 +12,12 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 {
     internal class Startup
     {
+        private static readonly ILog Logger = LogProvider.For<Startup>();
+
         /// <summary>
         /// The dependency resolver from the JobbrServer which needs to be passed through the OWIN stack to WebAPI
         /// </summary>
         private readonly IJobbrServiceProvider dependencyResolver;
-
-        private static readonly ILog Logger = LogProvider.For<Startup>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup"/> class.
@@ -29,7 +29,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         {
             if (serviceProvider == null)
             {
-                throw new ArgumentException("Please provide a service provider. See http://servercoredump.com/question/27246240/inject-current-user-owin-host-web-api-service for details", "serviceProvider");
+                throw new ArgumentException("Please provide a service provider. See http://servercoredump.com/question/27246240/inject-current-user-owin-host-web-api-service for details", nameof(serviceProvider));
             }
 
             this.dependencyResolver = serviceProvider;
