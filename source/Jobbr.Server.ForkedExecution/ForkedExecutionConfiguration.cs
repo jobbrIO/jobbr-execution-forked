@@ -15,7 +15,9 @@ namespace Jobbr.Server.ForkedExecution
 
         public bool IsRuntimeWaitingForDebugger { get; set; }
 
+        /// <summary>
+        /// Callback to add custom parameters to jobrunner
+        /// </summary>
         public Func<string, string, IEnumerable<KeyValuePair<string, string>>> CustomJobRunnerParameters { get; set; }
-
     }
 }
