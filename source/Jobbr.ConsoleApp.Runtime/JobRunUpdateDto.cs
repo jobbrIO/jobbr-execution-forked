@@ -1,6 +1,4 @@
-﻿using Jobbr.Runtime;
-
-namespace Jobbr.Shared
+﻿namespace Jobbr.ConsoleApp.Runtime
 {
     public class JobRunUpdateDto
     {

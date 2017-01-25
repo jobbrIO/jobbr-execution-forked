@@ -5,20 +5,16 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-
 using CommandLine;
-
 using Jobbr.Runtime.Logging;
-using Jobbr.Shared;
-
 using Newtonsoft.Json;
 
-namespace Jobbr.Runtime
+namespace Jobbr.ConsoleApp.Runtime
 {
     /// <summary>
     /// The jobbr runtime.
     /// </summary>
-    public class JobbrRuntime
+    public class JobbrRuntime : IDisposable
     {
         private static readonly ILog Logger = LogProvider.For<JobbrRuntime>();
         
@@ -162,7 +158,7 @@ namespace Jobbr.Runtime
                 return;
             }
 
-            var runMethods = this.jobInstance.GetType().GetMethods().Where(m => m.Name == "Run" && m.IsPublic).ToList();
+            var runMethods = this.jobInstance.GetType().GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
 
             this.cancellationTokenSource = new CancellationTokenSource();
 
@@ -328,7 +324,7 @@ namespace Jobbr.Runtime
                 Logger.DebugFormat("Still no luck finding '{0}' somewhere. Iterating through all types and comparing class-names. Please hold on", typeName);
 
                 // Absolutely no clue
-                var matchingTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => x.Name == typeName && x.IsClass && !x.IsAbstract).ToList();
+                var matchingTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => string.Equals(x.Name, typeName, StringComparison.Ordinal) && x.IsClass && !x.IsAbstract).ToList();
 
                 if (matchingTypes.Count() == 1)
                 {
@@ -389,6 +385,11 @@ namespace Jobbr.Runtime
         {
             this.commandlineOptions = new CommandlineOptions();
             Parser.Default.ParseArguments(args, this.commandlineOptions);
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
         }
     }
 

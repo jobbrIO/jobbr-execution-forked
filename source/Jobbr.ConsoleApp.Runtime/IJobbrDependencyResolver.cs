@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Jobbr.Shared
+namespace Jobbr.ConsoleApp.Runtime
 {
     /// <summary>
     /// Represents an interface for the range of the dependencies.

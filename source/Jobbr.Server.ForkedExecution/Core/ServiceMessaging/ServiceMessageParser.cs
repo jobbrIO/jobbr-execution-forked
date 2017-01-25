@@ -28,13 +28,13 @@ namespace Jobbr.Server.ForkedExecution.Core.ServiceMessaging
             // Identity CLR-MessageType
             var typeNameLowerCase = messageTypeRaw + "servicemessage";
             var messageTypes = typeof(ServiceMessage).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(ServiceMessage)));
-            var type = messageTypes.FirstOrDefault(t => t.Name.ToLowerInvariant() == typeNameLowerCase);
+            var type = messageTypes.FirstOrDefault(t => string.Equals(t.Name.ToLowerInvariant(), typeNameLowerCase, StringComparison.Ordinal));
 
             // Identity Parameters
-            var splitted = parametersRaw.Split(new char[] { '\'', '=' }, StringSplitOptions.RemoveEmptyEntries);
+            var splitted = parametersRaw.Split(new[] { '\'', '=' }, StringSplitOptions.RemoveEmptyEntries);
             var parameters = new Dictionary<string, string>();
 
-            for (int i = 0; i < splitted.Count() - 1; i = i + 2)
+            for (int i = 0; i < splitted.Length - 1; i = i + 2)
             {
                 parameters.Add(splitted[i], splitted[i + 1]);
             }
@@ -43,7 +43,7 @@ namespace Jobbr.Server.ForkedExecution.Core.ServiceMessaging
 
             foreach (var key in parameters.Keys)
             {
-                var prop = type.GetProperties().FirstOrDefault(p => p.Name.ToLowerInvariant() == key.ToLowerInvariant());
+                var prop = type.GetProperties().FirstOrDefault(p => string.Equals(p.Name, key, StringComparison.OrdinalIgnoreCase));
 
                 if (prop != null)
                 {

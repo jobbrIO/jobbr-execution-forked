@@ -53,7 +53,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             config.Formatters.JsonFormatter.SerializerSettings = jsonSerializerSettings;
 
             // Remove XML response format
-            var appXmlType = config.Formatters.XmlFormatter.SupportedMediaTypes.FirstOrDefault(t => t.MediaType == "application/xml");
+            var appXmlType = config.Formatters.XmlFormatter.SupportedMediaTypes.FirstOrDefault(t => string.Equals(t.MediaType, "application/xml", StringComparison.Ordinal));
             config.Formatters.XmlFormatter.SupportedMediaTypes.Remove(appXmlType);
 
             // Finally attach WebApi to the pipeline with the given configuration

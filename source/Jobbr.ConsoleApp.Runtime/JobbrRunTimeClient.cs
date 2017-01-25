@@ -3,23 +3,19 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-
-using Jobbr.Shared;
-
+using Jobbr.Runtime;
 using Newtonsoft.Json;
 
-namespace Jobbr.Runtime
+namespace Jobbr.ConsoleApp.Runtime
 {
     /// <summary>
     /// The jobbr run time client.
     /// </summary>
-    public class JobbrRuntimeClient
+    public class JobbrRuntimeClient : IDisposable
     {
-        private readonly string jobServer;
-
         private readonly long jobRunId;
 
-        private HttpClient httpClient;
+        private readonly HttpClient httpClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JobbrRuntimeClient"/> class.
@@ -30,7 +26,6 @@ namespace Jobbr.Runtime
         /// <param name="jobRunId"></param>
         public JobbrRuntimeClient(string jobServer, long jobRunId)
         {
-            this.jobServer = jobServer;
             this.jobRunId = jobRunId;
 
             this.httpClient = new HttpClient();
@@ -39,7 +34,7 @@ namespace Jobbr.Runtime
 
         public bool PublishState(JobRunState state)
         {
-            var url = string.Format("jobRun/{0}", this.jobRunId);
+            var url = $"jobRun/{this.jobRunId}";
             var content = new JobRunUpdateDto { State = state.ToString() };
 
             var serializeObject = JsonConvert.SerializeObject(content);
@@ -53,7 +48,6 @@ namespace Jobbr.Runtime
         public bool SendFiles(string[] files)
         {
             var multipartContent = new MultipartFormDataContent();
-            var fileNumber = 0;
 
             foreach (var file in files)
             {
@@ -69,7 +63,7 @@ namespace Jobbr.Runtime
 
         public JobRunInfoDto GetJobRunInfo()
         {
-            var url = string.Format("jobRun/{0}", this.jobRunId);
+            var url = $"jobRun/{this.jobRunId}";
 
             var request = this.httpClient.GetAsync(url);
             var result = request.Result;
@@ -84,6 +78,19 @@ namespace Jobbr.Runtime
             }
 
             return null;
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+        }
+
+        protected virtual void Dispose(bool isDisposing)
+        {
+            if (isDisposing)
+            {
+                this.httpClient?.Dispose();
+            }
         }
     }
 }

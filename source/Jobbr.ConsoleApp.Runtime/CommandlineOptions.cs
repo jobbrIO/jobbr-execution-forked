@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace Jobbr.Runtime
+namespace Jobbr.ConsoleApp.Runtime
 {
     /// <summary>
     /// The options.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Jobbr.Shared
+namespace Jobbr.ConsoleApp.Runtime
 {
     /// <summary>
     /// The job run configuration.

@@ -1,4 +1,4 @@
-﻿namespace Jobbr.Shared
+﻿namespace Jobbr.ConsoleApp.Runtime
 {
     public interface IJobbrDependencyRegistrator : IJobbrDependencyResolver
     {
