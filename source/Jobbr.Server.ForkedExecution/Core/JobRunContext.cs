@@ -49,7 +49,7 @@ namespace Jobbr.Server.ForkedExecution.Core
 
                 this.progressChannel.PublishStatusUpdate(this.jobRunInfo, JobRunStates.Started);
 
-                //TODO???: Still needed??? this.stateService.SetPidForJobRun(jobRun, proc.Id);
+                //TODO: Discuss if this information is still needed??? this.stateService.SetPidForJobRun(jobRun, proc.Id);
             }
             catch (Exception e)
             {
