@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Jobbr.ComponentModel.Registration;
 
 namespace Jobbr.Server.ForkedExecution
 {
-    public class ForkedExecutionConfiguration
+    public class ForkedExecutionConfiguration : IFeatureConfiguration
     {
         public string BackendAddress { get; set; }
 
