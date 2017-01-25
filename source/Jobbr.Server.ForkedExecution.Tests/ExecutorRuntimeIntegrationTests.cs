@@ -17,6 +17,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             config.BackendAddress = string.Empty;
 
+            new ConfigurationValidator().Validate(config);
+
             var backChannelHost = new BackChannelWebHost(new JobbrServiceProviderMock(this.jobRunInformationService, this.storedProgressUpdates), config);
             backChannelHost.Start();
         }

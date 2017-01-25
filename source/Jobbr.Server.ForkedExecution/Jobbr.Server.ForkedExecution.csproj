@@ -82,6 +82,7 @@
     <Compile Include="BackChannel\Model\JobRunUpdateDto.cs" />
     <Compile Include="BackChannel\Startup.cs" />
     <Compile Include="BackChannel\TraceSourceExceptionLogger.cs" />
+    <Compile Include="ConfigurationValidator.cs" />
     <Compile Include="Core\DefaultJobExecutor.cs" />
     <Compile Include="Core\JobRunContext.cs" />
     <Compile Include="Core\JobRunEndedEventArgs.cs" />

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Net;
-using System.Net.Sockets;
 using Jobbr.ComponentModel.Registration;
 using Jobbr.Server.ForkedExecution.Logging;
 using Microsoft.Owin.Hosting;
@@ -26,15 +24,6 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             this.configuration = configuration;
         }
 
-        private static int NextFreeTcpPort()
-        {
-            var l = new TcpListener(IPAddress.Loopback, 0);
-            l.Start();
-            var port = ((IPEndPoint)l.LocalEndpoint).Port;
-            l.Stop();
-            return port;
-        }
-
         public void Dispose()
         {
             
@@ -42,15 +31,6 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 
         public void Start()
         {
-            if (string.IsNullOrWhiteSpace(this.configuration.BackendAddress))
-            {
-                // Fallback to automatic endpoint port
-                Logger.Warn("There was no BackendAdress specified. Falling back to random port, which is not guaranteed to work in production scenarios");
-                var port = NextFreeTcpPort();
-
-                this.configuration.BackendAddress = $"http://localhost:{port}";
-            }
-
             var services = (ServiceProvider)ServicesFactory.Create();
             var options = new StartOptions()
             {

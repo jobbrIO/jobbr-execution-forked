@@ -23,6 +23,8 @@ namespace Jobbr.Server.ForkedExecution
 
             builder.Register<IJobbrComponent>(typeof(BackChannelWebHost));
             builder.Register<IJobExecutor>(typeof(ForkedJobExecutor));
+
+            builder.Register<IConfigurationValidator>(typeof(ConfigurationValidator));
         }
     }
 }
