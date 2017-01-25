@@ -39,11 +39,15 @@ namespace Jobbr.Server.ForkedExecution
                 config.BackendAddress = $"http://localhost:{port}";
             }
 
-            // TODO: Move this check to forked executor
-            //if (this.configuration.JobRunnerExeResolver == null)
-            //{
-            //    throw new ArgumentException("You should set a runner-Executable which runs your jobs later!");
-            //}
+            if (string.IsNullOrEmpty(config.JobRunDirectory))
+            {
+                throw new ArgumentException("Please provide a JobRunDirectory!");
+            }
+
+            if (config.JobRunnerExeResolver == null)
+            {
+                throw new ArgumentException("You should set a runner-Executable which runs your jobs later!");
+            }
 
             // TODO: Discuss why this check was commented out.
             // TODO: Move this check to forked executor

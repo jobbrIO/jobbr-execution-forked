@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using Jobbr.Server.Builder;
@@ -27,6 +29,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             builder.AddForkedExecution(config =>
             {
                 config.BackendAddress = backendAddress;
+                config.JobRunDirectory = Path.GetTempPath();
+                config.JobRunnerExeResolver = () => string.Empty;
             });
 
             var server = builder.Create();
@@ -47,6 +51,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             builder.AddForkedExecution(config =>
             {
                 config.BackendAddress = backendAddress;
+                config.JobRunDirectory = Path.GetTempPath();
+                config.JobRunnerExeResolver = () => string.Empty;
             });
 
             var server = builder.Create();
