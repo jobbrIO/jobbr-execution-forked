@@ -146,8 +146,11 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             // Test
             var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Completed), 3000);
+            this.storedProgressUpdates.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Any(), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
+
+            Assert.IsTrue(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeRun.UniqueId), "There should be progress updates from the run");
             Assert.AreEqual(1, this.storedProgressUpdates.AllProgressUpdates[fakeRun.UniqueId].Count, "There should be exact one progress update!");
         }
     }
