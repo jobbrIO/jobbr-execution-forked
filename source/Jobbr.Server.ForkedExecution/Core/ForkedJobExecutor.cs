@@ -94,25 +94,25 @@ namespace Jobbr.Server.ForkedExecution.Core
                 // Update startdates of existing
                 foreach (var plannedJobRun in newPlan)
                 {
-                    var existing = this.plannedJobRuns.SingleOrDefault(e => e.UniqueId == plannedJobRun.UniqueId);
+                    var existing = this.plannedJobRuns.SingleOrDefault(e => e.Id == plannedJobRun.Id);
 
                     if (existing != null && existing.PlannedStartDateTimeUtc != plannedJobRun.PlannedStartDateTimeUtc)
                     {
                         existing.PlannedStartDateTimeUtc = plannedJobRun.PlannedStartDateTimeUtc;
                         hadChanges++;
-                        Logger.Info($"Changed startdate of jobrun '{existing.UniqueId}' to '{plannedJobRun.PlannedStartDateTimeUtc}'");
+                        Logger.Info($"Changed startdate of jobrun '{existing.Id}' to '{plannedJobRun.PlannedStartDateTimeUtc}'");
                     }
                 }
 
                 // Add only new
-                var toAdd = newPlan.Where(newItem => this.plannedJobRuns.All(existingItem => existingItem.UniqueId != newItem.UniqueId)).ToList();
+                var toAdd = newPlan.Where(newItem => this.plannedJobRuns.All(existingItem => existingItem.Id != newItem.Id)).ToList();
                 this.plannedJobRuns.AddRange(toAdd);
                 hadChanges += toAdd.Count;
 
                 Logger.InfoFormat("Added {0} new planned jobruns based on the new plan", toAdd.Count);
 
                 // Remove non existing
-                var toRemove = this.plannedJobRuns.Where(existingItem => newPlan.All(newItem => existingItem.UniqueId != newItem.UniqueId)).ToList();
+                var toRemove = this.plannedJobRuns.Where(existingItem => newPlan.All(newItem => existingItem.Id != newItem.Id)).ToList();
                 this.plannedJobRuns.RemoveAll(p => toRemove.Contains(p));
                 hadChanges += toRemove.Count;
 
@@ -126,7 +126,7 @@ namespace Jobbr.Server.ForkedExecution.Core
             }
         }
 
-        public bool OnJobRunCanceled(Guid uniqueId)
+        public bool OnJobRunCanceled(long id)
         {
             throw new NotImplementedException();
         }
@@ -151,12 +151,12 @@ namespace Jobbr.Server.ForkedExecution.Core
 
                 foreach (var jobRun in jobsToStart)
                 {
-                    Logger.Debug($"Trying to start job with UniqueId '{jobRun.UniqueId}' which was planned for {jobRun.PlannedStartDateTimeUtc}.");
+                    Logger.Debug($"Trying to start job with UniqueId '{jobRun.Id}' which was planned for {jobRun.PlannedStartDateTimeUtc}.");
 
                     try
                     {
-                        Logger.Debug($"Getting Metadata for a job (UniqueId '{jobRun.UniqueId}') that needs to be started.");
-                        var jobRunInfo = this.jobRunInformationService.GetByJobRunId(jobRun.UniqueId);
+                        Logger.Debug($"Getting Metadata for a job (UniqueId '{jobRun.Id}') that needs to be started.");
+                        var jobRunInfo = this.jobRunInformationService.GetByJobRunId(jobRun.Id);
 
                         var wrapper = new JobRunContext(jobRunInfo, this.configuration, this.progressChannel);
                         this.activeContexts.Add(wrapper);
@@ -167,7 +167,7 @@ namespace Jobbr.Server.ForkedExecution.Core
                     }
                     catch (Exception e)
                     {
-                        Logger.ErrorException($"Exception was thrown while starting a new JobRun with UniqueId: {jobRun.UniqueId}.", e);
+                        Logger.ErrorException($"Exception was thrown while starting a new JobRun with UniqueId: {jobRun.Id}.", e);
                     }
                 }
             }

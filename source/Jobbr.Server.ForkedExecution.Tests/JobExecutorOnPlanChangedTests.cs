@@ -85,7 +85,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
-        public void ContainsAItemInPlan_DifferentList_ExecutesOnlySecondJob()
+        public void ContainsAnItemInPlan_DifferentList_ExecutesOnlySecondJob()
         {
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
@@ -102,10 +102,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun2.PlannedJobRun }));
 
             // Wait
-            var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(kvp => kvp.Value).Count() == 2, 3000);
+            var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(kvp => kvp.Value).Count(p => p == JobRunStates.Started) == 2, 3000);
 
             // Test
-            Assert.IsTrue(didStart2Jobs, "There should be two jobs that have been started");
+            Assert.IsFalse(didStart2Jobs, "Only the second job run should have been started");
         }
 
         [TestMethod]
@@ -122,7 +122,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
 
             // Act: Send second plan
-            var updatedJobRun1 = new PlannedJobRun() { UniqueId = fakeJobRun1.Id, PlannedStartDateTimeUtc = DateTime.UtcNow };
+            var updatedJobRun1 = new PlannedJobRun { Id = fakeJobRun1.Id, PlannedStartDateTimeUtc = DateTime.UtcNow };
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { updatedJobRun1 }));
 
             // Wait

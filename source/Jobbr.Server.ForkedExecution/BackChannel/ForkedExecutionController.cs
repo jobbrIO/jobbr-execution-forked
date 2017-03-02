@@ -26,7 +26,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 
         [HttpGet]
         [Route("jobrun/{jobRunId}")]
-        public IHttpActionResult GetJonbRunInfos(long jobRunId)
+        public IHttpActionResult GetJobRunInfos(long jobRunId)
         {
             Logger.Debug($"ConsoleExecutor is requesting information about JobRun with id '{jobRunId}'");
 
@@ -47,12 +47,11 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 JobRunId = jobRunId,
                 JobName = jobRun.UniqueName,
                 JobType = jobRun.Type,
-                UniqueId = jobRun.UniqueId,
                 JobParameter = jobRun.JobParameters != null ? JsonConvert.DeserializeObject(jobRun.JobParameters) : null,
                 InstanceParameter = jobRun.InstanceParameters != null ? JsonConvert.DeserializeObject(jobRun.InstanceParameters) : null,
             };
 
-            Logger.Debug($"Returning JobRun information for JobRun '{jobRun.UniqueId}' with '{jobRunId}'");
+            Logger.Debug($"Returning JobRun information for JobRun '{jobRunId}'");
 
             return this.Ok(infoDto);
         }
@@ -76,7 +75,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 return this.BadRequest("Invalid state");
             }
 
-            Logger.Info($"Publishing state update '{dto.State}' for JobRun '{jobRun.UniqueId}' with '{jobRunId}'");
+            Logger.Info($"Publishing state update '{dto.State}' for JobRun Id '{jobRunId}'");
             this.progressChannel.PublishStatusUpdate(jobRun, dto.State);
 
             return this.StatusCode(HttpStatusCode.Accepted);
@@ -103,7 +102,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 
                 var result = part.ReadAsStreamAsync().Result;
 
-                Logger.Info($"Publishing jobrun artefact '{contentDisposition.FileName}' for JobRun '{jobRun.UniqueId}' with '{result.Length}' bytes");
+                Logger.Info($"Publishing jobrun artefact '{contentDisposition.FileName}' for JobRun (Id '{jobRun.Id}') with '{result.Length}' bytes");
                 this.progressChannel.PublishArtefact(jobRun.Id, contentDisposition.FileName, result);
             }
 

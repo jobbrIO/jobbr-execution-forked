@@ -23,8 +23,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 BackendAddress = "notNeeded",
                 JobRunDirectory = Path.GetTempPath(),
-                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe",
-
+                JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestEcho.exe"
             };
 
             return forkedExecutionConfiguration;

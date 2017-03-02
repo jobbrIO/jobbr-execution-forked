@@ -39,7 +39,7 @@ namespace Jobbr.Server.ForkedExecution.Core
 
         public void Start()
         {
-            Logger.InfoFormat("[{0}] A new JobRunContext is starting for JobRun with id: '{1}'. (JobId: '{2}', TriggerId: '{3}'", this.jobRunInfo.UniqueId, this.jobRunInfo.Id, this.jobRunInfo.JobId, this.jobRunInfo.TriggerId);
+            Logger.InfoFormat("[{0}] A new JobRunContext is starting for JobRun with id: '{1}'. (JobId: '{2}', TriggerId: '{3}'", this.jobRunInfo.Id, this.jobRunInfo.Id, this.jobRunInfo.JobId, this.jobRunInfo.TriggerId);
 
             try
             {
@@ -53,13 +53,13 @@ namespace Jobbr.Server.ForkedExecution.Core
             }
             catch (Exception e)
             {
-                Logger.ErrorException($"[{this.jobRunInfo.UniqueId}] Exception thrown while starting JobRun with id: '{this.jobRunInfo.Id}'. (JobId: '{this.jobRunInfo.JobId}', TriggerId: '{this.jobRunInfo.TriggerId}'", e);
+                Logger.ErrorException($"[{this.jobRunInfo.Id}] Exception thrown while starting JobRun with id: '{this.jobRunInfo.Id}'. (JobId: '{this.jobRunInfo.JobId}', TriggerId: '{this.jobRunInfo.TriggerId}'", e);
             }
         }
 
         protected virtual void OnEnded(JobRunEndedEventArgs e)
         {
-            Logger.InfoFormat("[{0}] The Runner with ProcessId '{1}' has ended at '{2}'. ExitCode: '{3}'", this.jobRunInfo.UniqueId, e.ProcInfo.Id, e.ProcInfo.ExitTime, e.ProcInfo.ExitCode);
+            Logger.InfoFormat("[{0}] The Runner with ProcessId '{1}' has ended at '{2}'. ExitCode: '{3}'", this.jobRunInfo.Id, e.ProcInfo.Id, e.ProcInfo.ExitTime, e.ProcInfo.ExitCode);
 
             this.Ended?.Invoke(this, e);
         }
@@ -67,7 +67,7 @@ namespace Jobbr.Server.ForkedExecution.Core
         private void StartProcess(JobRunInfo jobRun, string workDir)
         {
             var runnerFileExe = Path.GetFullPath(this.configuration.JobRunnerExeResolver());
-            Logger.InfoFormat("[{0}] Preparing to start the runner from '{1}' in '{2}'", jobRun.UniqueId, runnerFileExe, workDir);
+            Logger.InfoFormat("[{0}] Preparing to start the runner from '{1}' in '{2}'", jobRun.Id, runnerFileExe, workDir);
 
             var proc = new Process { EnableRaisingEvents = true, StartInfo = { FileName = runnerFileExe } };
 
@@ -107,10 +107,10 @@ namespace Jobbr.Server.ForkedExecution.Core
 
             this.progressChannel.PublishStatusUpdate(this.jobRunInfo, JobRunStates.Starting);
 
-            Logger.InfoFormat("[{0}] Starting '{1} {2}' in '{3}'", jobRun.UniqueId, runnerFileExe, arguments, workDir);
+            Logger.InfoFormat("[{0}] Starting '{1} {2}' in '{3}'", jobRun.Id, runnerFileExe, arguments, workDir);
             proc.Start();
 
-            Logger.InfoFormat("[{0}] Started Runner with ProcessId '{1}' at '{2}'", jobRun.UniqueId, proc.Id, proc.StartTime);
+            Logger.InfoFormat("[{0}] Started Runner with ProcessId '{1}' at '{2}'", jobRun.Id, proc.Id, proc.StartTime);
 
             proc.BeginOutputReadLine();
         }
@@ -118,18 +118,18 @@ namespace Jobbr.Server.ForkedExecution.Core
         private string SetupDirectories(JobRunInfo jobRun)
         {
             // Create the WorkingDir and TempDir for the execution
-            var jobRunPath = Path.Combine(this.configuration.JobRunDirectory, "jobbr-" + jobRun.UniqueId);
+            var jobRunPath = Path.Combine(this.configuration.JobRunDirectory, "jobbr-" + jobRun.Id);
 
-            Logger.InfoFormat("[{0}] Preparing filesytem directories in '{1}'", jobRun.UniqueId, this.configuration.JobRunDirectory);
+            Logger.InfoFormat("[{0}] Preparing filesytem directories in '{1}'", jobRun.Id, this.configuration.JobRunDirectory);
 
             var tempDir = Path.Combine(jobRunPath, "temp");
             var workDir = Path.Combine(jobRunPath, "work");
 
             Directory.CreateDirectory(tempDir);
-            Logger.InfoFormat("[{0}] Created Temp-Directory '{1}'", jobRun.UniqueId, tempDir);
+            Logger.InfoFormat("[{0}] Created Temp-Directory '{1}'", jobRun.Id, tempDir);
 
             Directory.CreateDirectory(workDir);
-            Logger.InfoFormat("[{0}] Created Working-Directory '{1}'", jobRun.UniqueId, workDir);
+            Logger.InfoFormat("[{0}] Created Working-Directory '{1}'", jobRun.Id, workDir);
 
             // TODO???: Do we still need that somewhere else?: this.stateService.UpdateJobRunDirectories(this.jobRun, workDir, tempDir);
             return workDir;
@@ -159,22 +159,22 @@ namespace Jobbr.Server.ForkedExecution.Core
                         {
                             if (this.HandleMessage(message as dynamic))
                             {
-                                Logger.DebugFormat("[{0}] Handled service-message of type '{1}'. RawValue: '{2}'", this.jobRunInfo.UniqueId, message.GetType().Name, line);
+                                Logger.DebugFormat("[{0}] Handled service-message of type '{1}'. RawValue: '{2}'", this.jobRunInfo.Id, message.GetType().Name, line);
                             }
                             else
                             {
                                 // TODO: Implement this type!
-                                Logger.WarnFormat("[{0}] Cannot handle messages of type '{1}'. RawValue: '{2}'", this.jobRunInfo.UniqueId, message.GetType().Name, line);
+                                Logger.WarnFormat("[{0}] Cannot handle messages of type '{1}'. RawValue: '{2}'", this.jobRunInfo.Id, message.GetType().Name, line);
                             }
                         }
                         else
                         {
-                            Logger.WarnFormat("[{0}] Parsing Error while processing service message '{1}'", this.jobRunInfo.UniqueId, line);
+                            Logger.WarnFormat("[{0}] Parsing Error while processing service message '{1}'", this.jobRunInfo.Id, line);
                         }
                     }
                     catch (Exception e)
                     {
-                        Logger.ErrorException(string.Format("[{0}] Exception while processing service message '{1}'", this.jobRunInfo.UniqueId, line), e);
+                        Logger.ErrorException(string.Format("[{0}] Exception while processing service message '{1}'", this.jobRunInfo.Id, line), e);
                     }
                 }
             }

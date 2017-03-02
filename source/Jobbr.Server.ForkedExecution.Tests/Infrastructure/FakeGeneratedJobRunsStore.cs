@@ -21,10 +21,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             long id;
             lock (this.syncRoot)
             {
-                id = this.store.Any() ? this.store.Max(e => e.Id) : 1;
+                id = this.store.Any() ? this.store.Max(e => e.Id) + 1 : 1;
             }
 
-            var uniqueId = Guid.NewGuid();
             var fakeJobRun = new FakeJobRunStoreTuple
             {
                 Id = id,
@@ -32,11 +31,10 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
                 PlannedJobRun = new PlannedJobRun
                 {
                     PlannedStartDateTimeUtc = plannedStartDateTimeUtc,
-                    UniqueId = id
+                    Id = id
                 },
-                JobRunInfo = new JobRunInfo()
+                JobRunInfo = new JobRunInfo
                 {
-                    UniqueId = uniqueId,
                     Id = id,
                     JobId = new Random().Next(1, Int32.MaxValue),
                     TriggerId = new Random().Next(1, Int32.MaxValue),
