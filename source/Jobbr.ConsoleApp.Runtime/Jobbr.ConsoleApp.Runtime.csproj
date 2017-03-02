@@ -11,7 +11,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Jobbr.ConsoleApp.Runtime</RootNamespace>
     <AssemblyName>Jobbr.ConsoleApp.Runtime</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
@@ -54,7 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App_Packages\LibLog.4.2\LibLog.cs" />
+    <Compile Include="App_Packages\LibLog.3.1\LibLog.cs" />
     <Compile Include="CommandlineOptions.cs" />
     <Compile Include="IJobbrDependencyRegistrator.cs" />
     <Compile Include="IJobbrDependencyResolver.cs" />

@@ -18,6 +18,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 		JobbrRuleSet.ruleset = JobbrRuleSet.ruleset
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{2C457EE9-1164-4463-8183-DC0156D8F365}"
+	ProjectSection(SolutionItems) = preProject
+		..\appveyor.yml = ..\appveyor.yml
+		..\GitVersion.yml = ..\GitVersion.yml
+		..\internalize_exclude.txt = ..\internalize_exclude.txt
+		Jobbr.ConsoleApp.Runtime.nuspec = Jobbr.ConsoleApp.Runtime.nuspec
+		Jobbr.Execution.Forked.nuspec = Jobbr.Execution.Forked.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
