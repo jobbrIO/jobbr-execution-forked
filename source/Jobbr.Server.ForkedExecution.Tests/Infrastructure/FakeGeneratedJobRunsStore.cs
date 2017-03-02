@@ -28,11 +28,11 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             var fakeJobRun = new FakeJobRunStoreTuple
             {
                 Id = id,
-                UniqueId = uniqueId,
+        
                 PlannedJobRun = new PlannedJobRun
                 {
                     PlannedStartDateTimeUtc = plannedStartDateTimeUtc,
-                    UniqueId = uniqueId
+                    UniqueId = id
                 },
                 JobRunInfo = new JobRunInfo()
                 {
@@ -56,14 +56,6 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             lock (this.syncRoot)
             {
                 return this.store.SingleOrDefault(e => e.Id == id);
-            }
-        }
-
-        public FakeJobRunStoreTuple GetByUniqueUid(Guid uniqueId)
-        {
-            lock (this.syncRoot)
-            {
-                return this.store.SingleOrDefault(e => e.UniqueId == uniqueId);
             }
         }
     }

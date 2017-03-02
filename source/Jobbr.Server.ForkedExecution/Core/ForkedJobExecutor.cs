@@ -156,7 +156,7 @@ namespace Jobbr.Server.ForkedExecution.Core
                     try
                     {
                         Logger.Debug($"Getting Metadata for a job (UniqueId '{jobRun.UniqueId}') that needs to be started.");
-                        var jobRunInfo = this.jobRunInformationService.GetByUniqueId(jobRun.UniqueId);
+                        var jobRunInfo = this.jobRunInformationService.GetByJobRunId(jobRun.UniqueId);
 
                         var wrapper = new JobRunContext(jobRunInfo, this.configuration, this.progressChannel);
                         this.activeContexts.Add(wrapper);

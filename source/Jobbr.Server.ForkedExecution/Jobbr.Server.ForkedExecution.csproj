@@ -36,6 +36,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Jobbr.ComponentModel.Execution, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Jobbr.ComponentModel.Execution.1.0.0-unstable18\lib\net45\Jobbr.ComponentModel.Execution.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Jobbr.ComponentModel.Registration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Jobbr.ComponentModel.Registration.1.0.0-rc1\lib\net45\Jobbr.ComponentModel.Registration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Owin, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
       <Private>True</Private>
@@ -99,16 +107,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\submodules\jobbr-cm-execution\source\Jobbr.ComponentModel.Execution\Jobbr.ComponentModel.Execution.csproj">
-      <Project>{60e632d9-b2be-4701-991e-c7113689fbf0}</Project>
-      <Name>Jobbr.ComponentModel.Execution</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\submodules\jobbr-cm-registration\source\Jobbr.ComponentModel.Registration\Jobbr.ComponentModel.Registration.csproj">
-      <Project>{12cab6d9-5e35-4af5-88eb-ec81ee61c620}</Project>
-      <Name>Jobbr.ComponentModel.Registration</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -129,9 +127,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-runtime\source
-$(SolutionDir)packages\NuGet.CommandLine.3.5.0\tools\nuget.exe restore $(SolutionDir)submodules\jobbr-server\source
-</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

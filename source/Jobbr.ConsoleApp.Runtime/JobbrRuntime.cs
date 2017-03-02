@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Jobbr.Runtime.Logging;
+using Jobbr.ConsoleApp.Runtime.Logging;
 using Newtonsoft.Json;
 
 namespace Jobbr.ConsoleApp.Runtime

@@ -21,10 +21,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeJobRun.PlannedJobRun, }));
 
             // Wait
-            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeJobRun.UniqueId].Count == 2, 3000);
+            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeJobRun.Id].Count == 2, 3000);
 
             // Test
-            var allStatesForJob = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun.UniqueId];
+            var allStatesForJob = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun.Id];
 
             Assert.AreEqual(2, allStatesForJob.Count, "There should be two transitions instead of a timeout");
             Assert.AreEqual(JobRunStates.Started, allStatesForJob[1], "The last state should be 'Started' even if the process has exited sucesfully because the runtime needs to set the 'Complete'-State");
@@ -48,9 +48,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(kvp => kvp.Value).Count() == 6, 3000);
 
             // Test
-            var allStatesForJob1 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun1.UniqueId];
-            var allStatesForJob2 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun2.UniqueId];
-            var allStatesForJob3 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun3.UniqueId];
+            var allStatesForJob1 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun1.Id];
+            var allStatesForJob2 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun2.Id];
+            var allStatesForJob3 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun3.Id];
 
             Assert.AreEqual(2, allStatesForJob1.Count, "There should be two transitions instead of a timeout for job1");
             Assert.AreEqual(2, allStatesForJob2.Count, "There should be two transitions instead of a timeout for job2");
@@ -122,7 +122,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
 
             // Act: Send second plan
-            var updatedJobRun1 = new PlannedJobRun() { UniqueId = fakeJobRun1.UniqueId, PlannedStartDateTimeUtc = DateTime.UtcNow };
+            var updatedJobRun1 = new PlannedJobRun() { UniqueId = fakeJobRun1.Id, PlannedStartDateTimeUtc = DateTime.UtcNow };
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { updatedJobRun1 }));
 
             // Wait
@@ -153,10 +153,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Wait
-            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeJobRun1.UniqueId].Count + allUpdates[fakeJobRun2.UniqueId].Count == 4, 3000);
+            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeJobRun1.Id].Count + allUpdates[fakeJobRun2.Id].Count == 4, 3000);
 
             // Test
-            Assert.IsFalse(this.storedProgressUpdates.AllStatusUpdates.ContainsKey(fakeJobRun3.UniqueId), "There should be no updates for the third job");
+            Assert.IsFalse(this.storedProgressUpdates.AllStatusUpdates.ContainsKey(fakeJobRun3.Id), "There should be no updates for the third job");
         }
     }
 }

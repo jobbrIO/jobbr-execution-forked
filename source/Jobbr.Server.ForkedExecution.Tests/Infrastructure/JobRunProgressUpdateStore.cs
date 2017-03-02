@@ -12,30 +12,30 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
     /// </summary>
     public class JobRunProgressUpdateStore : IJobRunProgressChannel
     {
-        private readonly Dictionary<Guid, List<JobRunStates>> jobRunStatusUpdates = new Dictionary<Guid, List<JobRunStates>>();
+        private readonly Dictionary<long, List<JobRunStates>> jobRunStatusUpdates = new Dictionary<long, List<JobRunStates>>();
 
-        private readonly Dictionary<Guid, List<double>> jobRunProgressUpdates = new Dictionary<Guid, List<double>>();
+        private readonly Dictionary<long, List<double>> jobRunProgressUpdates = new Dictionary<long, List<double>>();
 
-        private readonly Dictionary<Guid, List<string>> jobRunArtefactUploads = new Dictionary<Guid, List<string>>();
+        private readonly Dictionary<long, List<string>> jobRunArtefactUploads = new Dictionary<long, List<string>>();
 
-        private readonly Dictionary<Func<Dictionary<Guid, List<JobRunStates>>, bool>, AutoResetEvent> statusUpdateWaitCallBacks = new Dictionary<Func<Dictionary<Guid, List<JobRunStates>>, bool>, AutoResetEvent>();
+        private readonly Dictionary<Func<Dictionary<long, List<JobRunStates>>, bool>, AutoResetEvent> statusUpdateWaitCallBacks = new Dictionary<Func<Dictionary<long, List<JobRunStates>>, bool>, AutoResetEvent>();
 
-        private readonly Dictionary<Func<Dictionary<Guid, List<double>>, bool>, AutoResetEvent> progressUpdateWaitCallBacks = new Dictionary<Func<Dictionary<Guid, List<double>>, bool>, AutoResetEvent>();
+        private readonly Dictionary<Func<Dictionary<long, List<double>>, bool>, AutoResetEvent> progressUpdateWaitCallBacks = new Dictionary<Func<Dictionary<long, List<double>>, bool>, AutoResetEvent>();
 
-        public Dictionary<Guid, List<JobRunStates>> AllStatusUpdates => this.jobRunStatusUpdates;
+        public Dictionary<long, List<JobRunStates>> AllStatusUpdates => this.jobRunStatusUpdates;
 
-        public Dictionary<Guid, List<double>> AllProgressUpdates => this.jobRunProgressUpdates;
+        public Dictionary<long, List<double>> AllProgressUpdates => this.jobRunProgressUpdates;
 
-        public Dictionary<Guid, List<string>> AllUploadedArtefacts => this.jobRunArtefactUploads;
+        public Dictionary<long, List<string>> AllUploadedArtefacts => this.jobRunArtefactUploads;
 
         public void PublishStatusUpdate(JobRunInfo jobRunInfo, JobRunStates state)
         {
-            if (!this.jobRunStatusUpdates.ContainsKey(jobRunInfo.UniqueId))
+            if (!this.jobRunStatusUpdates.ContainsKey(jobRunInfo.Id))
             {
-                this.jobRunStatusUpdates.Add(jobRunInfo.UniqueId, new List<JobRunStates>());
+                this.jobRunStatusUpdates.Add(jobRunInfo.Id, new List<JobRunStates>());
             }
 
-            this.jobRunStatusUpdates[jobRunInfo.UniqueId].Add(state);
+            this.jobRunStatusUpdates[jobRunInfo.Id].Add(state);
 
             foreach (var kvp in this.statusUpdateWaitCallBacks)
             {
@@ -57,7 +57,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             }
         }
 
-        public bool WaitForStatusUpdate(Func<Dictionary<Guid, List<JobRunStates>>, bool> allUpdates, int millisecondsTimeout)
+        public bool WaitForStatusUpdate(Func<Dictionary<long, List<JobRunStates>>, bool> allUpdates, int millisecondsTimeout)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             return successful;
         }
 
-        public bool WaitForProgressUpdate(Func<Dictionary<Guid, List<double>>, bool> allUpdates, int millisecondsTimeout)
+        public bool WaitForProgressUpdate(Func<Dictionary<long, List<double>>, bool> allUpdates, int millisecondsTimeout)
         {
             try
             {
@@ -103,15 +103,15 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public void PublishProgressUpdate(JobRunInfo jobRunInfo, double progress)
         {
-            if (!this.jobRunProgressUpdates.ContainsKey(jobRunInfo.UniqueId))
+            if (!this.jobRunProgressUpdates.ContainsKey(jobRunInfo.Id))
             {
-                this.jobRunProgressUpdates.Add(jobRunInfo.UniqueId, new List<double>());
+                this.jobRunProgressUpdates.Add(jobRunInfo.Id, new List<double>());
             }
 
-            this.jobRunProgressUpdates[jobRunInfo.UniqueId].Add(progress);
+            this.jobRunProgressUpdates[jobRunInfo.Id].Add(progress);
         }
 
-        public void PublicArtefact(Guid uniqueId, string fileName, Stream result)
+        public void PublishArtefact(long uniqueId, string fileName, Stream result)
         {
             if (!this.jobRunArtefactUploads.ContainsKey(uniqueId))
             {

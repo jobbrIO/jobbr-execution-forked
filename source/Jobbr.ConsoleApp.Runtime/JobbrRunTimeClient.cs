@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using Jobbr.Runtime;
 using Newtonsoft.Json;
 
 namespace Jobbr.ConsoleApp.Runtime

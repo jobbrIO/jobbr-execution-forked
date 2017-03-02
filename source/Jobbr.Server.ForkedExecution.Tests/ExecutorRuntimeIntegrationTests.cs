@@ -51,12 +51,12 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasConnected = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Connected), 1000);
+            var hasConnected = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Connected), 1000);
 
             Assert.IsTrue(hasConnected, "The runner executable should connect within 1s");
 
             // Tearddown: Wait for Failing or Completed state to that the executable is able to exit
-            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Failed) || allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Completed), 10000);
+            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed) || allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 10000);
         }
 
         [TestMethod]
@@ -76,10 +76,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Failed), 3000);
+            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should fail, but did not within 3s");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.UniqueId].Contains(JobRunStates.Failed), "There should be a failed state for this jobRun");
+            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Failed), "There should be a failed state for this jobRun");
         }
 
         [TestMethod]
@@ -99,10 +99,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Completed), 3000);
+            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.UniqueId].Contains(JobRunStates.Completed), "There should be a completed state for this jobRun");
+            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "There should be a completed state for this jobRun");
         }
 
         [TestMethod]
@@ -122,10 +122,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Completed), 3000);
+            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
-            Assert.IsTrue(this.storedProgressUpdates.AllUploadedArtefacts[fakeRun.UniqueId].Any(), "It should contain at least one file!");
+            Assert.IsTrue(this.storedProgressUpdates.AllUploadedArtefacts[fakeRun.Id].Any(), "It should contain at least one file!");
         }
 
         [TestMethod]
@@ -145,13 +145,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Contains(JobRunStates.Completed), 3000);
-            this.storedProgressUpdates.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.UniqueId].Any(), 3000);
+            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+            this.storedProgressUpdates.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Any(), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
 
-            Assert.IsTrue(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeRun.UniqueId), "There should be progress updates from the run");
-            Assert.AreEqual(1, this.storedProgressUpdates.AllProgressUpdates[fakeRun.UniqueId].Count, "There should be exact one progress update!");
+            Assert.IsTrue(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeRun.Id), "There should be progress updates from the run");
+            Assert.AreEqual(1, this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id].Count, "There should be exact one progress update!");
         }
     }
 }

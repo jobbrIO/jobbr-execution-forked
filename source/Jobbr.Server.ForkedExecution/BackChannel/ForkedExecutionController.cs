@@ -47,8 +47,6 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 JobRunId = jobRunId,
                 JobName = jobRun.UniqueName,
                 JobType = jobRun.Type,
-                TempDir = jobRun.TempDir,
-                WorkingDir = jobRun.WorkingDir,
                 UniqueId = jobRun.UniqueId,
                 JobParameter = jobRun.JobParameters != null ? JsonConvert.DeserializeObject(jobRun.JobParameters) : null,
                 InstanceParameter = jobRun.InstanceParameters != null ? JsonConvert.DeserializeObject(jobRun.InstanceParameters) : null,
@@ -106,7 +104,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 var result = part.ReadAsStreamAsync().Result;
 
                 Logger.Info($"Publishing jobrun artefact '{contentDisposition.FileName}' for JobRun '{jobRun.UniqueId}' with '{result.Length}' bytes");
-                this.progressChannel.PublicArtefact(jobRun.UniqueId, contentDisposition.FileName, result);
+                this.progressChannel.PublishArtefact(jobRun.Id, contentDisposition.FileName, result);
             }
 
             return this.StatusCode(HttpStatusCode.Accepted);
