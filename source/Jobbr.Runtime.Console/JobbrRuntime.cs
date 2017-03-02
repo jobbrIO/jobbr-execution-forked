@@ -9,7 +9,7 @@ using CommandLine;
 using Jobbr.ConsoleApp.Runtime.Logging;
 using Newtonsoft.Json;
 
-namespace Jobbr.ConsoleApp.Runtime
+namespace Jobbr.Runtime.Console
 {
     /// <summary>
     /// The jobbr runtime.
@@ -358,14 +358,14 @@ namespace Jobbr.ConsoleApp.Runtime
                 var endWaitForDebugger = beginWaitForDebugger.AddSeconds(10);
                 var pressedEnter = false;
 
-                Console.WriteLine(string.Empty);
-                Console.WriteLine(">>> DEBUG-Mode is enabled. You have 10s to attach a Debugger");
-                Console.Write("    or press enter to continue. Counting...");
+                System.Console.WriteLine(string.Empty);
+                System.Console.WriteLine(">>> DEBUG-Mode is enabled. You have 10s to attach a Debugger");
+                System.Console.Write("    or press enter to continue. Counting...");
 
                 new TaskFactory().StartNew(
                     () =>
                         {
-                            Console.ReadLine();
+                            System.Console.ReadLine();
                             pressedEnter = true;
                         });
 

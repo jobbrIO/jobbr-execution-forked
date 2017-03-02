@@ -1,4 +1,4 @@
-﻿namespace Jobbr.ConsoleApp.Runtime
+﻿namespace Jobbr.Runtime.Console
 {
     public class RuntimeContext
     {

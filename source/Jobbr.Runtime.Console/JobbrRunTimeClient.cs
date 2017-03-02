@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace Jobbr.ConsoleApp.Runtime
+namespace Jobbr.Runtime.Console
 {
     /// <summary>
     /// The jobbr run time client.

@@ -9,8 +9,8 @@
     <ProjectGuid>{446271F7-7880-4C71-8871-2082FB90CE86}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Jobbr.ConsoleApp.Runtime</RootNamespace>
-    <AssemblyName>Jobbr.ConsoleApp.Runtime</AssemblyName>
+    <RootNamespace>Jobbr.Runtime.Console</RootNamespace>
+    <AssemblyName>Jobbr.Runtime.Console</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

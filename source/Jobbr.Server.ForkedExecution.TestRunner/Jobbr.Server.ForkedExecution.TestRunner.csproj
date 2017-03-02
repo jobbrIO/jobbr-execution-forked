@@ -59,9 +59,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Jobbr.ConsoleApp.Runtime\Jobbr.ConsoleApp.Runtime.csproj">
+    <ProjectReference Include="..\Jobbr.Runtime.Console\Jobbr.Runtime.Console.csproj">
       <Project>{446271F7-7880-4C71-8871-2082FB90CE86}</Project>
-      <Name>Jobbr.ConsoleApp.Runtime</Name>
+      <Name>Jobbr.Runtime.Console</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

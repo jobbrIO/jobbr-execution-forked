@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Jobbr.ConsoleApp.Runtime
+namespace Jobbr.Runtime.Console
 {
     /// <summary>
     /// The no dependency resolver.
