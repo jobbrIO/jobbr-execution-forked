@@ -61,6 +61,7 @@
     <Compile Include="JobbrRuntime.cs" />
     <Compile Include="JobbrRunTimeClient.cs" />
     <Compile Include="JobRunInfoDto.cs" />
+    <Compile Include="JobRunState.cs" />
     <Compile Include="JobRunUpdateDto.cs" />
     <Compile Include="NoDependencyResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

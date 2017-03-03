@@ -11,9 +11,6 @@ using Newtonsoft.Json;
 
 namespace Jobbr.Runtime.Console
 {
-    /// <summary>
-    /// The jobbr runtime.
-    /// </summary>
     public class JobbrRuntime : IDisposable
     {
         private static readonly ILog Logger = LogProvider.For<JobbrRuntime>();
@@ -48,15 +45,9 @@ namespace Jobbr.Runtime.Console
             this.dependencyResolver = new NoDependencyResolver();
         }
 
-        /// <summary>
-        /// The run.
-        /// </summary>
-        /// <param name="args">
-        /// The args.
-        /// </param>
         public void Run(string[] args)
         {
-            AppDomain.CurrentDomain.UnhandledException += this.CurrentDomainOnUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
 
             Logger.InfoFormat("JobbrRuntime started at {0} (UTC) with cmd-arguments {1}", DateTime.UtcNow, string.Join(" ", args));
 
@@ -97,33 +88,35 @@ namespace Jobbr.Runtime.Console
             this.End();
         }
 
-        private void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
+        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
             Logger.FatalException("Unhandled Infrastructure Exception in Jobbr-Runtime. Please contact the developers!", (Exception)unhandledExceptionEventArgs.ExceptionObject);
         }
 
         private void WaitForCompletion()
         {
-            if (this.jobRunTask != null)
+            if (this.jobRunTask == null)
             {
-                try
-                {
-                    this.jobRunTask.Wait(this.cancellationTokenSource.Token);
-                }
-                catch (Exception e)
-                {
-                    Logger.ErrorException("Exception while waiting for completion of job", e);
-                }
+                return;
+            }
 
-                if (this.jobRunTask.IsFaulted)
-                {
-                    Logger.ErrorException("The execution of the job has faulted. See Exception for details.", this.jobRunTask.Exception);
-                    this.client.PublishState(JobRunState.Failed);
-                }
-                else
-                {
-                    this.client.PublishState(JobRunState.Finishing);
-                }
+            try
+            {
+                this.jobRunTask.Wait(this.cancellationTokenSource.Token);
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorException("Exception while waiting for completion of job", e);
+            }
+
+            if (this.jobRunTask.IsFaulted)
+            {
+                Logger.ErrorException("The execution of the job has faulted. See Exception for details.", this.jobRunTask.Exception);
+                this.client.PublishState(JobRunState.Failed);
+            }
+            else
+            {
+                this.client.PublishState(JobRunState.Finishing);
             }
         }
 
@@ -165,7 +158,7 @@ namespace Jobbr.Runtime.Console
             if (runMethods.Any())
             {
                 // Try to use the method with 2 concrete parameters
-                var parameterizedMethod = runMethods.FirstOrDefault(m => m.GetParameters().Count() == 2);
+                var parameterizedMethod = runMethods.FirstOrDefault(m => m.GetParameters().Length == 2);
                 if (parameterizedMethod != null)
                 {
                     Logger.DebugFormat("Decided to use parameterized method '{0}' with JobParameter '{1}' and InstanceParameters '{2}'.", parameterizedMethod, this.jobInfo.JobParameter ?? "<null>", this.jobInfo.InstanceParameter ?? "<null>");
@@ -282,10 +275,7 @@ namespace Jobbr.Runtime.Console
 
             var registrator = this.dependencyResolver as IJobbrDependencyRegistrator;
 
-            if (registrator != null)
-            {
-                registrator.RegisterInstance(this.context);
-            }
+            registrator?.RegisterInstance(this.context);
         }
 
         private Type ResolveType(string typeName)
@@ -331,7 +321,7 @@ namespace Jobbr.Runtime.Console
                     Logger.DebugFormat("Found matching type: '{0}'", matchingTypes[0]);
                     type = matchingTypes.First();
                 }
-                else if (matchingTypes.Count() > 1)
+                else if (matchingTypes.Count > 1)
                 {
                     Logger.WarnFormat("More than one matching type found for '{0}'. Matches: ", typeName, string.Join(", ", matchingTypes.Select(t => t.FullName)));
                 }
@@ -391,16 +381,5 @@ namespace Jobbr.Runtime.Console
         {
             throw new NotImplementedException();
         }
-    }
-
-    public enum JobRunState
-    {
-        Connected,
-        Failed,
-        Initializing,
-        Processing,
-        Collecting,
-        Completed,
-        Finishing
     }
 }
