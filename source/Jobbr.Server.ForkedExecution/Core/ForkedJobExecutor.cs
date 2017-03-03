@@ -151,11 +151,11 @@ namespace Jobbr.Server.ForkedExecution.Core
 
                 foreach (var jobRun in jobsToStart)
                 {
-                    Logger.Debug($"Trying to start job with UniqueId '{jobRun.Id}' which was planned for {jobRun.PlannedStartDateTimeUtc}.");
+                    Logger.Debug($"Trying to start job with Id '{jobRun.Id}' which was planned for {jobRun.PlannedStartDateTimeUtc}.");
 
                     try
                     {
-                        Logger.Debug($"Getting Metadata for a job (UniqueId '{jobRun.Id}') that needs to be started.");
+                        Logger.Debug($"Getting Metadata for a job (Id '{jobRun.Id}') that needs to be started.");
                         var jobRunInfo = this.jobRunInformationService.GetByJobRunId(jobRun.Id);
 
                         var wrapper = new JobRunContext(jobRunInfo, this.configuration, this.progressChannel);
@@ -167,7 +167,7 @@ namespace Jobbr.Server.ForkedExecution.Core
                     }
                     catch (Exception e)
                     {
-                        Logger.ErrorException($"Exception was thrown while starting a new JobRun with UniqueId: {jobRun.Id}.", e);
+                        Logger.ErrorException($"Exception was thrown while starting a new JobRun with Id: {jobRun.Id}.", e);
                     }
                 }
             }
