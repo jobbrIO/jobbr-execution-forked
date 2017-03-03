@@ -76,7 +76,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             }
 
             Logger.Info($"Publishing state update '{dto.State}' for JobRun Id '{jobRunId}'");
-            this.progressChannel.PublishStatusUpdate(jobRun, dto.State);
+            this.progressChannel.PublishStatusUpdate(jobRun.Id, dto.State);
 
             return this.StatusCode(HttpStatusCode.Accepted);
         }

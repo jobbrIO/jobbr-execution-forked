@@ -38,7 +38,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Jobbr.ComponentModel.Execution, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Jobbr.ComponentModel.Execution.1.0.0-unstable19\lib\net45\Jobbr.ComponentModel.Execution.dll</HintPath>
+      <HintPath>..\packages\Jobbr.ComponentModel.Execution.1.0.0-unstable20\lib\net45\Jobbr.ComponentModel.Execution.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Jobbr.ComponentModel.Registration, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">

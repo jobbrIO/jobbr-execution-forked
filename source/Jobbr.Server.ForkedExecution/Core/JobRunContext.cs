@@ -47,7 +47,7 @@ namespace Jobbr.Server.ForkedExecution.Core
 
                 this.StartProcess(this.jobRunInfo, workDir);
 
-                this.progressChannel.PublishStatusUpdate(this.jobRunInfo, JobRunStates.Started);
+                this.progressChannel.PublishStatusUpdate(this.jobRunInfo.Id, JobRunStates.Started);
 
                 // TODO: Discuss if this information is still needed??? this.stateService.SetPidForJobRun(jobRun, proc.Id);
             }
@@ -105,7 +105,7 @@ namespace Jobbr.Server.ForkedExecution.Core
             proc.OutputDataReceived += this.ProcOnOutputDataReceived;
             proc.Exited += (o, args) => this.OnEnded(new JobRunEndedEventArgs() { ExitCode = proc.ExitCode, JobRun = jobRun, ProcInfo = proc });
 
-            this.progressChannel.PublishStatusUpdate(this.jobRunInfo, JobRunStates.Starting);
+            this.progressChannel.PublishStatusUpdate(this.jobRunInfo.Id, JobRunStates.Starting);
 
             Logger.InfoFormat("[{0}] Starting '{1} {2}' in '{3}'", jobRun.Id, runnerFileExe, arguments, workDir);
             proc.Start();
@@ -182,7 +182,7 @@ namespace Jobbr.Server.ForkedExecution.Core
 
         private bool HandleMessage(ProgressServiceMessage message)
         {
-            this.progressChannel.PublishProgressUpdate(this.jobRunInfo, message.Percent);
+            this.progressChannel.PublishProgressUpdate(this.jobRunInfo.Id, message.Percent);
             return true;
         }
     }

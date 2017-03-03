@@ -208,7 +208,7 @@ namespace Jobbr.Server.ForkedExecution.Core
 
                 try
                 {
-                    this.progressChannel.PublishStatusUpdate(run, JobRunStates.Failed);
+                    this.progressChannel.PublishStatusUpdate(run.Id, JobRunStates.Failed);
                 }
                 catch (Exception e)
                 {
