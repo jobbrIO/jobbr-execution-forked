@@ -28,14 +28,14 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public Dictionary<long, List<string>> AllUploadedArtefacts => this.jobRunArtefactUploads;
 
-        public void PublishStatusUpdate(JobRunInfo jobRunInfo, JobRunStates state)
+        public void PublishStatusUpdate(long jobRunId, JobRunStates state)
         {
-            if (!this.jobRunStatusUpdates.ContainsKey(jobRunInfo.Id))
+            if (!this.jobRunStatusUpdates.ContainsKey(jobRunId))
             {
-                this.jobRunStatusUpdates.Add(jobRunInfo.Id, new List<JobRunStates>());
+                this.jobRunStatusUpdates.Add(jobRunId, new List<JobRunStates>());
             }
 
-            this.jobRunStatusUpdates[jobRunInfo.Id].Add(state);
+            this.jobRunStatusUpdates[jobRunId].Add(state);
 
             foreach (var kvp in this.statusUpdateWaitCallBacks)
             {
@@ -101,14 +101,14 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             return successful;
         }
 
-        public void PublishProgressUpdate(JobRunInfo jobRunInfo, double progress)
+        public void PublishProgressUpdate(long jobRunId, double progress)
         {
-            if (!this.jobRunProgressUpdates.ContainsKey(jobRunInfo.Id))
+            if (!this.jobRunProgressUpdates.ContainsKey(jobRunId))
             {
-                this.jobRunProgressUpdates.Add(jobRunInfo.Id, new List<double>());
+                this.jobRunProgressUpdates.Add(jobRunId, new List<double>());
             }
 
-            this.jobRunProgressUpdates[jobRunInfo.Id].Add(progress);
+            this.jobRunProgressUpdates[jobRunId].Add(progress);
         }
 
         public void PublishArtefact(long uniqueId, string fileName, Stream result)
