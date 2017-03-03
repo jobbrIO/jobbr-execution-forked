@@ -137,7 +137,7 @@ namespace Jobbr.Server.ForkedExecution.Core
 
         private void ProcOnOutputDataReceived(object sender, DataReceivedEventArgs dataReceivedEventArgs)
         {
-            string data = dataReceivedEventArgs.Data;
+            var data = dataReceivedEventArgs.Data;
 
             if (data == null)
             {
@@ -174,7 +174,7 @@ namespace Jobbr.Server.ForkedExecution.Core
                     }
                     catch (Exception e)
                     {
-                        Logger.ErrorException(string.Format("[{0}] Exception while processing service message '{1}'", this.jobRunInfo.Id, line), e);
+                        Logger.ErrorException($"[{this.jobRunInfo.Id}] Exception while processing service message '{line}'", e);
                     }
                 }
             }
