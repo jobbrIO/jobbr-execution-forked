@@ -163,7 +163,6 @@ namespace Jobbr.Server.ForkedExecution.Core
                             }
                             else
                             {
-                                // TODO: Implement this type!
                                 Logger.WarnFormat("[{0}] Cannot handle messages of type '{1}'. RawValue: '{2}'", this.jobRunInfo.Id, message.GetType().Name, line);
                             }
                         }
