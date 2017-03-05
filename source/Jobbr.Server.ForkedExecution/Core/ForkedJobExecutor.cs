@@ -193,16 +193,18 @@ namespace Jobbr.Server.ForkedExecution.Core
                 this.activeContexts.Remove(jobRunContext);
             }
 
-            try
+            if (args.ExitCode == 0)
             {
-                // TODO: this.stateService.SetJobRunEndTime(args.JobRun, DateTime.UtcNow);
+                try
+                {
+                    this.progressChannel.PublishStatusUpdate(run.Id, JobRunStates.Completed);
+                }
+                catch (Exception e)
+                {
+                    Logger.ErrorException(string.Format("Exception while setting the end-time of the jobRun with id: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId), e);
+                }
             }
-            catch (Exception e)
-            {
-                Logger.ErrorException(string.Format("Exception while setting the end-time of the jobRun with id: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId), e);
-            }
-
-            if (args.ExitCode != 0)
+            else
             {
                 Logger.WarnFormat("The process within the context JobRun has exited with a non-zero exit code. JobRunId: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId);
 
