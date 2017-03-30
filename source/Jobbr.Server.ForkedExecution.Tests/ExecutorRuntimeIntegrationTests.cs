@@ -180,5 +180,69 @@ namespace Jobbr.Server.ForkedExecution.Tests
             Assert.IsTrue(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeRun.Id), "There should be progress updates from the run");
             Assert.AreEqual(1, this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id].Count, "There should be exact one progress update!");
         }
+
+        [TestMethod]
+        public void RunnerExecutable_AdditionalParameters_PassedToExecutable()
+        {
+            // Setup
+            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+
+            var config = GivenAMinimalConfiguration();
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
+            config.JobRunDirectory = tempDir;
+            config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new []{ new KeyValuePair<string, string>("argument1", "value1"), });
+
+            this.GivenAStartedBackChannelHost(config);
+            var executor = this.GivenAStartedExecutor(config);
+
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            var expectedWorkdir = Path.Combine(tempDir, $"jobbr-{fakeRun.Id}", "work");
+
+            // Act
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
+
+            // Wait until process has exited
+            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+
+            Assert.IsTrue(hasCompleted, "The Echo Executable did not complete withing the timeout");
+            Assert.IsTrue(Directory.Exists(expectedWorkdir), "The run\\work directory should exist");
+            Assert.IsTrue(Directory.EnumerateFiles(expectedWorkdir).Any(), "There should be one file");
+
+            var fileContent = File.ReadAllText(Directory.EnumerateFiles(expectedWorkdir).First());
+            Assert.IsNotNull(fileContent);
+            Assert.IsTrue(fileContent.Contains("--argument1\nvalue1"), $"Expected to find arguments in content, but got '{fileContent}'");
+        }
+
+        [TestMethod]
+        public void RunnerExecutable_WhiteSpaceParameters_PassedToExecutable()
+        {
+            // Setup
+            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+
+            var config = GivenAMinimalConfiguration();
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
+            config.JobRunDirectory = tempDir;
+            config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new[] { new KeyValuePair<string, string>("arg", "v is with wthitespaced"), });
+
+            this.GivenAStartedBackChannelHost(config);
+            var executor = this.GivenAStartedExecutor(config);
+
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            var expectedWorkdir = Path.Combine(tempDir, $"jobbr-{fakeRun.Id}", "work");
+
+            // Act
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
+
+            // Wait until process has exited
+            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+
+            Assert.IsTrue(hasCompleted, "The Echo Executable did not complete withing the timeout");
+            Assert.IsTrue(Directory.Exists(expectedWorkdir), "The run\\work directory should exist");
+            Assert.IsTrue(Directory.EnumerateFiles(expectedWorkdir).Any(), "There should be one file");
+
+            var fileContent = File.ReadAllText(Directory.EnumerateFiles(expectedWorkdir).First());
+            Assert.IsNotNull(fileContent);
+            Assert.IsTrue(fileContent.Contains("--arg\nv is with wthitespaced"), $"Expected to find arguments in content, but got '{fileContent}'");
+        }
     }
 }
