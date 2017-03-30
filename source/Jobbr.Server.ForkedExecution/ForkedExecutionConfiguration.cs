@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.ComponentModel.Registration;
 
 namespace Jobbr.Server.ForkedExecution
@@ -20,6 +19,6 @@ namespace Jobbr.Server.ForkedExecution
         /// <summary>
         /// Callback to add custom parameters to jobrunner
         /// </summary>
-        public Func<string, string, IEnumerable<KeyValuePair<string, string>>> CustomJobRunnerParameters { get; set; }
+        public Func<JobRunStartInfo, IEnumerable<KeyValuePair<string, string>>> AddJobRunnerArguments { get; set; }
     }
 }

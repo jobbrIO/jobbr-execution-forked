@@ -99,6 +99,7 @@
     <Compile Include="ConfigurationValidator.cs" />
     <Compile Include="Core\JobRunContext.cs" />
     <Compile Include="Core\JobRunEndedEventArgs.cs" />
+    <Compile Include="JobRunStartInfo.cs" />
     <Compile Include="Core\ServiceMessaging\ProgressServiceMessage.cs" />
     <Compile Include="Core\ServiceMessaging\ServiceMessage.cs" />
     <Compile Include="Core\ServiceMessaging\ServiceMessageParser.cs" />

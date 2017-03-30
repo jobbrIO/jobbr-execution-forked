@@ -78,19 +78,29 @@ namespace Jobbr.Server.ForkedExecution.Core
                 arguments += " --debug";
             }
 
-            if (this.configuration.CustomJobRunnerParameters != null)
+            if (this.configuration.AddJobRunnerArguments != null)
             {
-                var customParameters = this.configuration.CustomJobRunnerParameters(jobRun.Type, jobRun.UniqueName);
-
-                foreach (var customParameter in customParameters)
+                var model = new JobRunStartInfo()
                 {
-                    if (customParameter.Value.Contains(" "))
+                    JobType = jobRun.Type,
+                    UniqueName = jobRun.UniqueName,
+                    JobRunId = jobRun.Id,
+                    JobId = jobRun.JobId,
+                    TriggerId = jobRun.TriggerId,
+                    UserId = jobRun.UserId
+                };
+
+                var additionalArguments = this.configuration.AddJobRunnerArguments(model);
+
+                foreach (var additionalArgument in additionalArguments)
+                {
+                    if (additionalArgument.Value.Contains(" "))
                     {
-                        arguments += $" --{customParameter.Key} \"{customParameter.Value}\"";
+                        arguments += $" --{additionalArgument.Key} \"{additionalArgument.Value}\"";
                     }
                     else
                     {
-                        arguments += $" --{customParameter.Key} {customParameter.Value}";
+                        arguments += $" --{additionalArgument.Key} {additionalArgument.Value}";
                     }
                 }
             }
