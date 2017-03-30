@@ -1,4 +1,4 @@
-namespace Jobbr.Server.ForkedExecution.Core.ServiceMessaging
+namespace Jobbr.Server.ForkedExecution.Execution.ServiceMessaging
 {
     /// <summary>
     /// The service message.

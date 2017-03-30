@@ -2,7 +2,7 @@
 using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Registration;
 using Jobbr.Server.ForkedExecution.BackChannel;
-using Jobbr.Server.ForkedExecution.Core;
+using Jobbr.Server.ForkedExecution.Execution;
 
 namespace Jobbr.Server.ForkedExecution
 {

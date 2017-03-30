@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using Jobbr.ComponentModel.Execution.Model;
 
-namespace Jobbr.Server.ForkedExecution.Core
+namespace Jobbr.Server.ForkedExecution.Execution
 {
     #pragma warning disable CA1001 // Types that own disposable fields should be disposable
     internal class JobRunEndedEventArgs : EventArgs

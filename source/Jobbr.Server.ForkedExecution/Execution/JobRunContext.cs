@@ -3,10 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
-using Jobbr.Server.ForkedExecution.Core.ServiceMessaging;
+using Jobbr.Server.ForkedExecution.Execution.ServiceMessaging;
 using Jobbr.Server.ForkedExecution.Logging;
 
-namespace Jobbr.Server.ForkedExecution.Core
+namespace Jobbr.Server.ForkedExecution.Execution
 {
     /// <summary>
     /// The runner process.

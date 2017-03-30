@@ -8,7 +8,7 @@ using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.Logging;
 
-namespace Jobbr.Server.ForkedExecution.Core
+namespace Jobbr.Server.ForkedExecution.Execution
 {
     public class ForkedJobExecutor : IJobExecutor
     {

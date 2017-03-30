@@ -97,14 +97,14 @@
     <Compile Include="BackChannel\Startup.cs" />
     <Compile Include="BackChannel\TraceSourceExceptionLogger.cs" />
     <Compile Include="ConfigurationValidator.cs" />
-    <Compile Include="Core\JobRunContext.cs" />
-    <Compile Include="Core\JobRunEndedEventArgs.cs" />
+    <Compile Include="Execution\JobRunContext.cs" />
+    <Compile Include="Execution\JobRunEndedEventArgs.cs" />
     <Compile Include="JobRunStartInfo.cs" />
-    <Compile Include="Core\ServiceMessaging\ProgressServiceMessage.cs" />
-    <Compile Include="Core\ServiceMessaging\ServiceMessage.cs" />
-    <Compile Include="Core\ServiceMessaging\ServiceMessageParser.cs" />
+    <Compile Include="Execution\ServiceMessaging\ProgressServiceMessage.cs" />
+    <Compile Include="Execution\ServiceMessaging\ServiceMessage.cs" />
+    <Compile Include="Execution\ServiceMessaging\ServiceMessageParser.cs" />
     <Compile Include="ForkedExecutionConfiguration.cs" />
-    <Compile Include="Core\ForkedJobExecutor.cs" />
+    <Compile Include="Execution\ForkedJobExecutor.cs" />
     <Compile Include="JobbrBuilderExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

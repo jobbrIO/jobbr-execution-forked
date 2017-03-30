@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Jobbr.Server.ForkedExecution.Core.ServiceMessaging
+namespace Jobbr.Server.ForkedExecution.Execution.ServiceMessaging
 {
     public class ServiceMessageParser
     {

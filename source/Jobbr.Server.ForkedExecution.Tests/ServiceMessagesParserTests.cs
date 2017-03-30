@@ -1,4 +1,4 @@
-﻿using Jobbr.Server.ForkedExecution.Core.ServiceMessaging;
+﻿using Jobbr.Server.ForkedExecution.Execution.ServiceMessaging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
