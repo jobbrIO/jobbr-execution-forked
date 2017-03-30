@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -57,6 +58,32 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             // Tearddown: Wait for Failing or Completed state to that the executable is able to exit
             this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed) || allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 10000);
+        }
+
+        [TestMethod]
+        public void PlannedJob_AfterStarting_FoldersExist()
+        {
+            // Setup
+            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+
+            var config = GivenAMinimalConfiguration();
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
+            config.JobRunDirectory = tempDir;
+
+            var executor = this.GivenAStartedExecutor(config);
+
+            // Act
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
+
+            // Wait
+            var hasStarted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Starting), 3000);
+
+            Assert.IsTrue(hasStarted, "The runner executable should have started, but did not within 3s");
+
+            Assert.IsTrue(Directory.Exists(tempDir), "The temp directory should haven been created");
+            Assert.IsTrue(Directory.Exists(Path.Combine(tempDir, $"jobbr-{fakeRun.Id}")), "The run directory should exist");
+            Assert.IsTrue(Directory.Exists(Path.Combine(tempDir, $"jobbr-{fakeRun.Id}", "work")), "The run\\work directory should exist");
         }
 
         [TestMethod]
