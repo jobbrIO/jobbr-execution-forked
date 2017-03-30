@@ -135,7 +135,7 @@ namespace Jobbr.Server.ForkedExecution.Core
         {
             lock (this.syncRoot)
             {
-                var possibleJobsToStart = this.configuration.MaxConcurrentJobs - this.activeContexts.Count;
+                var possibleJobsToStart = this.configuration.MaxConcurrentProcesses - this.activeContexts.Count;
                 var readyJobs = this.plannedJobRuns.Where(jr => jr.PlannedStartDateTimeUtc <= DateTime.UtcNow).OrderBy(jr => jr.PlannedStartDateTimeUtc).ToList();
 
                 var jobsToStart = readyJobs.Take(possibleJobsToStart).ToList();

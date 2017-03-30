@@ -89,7 +89,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
-            forkedExecutionConfiguration.MaxConcurrentJobs = 1;
+            forkedExecutionConfiguration.MaxConcurrentProcesses = 1;
             var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act: Create & send first plan
@@ -113,7 +113,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
-            forkedExecutionConfiguration.MaxConcurrentJobs = 1;
+            forkedExecutionConfiguration.MaxConcurrentProcesses = 1;
             var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act: Create & send first plan
@@ -139,7 +139,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
             
             // Only run 2 jobs at a time
-            forkedExecutionConfiguration.MaxConcurrentJobs = 2;
+            forkedExecutionConfiguration.MaxConcurrentProcesses = 2;
             var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
 
             // Act 1: Create & Send only first plan

@@ -8,7 +8,7 @@ namespace Jobbr.Server.ForkedExecution
     {
         public string BackendAddress { get; set; }
 
-        public int MaxConcurrentJobs { get; set; } = 4;
+        public int MaxConcurrentProcesses { get; set; } = 4;
 
         public Func<string> JobRunnerExeResolver { get; set; }
 
