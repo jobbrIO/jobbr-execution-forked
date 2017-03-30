@@ -56,9 +56,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
             Assert.AreEqual(2, allStatesForJob2.Count, "There should be two transitions after 3s for job2 instead got: " + string.Join(", ", allStatesForJob2.Select(s => s)));
             Assert.AreEqual(2, allStatesForJob3.Count, "There should be two transitions after 3s for job3 instead got: " + string.Join(", ", allStatesForJob3.Select(s => s)));
 
-            Assert.AreEqual(JobRunStates.Started, allStatesForJob1[1], "The last state of job1 should be 'Started'");
-            Assert.AreEqual(JobRunStates.Started, allStatesForJob2[1], "The last state of job2 should be 'Started'");
-            Assert.AreEqual(JobRunStates.Started, allStatesForJob3[1], "The last state of job3 should be 'Started'");
+            Assert.AreEqual(JobRunStates.Started, allStatesForJob1[1], "The second state of job1 should be 'Started'");
+            Assert.AreEqual(JobRunStates.Started, allStatesForJob2[1], "The second state of job2 should be 'Started'");
+            Assert.AreEqual(JobRunStates.Started, allStatesForJob3[1], "The second state of job3 should be 'Started'");
         }
 
         [TestMethod]
