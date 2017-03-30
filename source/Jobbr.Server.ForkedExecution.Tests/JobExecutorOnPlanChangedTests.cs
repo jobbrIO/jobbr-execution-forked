@@ -52,9 +52,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var allStatesForJob2 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun2.Id];
             var allStatesForJob3 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun3.Id];
 
-            Assert.AreEqual(2, allStatesForJob1.Count, "There should be two transitions instead of a timeout for job1");
-            Assert.AreEqual(2, allStatesForJob2.Count, "There should be two transitions instead of a timeout for job2");
-            Assert.AreEqual(2, allStatesForJob3.Count, "There should be two transitions instead of a timeout for job3");
+            Assert.AreEqual(2, allStatesForJob1.Count, "There should be two transitions after 3s for job1 instead got: " + string.Join(", ", allStatesForJob1.Select(s => s)));
+            Assert.AreEqual(2, allStatesForJob2.Count, "There should be two transitions after 3s for job2 instead got: " + string.Join(", ", allStatesForJob2.Select(s => s)));
+            Assert.AreEqual(2, allStatesForJob3.Count, "There should be two transitions after 3s for job3 instead got: " + string.Join(", ", allStatesForJob3.Select(s => s)));
 
             Assert.AreEqual(JobRunStates.Started, allStatesForJob1[1], "The last state of job1 should be 'Started'");
             Assert.AreEqual(JobRunStates.Started, allStatesForJob2[1], "The last state of job2 should be 'Started'");
