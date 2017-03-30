@@ -40,7 +40,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
             this.GivenAStartedBackChannelHost(config);
             var executor = this.GivenAStartedExecutor(config);
@@ -64,7 +64,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
             
             this.GivenAStartedBackChannelHost(config);
             var executor = this.GivenAStartedExecutor(config);
@@ -87,7 +87,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
             this.GivenAStartedBackChannelHost(config);
             var executor = this.GivenAStartedExecutor(config);
@@ -110,7 +110,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
             this.GivenAStartedBackChannelHost(config);
             var executor = this.GivenAStartedExecutor(config);
@@ -133,7 +133,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExeResolver = () => "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
             this.GivenAStartedBackChannelHost(config);
             var executor = this.GivenAStartedExecutor(config);

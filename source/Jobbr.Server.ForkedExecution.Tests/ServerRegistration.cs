@@ -29,7 +29,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 config.BackendAddress = backendAddress;
                 config.JobRunDirectory = Path.GetTempPath();
-                config.JobRunnerExeResolver = () => string.Empty;
+                config.JobRunnerExecutable = @"c:\windows\System32\cmd.exe";
             });
 
             var server = builder.Create();
@@ -51,7 +51,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 config.BackendAddress = backendAddress;
                 config.JobRunDirectory = Path.GetTempPath();
-                config.JobRunnerExeResolver = () => string.Empty;
+                config.JobRunnerExecutable = @"c:\windows\System32\cmd.exe";
             });
 
             var server = builder.Create();

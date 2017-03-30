@@ -66,7 +66,7 @@ namespace Jobbr.Server.ForkedExecution.Core
 
         private void StartProcess(JobRunInfo jobRun, string workDir)
         {
-            var runnerFileExe = Path.GetFullPath(this.configuration.JobRunnerExeResolver());
+            var runnerFileExe = Path.GetFullPath(this.configuration.JobRunnerExecutable);
             Logger.InfoFormat("[{0}] Preparing to start the runner from '{1}' in '{2}'", jobRun.Id, runnerFileExe, workDir);
 
             var proc = new Process { EnableRaisingEvents = true, StartInfo = { FileName = runnerFileExe } };

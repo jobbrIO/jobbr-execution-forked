@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.ComponentModel.Registration;
 
 namespace Jobbr.Server.ForkedExecution
@@ -10,7 +11,7 @@ namespace Jobbr.Server.ForkedExecution
 
         public int MaxConcurrentProcesses { get; set; } = 4;
 
-        public Func<string> JobRunnerExeResolver { get; set; }
+        public string JobRunnerExecutable { get; set; }
 
         public string JobRunDirectory { get; set; }
 

@@ -35,8 +35,7 @@ namespace Jobbr.Server.ForkedExecution
                 throw new ArgumentException("Please provide a JobRunDirectory!");
             }
 
-            // TODO: Discuss if this is needed... Also talk about the way how the resolver is set. Why is that a Func<string>?
-            if (config.JobRunnerExeResolver == null)
+            if (string.IsNullOrWhiteSpace(config.JobRunnerExecutable))
             {
                 throw new ArgumentException("You should set a runner-Executable which runs your jobs later!");
             }
