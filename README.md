@@ -3,7 +3,7 @@ Components to execute jobs in forked processes
 
 [![Master build status][execution-forked-badge-build-master]][execution-forked-link-build] 
 [![NuGet-Stable (Server)][execution-forked-server-badge-nuget]][execution-forked-server-link-nuget]
-[![NuGet-Stable (Console)][execution-forked-console-badge-nuget]][execution-forked-console-link-nuget]
+[![NuGet-Stable (Console)][execution-forked-console-badge-nuget]][execution-forked-console-link-nuget] 
 
 [![Develop build status][execution-forked-badge-build-develop]][execution-forked-link-build] 
 [![NuGet Pre-Release][execution-forked-server-badge-nuget-pre]][execution-forked-server-link-nuget] 
