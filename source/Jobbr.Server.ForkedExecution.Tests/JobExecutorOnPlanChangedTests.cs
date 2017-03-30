@@ -52,9 +52,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var allStatesForJob2 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun2.Id];
             var allStatesForJob3 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun3.Id];
 
-            Assert.AreEqual(2, allStatesForJob1.Count, "There should be two transitions after 3s for job1 instead got: " + string.Join(", ", allStatesForJob1.Select(s => s)));
-            Assert.AreEqual(2, allStatesForJob2.Count, "There should be two transitions after 3s for job2 instead got: " + string.Join(", ", allStatesForJob2.Select(s => s)));
-            Assert.AreEqual(2, allStatesForJob3.Count, "There should be two transitions after 3s for job3 instead got: " + string.Join(", ", allStatesForJob3.Select(s => s)));
+            Assert.IsTrue(allStatesForJob1.Count >= 2, "There should be at least two updates after 3s for job1, but only got: " + string.Join(", ", allStatesForJob1.Select(s => s)));
+            Assert.IsTrue(allStatesForJob2.Count >= 2, "There should be at least two updates after 3s for job2, but only got: " + string.Join(", ", allStatesForJob2.Select(s => s)));
+            Assert.IsTrue(allStatesForJob3.Count >= 2, "There should be at least two updates after 3s for job3, but only got: " + string.Join(", ", allStatesForJob3.Select(s => s)));
 
             Assert.AreEqual(JobRunStates.Started, allStatesForJob1[1], "The second state of job1 should be 'Started'");
             Assert.AreEqual(JobRunStates.Started, allStatesForJob2[1], "The second state of job2 should be 'Started'");
