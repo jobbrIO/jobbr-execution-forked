@@ -81,30 +81,6 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.Count == 2 && allUpdates.All(kvp => kvp.Value.Count >= 2), 5000);
 
             // Test
-        }
-
-        [TestMethod]
-        public void ContainsAnItemInPlan_DifferentList_ExecutesOnlySecondJob()
-        {
-            // Setup
-            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
-            forkedExecutionConfiguration.MaxConcurrentProcesses = 1;
-            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
-
-            // Act: Create & send first plan
-            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
-            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
-
-            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
-
-            // Act: Send second plan
-            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun2.PlannedJobRun }));
-
-            // Wait
-            var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(kvp => kvp.Value).Count(p => p == JobRunStates.Started) == 2, 3000);
-
-            // Test
-            Assert.IsFalse(didStart2Jobs, "Only the second job run should have been started");
             var statesPerJobRun = string.Join("\n", this.storedProgressUpdates.AllStatusUpdates.Select(u => $"- JobRun #{u.Key}, States: {string.Join(",", u.Value)}"));
             Assert.IsTrue(didStart2Jobs, "There should be two jobs that have been started after 3s instead the following states:\n\n" + statesPerJobRun);
         }
