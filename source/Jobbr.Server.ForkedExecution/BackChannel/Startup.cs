@@ -27,11 +27,6 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// </param>
         public Startup(IJobbrServiceProvider serviceProvider)
         {
-            if (serviceProvider == null)
-            {
-                throw new ArgumentException("Please provide a service provider. See http://servercoredump.com/question/27246240/inject-current-user-owin-host-web-api-service for details", nameof(serviceProvider));
-            }
-
             this.dependencyResolver = serviceProvider;
         }
 

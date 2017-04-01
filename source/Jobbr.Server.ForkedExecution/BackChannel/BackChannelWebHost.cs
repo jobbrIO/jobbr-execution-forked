@@ -40,6 +40,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             };
 
             // Pass through the IJobbrServiceProvider to allow Startup-Classes to let them inject this dependency to owin components
+            // See: http://servercoredump.com/question/27246240/inject-current-user-owin-host-web-api-service for details
             services.Add(typeof(IJobbrServiceProvider), () => this.jobbrServiceProvider);
 
             var hostingStarter = services.GetService<IHostingStarter>();
