@@ -81,7 +81,6 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.Count == 2 && allUpdates.All(kvp => kvp.Value.Count >= 2), 5000);
 
             // Test
-            Assert.IsTrue(didStart2Jobs, "There should be two jobs that have been started after 3s");
         }
 
         [TestMethod]
@@ -106,6 +105,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             // Test
             Assert.IsFalse(didStart2Jobs, "Only the second job run should have been started");
+            var statesPerJobRun = string.Join("\n", this.storedProgressUpdates.AllStatusUpdates.Select(u => $"- JobRun #{u.Key}, States: {string.Join(",", u.Value)}"));
+            Assert.IsTrue(didStart2Jobs, "There should be two jobs that have been started after 3s instead the following states:\n\n" + statesPerJobRun);
         }
 
         [TestMethod]
