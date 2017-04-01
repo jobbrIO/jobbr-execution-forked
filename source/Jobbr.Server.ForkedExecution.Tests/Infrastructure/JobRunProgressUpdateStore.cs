@@ -57,11 +57,11 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             }
         }
 
-        public bool WaitForStatusUpdate(Func<Dictionary<long, List<JobRunStates>>, bool> allUpdates, int millisecondsTimeout)
+        public bool WaitForStatusUpdate(Func<Dictionary<long, List<JobRunStates>>, bool> updatesFromAllJobs, int millisecondsTimeout)
         {
             try
             {
-                var alreadyTrue = allUpdates(this.jobRunStatusUpdates);
+                var alreadyTrue = updatesFromAllJobs(this.jobRunStatusUpdates);
                 if (alreadyTrue)
                 {
                     return true;
@@ -71,19 +71,19 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
             var are = new AutoResetEvent(false);
 
-            this.statusUpdateWaitCallBacks.Add(allUpdates, are);
+            this.statusUpdateWaitCallBacks.Add(updatesFromAllJobs, are);
 
             var successful = are.WaitOne(millisecondsTimeout, false);
-            this.statusUpdateWaitCallBacks.Remove(allUpdates);
+            this.statusUpdateWaitCallBacks.Remove(updatesFromAllJobs);
 
             return successful;
         }
 
-        public bool WaitForProgressUpdate(Func<Dictionary<long, List<double>>, bool> allUpdates, int millisecondsTimeout)
+        public bool WaitForProgressUpdate(Func<Dictionary<long, List<double>>, bool> updatesFromAllJobs, int millisecondsTimeout)
         {
             try
             {
-                var alreadyTrue = allUpdates(this.jobRunProgressUpdates);
+                var alreadyTrue = updatesFromAllJobs(this.jobRunProgressUpdates);
                 if (alreadyTrue)
                 {
                     return true;
@@ -93,10 +93,10 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
             var are = new AutoResetEvent(false);
 
-            this.progressUpdateWaitCallBacks.Add(allUpdates, are);
+            this.progressUpdateWaitCallBacks.Add(updatesFromAllJobs, are);
 
             var successful = are.WaitOne(millisecondsTimeout, false);
-            this.progressUpdateWaitCallBacks.Remove(allUpdates);
+            this.progressUpdateWaitCallBacks.Remove(updatesFromAllJobs);
 
             return successful;
         }
