@@ -74,11 +74,11 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
             
-            // Act: Second Plan
-            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun2.PlannedJobRun }));
+            // Act: Second Plan that also contains the first item (would not start the first anymore...)
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun }));
 
             // Wait
-            var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(kvp => kvp.Value).Count() == 2, 3000);
+            var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.Count == 2 && allUpdates.All(kvp => kvp.Value.Count >= 2), 5000);
 
             // Test
             Assert.IsTrue(didStart2Jobs, "There should be two jobs that have been started after 3s");
