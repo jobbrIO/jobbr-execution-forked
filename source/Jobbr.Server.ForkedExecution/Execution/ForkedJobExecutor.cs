@@ -26,8 +26,8 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
         private readonly List<JobRunContext> activeContexts = new List<JobRunContext>();
 
-        private readonly Timer timer;
         private readonly object syncRoot = new object();
+        private Timer timer;
 
         public ForkedJobExecutor(IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel, ForkedExecutionConfiguration configuration)
         {
@@ -40,6 +40,8 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
         public void Dispose()
         {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public void Start()
@@ -129,6 +131,19 @@ namespace Jobbr.Server.ForkedExecution.Execution
         public bool OnJobRunCanceled(long id)
         {
             throw new NotImplementedException();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // free managed resources
+                if (this.timer != null)
+                {
+                    this.timer.Dispose();
+                    this.timer = null;
+                }
+            }
         }
 
         private void StartReadyJobsFromQueue(object state)
