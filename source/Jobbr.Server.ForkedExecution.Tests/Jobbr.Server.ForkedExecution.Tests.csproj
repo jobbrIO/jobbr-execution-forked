@@ -112,6 +112,7 @@
     <Compile Include="ServiceMessagesParserTests.cs" />
     <Compile Include="TcpPortHelper.cs" />
     <Compile Include="TestBase.cs" />
+    <Compile Include="BackChannelWebHostTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Jobbr.Server.ForkedExecution.TestEcho\Jobbr.Server.ForkedExecution.TestEcho.csproj">

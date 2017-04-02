@@ -28,10 +28,17 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 
         public void Dispose()
         {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public void Start()
         {
+            if (this.webHost != null)
+            {
+                throw new InvalidOperationException("The server has already been started.");
+            }
+
             var services = (ServiceProvider)ServicesFactory.Create();
             var options = new StartOptions()
             {
@@ -53,6 +60,18 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         public void Stop()
         {
             this.webHost.Dispose();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // free managed resources
+                if (this.webHost != null)
+                {
+                    this.webHost.Dispose();
+                }
+            }
         }
     }
 }
