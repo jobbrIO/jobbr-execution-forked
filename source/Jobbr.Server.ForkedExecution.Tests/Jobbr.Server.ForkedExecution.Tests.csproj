@@ -108,11 +108,11 @@
     <Compile Include="JobExecutorOnPlanChangedTests.cs" />
     <Compile Include="Infrastructure\JobRunInfoServiceMock.cs" />
     <Compile Include="Infrastructure\JobRunProgressUpdateStore.cs" />
-    <Compile Include="ServerRegistration.cs" />
+    <Compile Include="ServerRegistrationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceMessagesParserTests.cs" />
-    <Compile Include="TcpPortHelper.cs" />
-    <Compile Include="TestBase.cs" />
+    <Compile Include="Infrastructure\TcpPortHelper.cs" />
+    <Compile Include="Infrastructure\TestBase.cs" />
     <Compile Include="BackChannelWebHostTests.cs" />
   </ItemGroup>
   <ItemGroup>

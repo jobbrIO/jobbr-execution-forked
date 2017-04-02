@@ -2,12 +2,13 @@
 using System.Net;
 using System.Net.Http;
 using Jobbr.Server.Builder;
+using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
 {
     [TestClass]
-    public class ServerRegistration
+    public class ServerRegistrationTests
     {
         [TestMethod]
         public void WithInMemoryServer_ServerHasStarted_StatusEndpointIsAvailable()
