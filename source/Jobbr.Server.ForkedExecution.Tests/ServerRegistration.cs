@@ -30,27 +30,5 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             Assert.AreEqual(HttpStatusCode.OK, statusResponse.StatusCode);
         }
-
-        [TestMethod]
-        public void WithInMemoryServer_ServerHasStarted_JobRunInfoEndpointIsAvailable()
-        {
-            var backendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort();
-
-            var builder = new JobbrBuilder();
-            builder.AddForkedExecution(config =>
-            {
-                config.BackendAddress = backendAddress;
-                config.JobRunDirectory = Path.GetTempPath();
-                config.JobRunnerExecutable = @"c:\windows\System32\cmd.exe";
-            });
-
-            var server = builder.Create();
-
-            server.Start();
-
-            var statusResponse = new HttpClient().GetAsync(backendAddress + "/fex/jobrun/524868244").Result;
-
-            Assert.AreEqual(HttpStatusCode.NotFound, statusResponse.StatusCode);
-        }
     }
 }

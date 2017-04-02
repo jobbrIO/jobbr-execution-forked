@@ -100,6 +100,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="EndpointTests.cs" />
     <Compile Include="ExecutorRuntimeIntegrationTests.cs" />
     <Compile Include="Infrastructure\FakeJobRunStoreTuple.cs" />
     <Compile Include="Infrastructure\FakeGeneratedJobRunsStore.cs" />
