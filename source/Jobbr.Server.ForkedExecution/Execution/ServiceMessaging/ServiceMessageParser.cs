@@ -7,6 +7,13 @@ namespace Jobbr.Server.ForkedExecution.Execution.ServiceMessaging
 {
     public class ServiceMessageParser
     {
+        private static readonly IEnumerable<Type> KnownTypes;
+
+        static ServiceMessageParser()
+        {
+            KnownTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(asm => asm.GetTypes());
+        }
+
         public ServiceMessage Parse(string serviceMessage)
         {
             var messageTypeRaw = string.Empty;
@@ -27,8 +34,14 @@ namespace Jobbr.Server.ForkedExecution.Execution.ServiceMessaging
 
             // Identity CLR-MessageType
             var typeNameLowerCase = messageTypeRaw + "servicemessage";
-            var messageTypes = typeof(ServiceMessage).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(ServiceMessage)));
+
+            var messageTypes = KnownTypes.Where(t => t.IsSubclassOf(typeof(ServiceMessage)));
             var type = messageTypes.FirstOrDefault(t => string.Equals(t.Name.ToLowerInvariant(), typeNameLowerCase, StringComparison.Ordinal));
+
+            if (type == null)
+            {
+                return null;
+            }
 
             // Identity Parameters
             var splitted = parametersRaw.Split(new[] { '\'', '=' }, StringSplitOptions.RemoveEmptyEntries);

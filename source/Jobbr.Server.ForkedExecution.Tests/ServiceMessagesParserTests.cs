@@ -13,16 +13,69 @@ namespace Jobbr.Server.ForkedExecution.Tests
     public class ServiceMessagesParserTests
     {
         [TestMethod]
-        public void CanParseProgressMessage()
+        public void MessageWithDoubleValue_WhenParsed_ContainsValue()
         {
             var parser = new ServiceMessageParser();
 
-            var raw = "##jobbr[progress percent='55.34']";
+            var raw = "##jobbr[double value='55.34']";
 
-            var message = (ProgressServiceMessage)parser.Parse(raw);
+            var message = (DoubleServiceMessage)parser.Parse(raw);
 
             Assert.IsNotNull(message);
-            Assert.AreEqual(55.34, message.Percent);
+            Assert.AreEqual(55.34, message.Value);
+        }
+
+        [TestMethod]
+        public void UnknownMessageType_WhenParsed_ReturnsNull()
+        {
+            var parser = new ServiceMessageParser();
+
+            var raw = "##jobbr[blabla value='57']";
+
+            var message = parser.Parse(raw);
+
+            Assert.IsNull(message);
+        }
+
+        [TestMethod]
+        public void MessageWitIntValue_WhenParsed_ContainsValue()
+        {
+            var parser = new ServiceMessageParser();
+
+            var raw = "##jobbr[integer value='57']";
+
+            var message = (IntegerServiceMessage)parser.Parse(raw);
+
+            Assert.IsNotNull(message);
+            Assert.AreEqual(57, message.Value);
+        }
+
+        [TestMethod]
+        public void MessageWitStringValue_WhenParsed_ContainsValue()
+        {
+            var parser = new ServiceMessageParser();
+
+            var raw = "##jobbr[string value='hello world']";
+
+            var message = (StringServiceMessage)parser.Parse(raw);
+
+            Assert.IsNotNull(message);
+            Assert.AreEqual("hello world", message.Value);
+        }
+
+        public class DoubleServiceMessage : ServiceMessage
+        {
+            public double Value { get; set; }
+        }
+
+        public class IntegerServiceMessage : ServiceMessage
+        {
+            public int Value { get; set; }
+        }
+
+        public class StringServiceMessage : ServiceMessage
+        {
+            public string Value { get; set; }
         }
     }
 }
