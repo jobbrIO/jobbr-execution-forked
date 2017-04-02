@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using Jobbr.Server.Builder;
+using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests

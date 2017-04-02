@@ -1,8 +1,7 @@
 using System.IO;
 using Jobbr.Server.ForkedExecution.Execution;
-using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 
-namespace Jobbr.Server.ForkedExecution.Tests
+namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 {
     public class TestBase
     {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Jobbr.ComponentModel.Execution.Model;
+using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
