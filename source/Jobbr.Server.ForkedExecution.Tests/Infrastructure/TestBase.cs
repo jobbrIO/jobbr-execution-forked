@@ -22,7 +22,8 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             {
                 BackendAddress = "notNeeded",
                 JobRunDirectory = Path.GetTempPath(),
-                JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe"
+                JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe",
+                MaxConcurrentProcesses = 4
             };
 
             return forkedExecutionConfiguration;
