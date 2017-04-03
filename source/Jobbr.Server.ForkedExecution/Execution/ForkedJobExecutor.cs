@@ -69,7 +69,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 Logger.Debug($"ForkedJobExecutor started. Backchannel will be available @ '{this.configuration.BackendAddress}'");
 
                 // ReSharper disable once InconsistentlySynchronizedField
-                Logger.InfoFormat("Enabling periodic check for JobRuns to start every {0}s", StartNewJobsEverySeconds);
+                Logger.Info($"Enabling periodic check for JobRuns to start every {StartNewJobsEverySeconds}s");
                 this.timer.Change(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(StartNewJobsEverySeconds));
             });
         }
@@ -91,7 +91,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
                     return;
                 }
 
-                Logger.InfoFormat("Got a plan with {0} scheduled JobRuns with an upcoming startdate", newPlan.Count);
+                Logger.InfoFormat($"Got a plan with {newPlan.Count} scheduled JobRuns with an upcoming startdate");
 
                 // Update startdates of existing
                 foreach (var plannedJobRun in newPlan)
@@ -111,14 +111,14 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 this.plannedJobRuns.AddRange(toAdd);
                 hadChanges += toAdd.Count;
 
-                Logger.InfoFormat("Added {0} new planned jobruns based on the new plan", toAdd.Count);
+                Logger.InfoFormat($"Added {toAdd.Count} new planned jobruns based on the new plan");
 
                 // Remove non existing
                 var toRemove = this.plannedJobRuns.Where(existingItem => newPlan.All(newItem => existingItem.Id != newItem.Id)).ToList();
                 this.plannedJobRuns.RemoveAll(p => toRemove.Contains(p));
                 hadChanges += toRemove.Count;
 
-                Logger.InfoFormat("Removed {0} previously planned jobruns.", toRemove.Count);
+                Logger.InfoFormat($"Removed {toRemove.Count} previously planned jobruns.");
             }
 
             if (hadChanges > 0)
@@ -161,7 +161,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
                 if ((queueCannotStartAll && showStatusInformationNow) || canStartAllReadyJobs)
                 {
-                    Logger.InfoFormat("There are {0} planned jobs in the queue and currently {1} running jobs. Number of possible jobs to start: {2}", readyJobs.Count, this.activeContexts.Count, possibleJobsToStart);
+                    Logger.Info($"There are {readyJobs.Count} planned jobs in the queue and currently {this.activeContexts.Count} running jobs. Number of possible jobs to start: {possibleJobsToStart}");
                 }
 
                 foreach (var jobRun in jobsToStart)
@@ -203,7 +203,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 jobRunContext.Ended -= this.ContextOnEnded;
 
                 run = args.JobRun;
-                Logger.InfoFormat("Removing context for JobRun with Id: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId);
+                Logger.InfoFormat($"Removing context for JobRun with Id: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})");
 
                 this.activeContexts.Remove(jobRunContext);
             }
@@ -216,12 +216,12 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 }
                 catch (Exception e)
                 {
-                    Logger.ErrorException(string.Format("Exception while setting the end-time of the jobRun with id: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId), e);
+                    Logger.ErrorException($"Exception while setting the end-time of the jobRun with id: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})", e);
                 }
             }
             else
             {
-                Logger.WarnFormat("The process within the context JobRun has exited with a non-zero exit code. JobRunId: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId);
+                Logger.WarnFormat($"The process within the context JobRun has exited with a non-zero exit code. JobRunId: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})");
 
                 try
                 {
@@ -229,7 +229,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 }
                 catch (Exception e)
                 {
-                    Logger.ErrorException(string.Format("Exception while setting the 'Failed'-State to the jobRun with id: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId), e);
+                    Logger.ErrorException($"Exception while setting the 'Failed'-State to the jobRun with id: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})", e);
                 }
             }
 
