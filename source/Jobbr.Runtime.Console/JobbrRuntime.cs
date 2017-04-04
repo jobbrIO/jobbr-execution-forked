@@ -379,7 +379,32 @@ namespace Jobbr.Runtime.Console
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.client != null)
+                {
+                    this.client.Dispose();
+                    this.client = null;
+                }
+
+                if (this.cancellationTokenSource != null)
+                {
+                    this.cancellationTokenSource.Dispose();
+                    this.cancellationTokenSource = null;
+                }
+
+                if (this.jobRunTask != null)
+                {
+                    this.jobRunTask.Dispose();
+                    this.jobRunTask = null;
+                }
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Jobbr.Runtime.Console
     {
         private readonly long jobRunId;
 
-        private readonly HttpClient httpClient;
+        private HttpClient httpClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JobbrRuntimeClient"/> class.
@@ -88,7 +88,11 @@ namespace Jobbr.Runtime.Console
         {
             if (isDisposing)
             {
-                this.httpClient?.Dispose();
+                if (this.httpClient != null)
+                {
+                    this.httpClient.Dispose();
+                    this.httpClient = null;
+                }
             }
         }
     }
