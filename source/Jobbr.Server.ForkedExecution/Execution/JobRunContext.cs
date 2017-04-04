@@ -8,13 +8,6 @@ using Jobbr.Server.ForkedExecution.Logging;
 
 namespace Jobbr.Server.ForkedExecution.Execution
 {
-    public interface IJobRunContext
-    {
-        event EventHandler<JobRunEndedEventArgs> Ended;
-
-        void Start();
-    }
-
     /// <summary>
     /// The runner process.
     /// </summary>

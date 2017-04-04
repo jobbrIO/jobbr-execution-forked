@@ -99,6 +99,8 @@
     <Compile Include="ConfigurationValidator.cs" />
     <Compile Include="Execution\FixedIntervalTimer.cs" />
     <Compile Include="Execution\IDateTimeProvider.cs" />
+    <Compile Include="Execution\IJobRunContext.cs" />
+    <Compile Include="Execution\IJobRunContextFactory.cs" />
     <Compile Include="Execution\IPeriodicTimer.cs" />
     <Compile Include="Execution\JobRunContext.cs" />
     <Compile Include="Execution\JobRunContextFactory.cs" />
