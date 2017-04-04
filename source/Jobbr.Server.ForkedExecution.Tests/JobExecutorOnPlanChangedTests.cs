@@ -134,7 +134,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
             this.manualTimeProvider.AddSecond();
-            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun }));
 
             // Act 2: Send updated plan
             this.manualTimeProvider.AddSecond();
