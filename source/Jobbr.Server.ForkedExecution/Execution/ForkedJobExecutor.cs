@@ -22,6 +22,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
         private readonly ForkedExecutionConfiguration configuration;
         private readonly IJobRunProgressChannel progressChannel;
         private readonly IPeriodicTimer periodicTimer;
+        private readonly IDateTimeProvider dateTimeProvider;
 
         private readonly List<PlannedJobRun> plannedJobRuns = new List<PlannedJobRun>();
 
@@ -29,12 +30,13 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
         private readonly object syncRoot = new object();
 
-        public ForkedJobExecutor(IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel, IPeriodicTimer periodicTimer, ForkedExecutionConfiguration configuration)
+        public ForkedJobExecutor(IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel, IPeriodicTimer periodicTimer, IDateTimeProvider dateTimeProvider, ForkedExecutionConfiguration configuration)
         {
             this.jobRunInformationService = jobRunInformationService;
             this.configuration = configuration;
             this.progressChannel = progressChannel;
             this.periodicTimer = periodicTimer;
+            this.dateTimeProvider = dateTimeProvider;
 
             this.periodicTimer.Setup(this.StartReadyJobsFromQueue, StartNewJobsEverySeconds);
         }
@@ -148,7 +150,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
             lock (this.syncRoot)
             {
                 var possibleJobsToStart = this.configuration.MaxConcurrentProcesses - this.activeContexts.Count;
-                var readyJobs = this.plannedJobRuns.Where(jr => jr.PlannedStartDateTimeUtc <= DateTime.UtcNow).OrderBy(jr => jr.PlannedStartDateTimeUtc).ToList();
+                var readyJobs = this.plannedJobRuns.Where(jr => jr.PlannedStartDateTimeUtc <= this.dateTimeProvider.GetUtcNow()).OrderBy(jr => jr.PlannedStartDateTimeUtc).ToList();
 
                 var jobsToStart = readyJobs.Take(possibleJobsToStart).ToList();
 

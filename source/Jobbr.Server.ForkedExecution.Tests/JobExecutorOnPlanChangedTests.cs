@@ -19,6 +19,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             // Act
             var fakeJobRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeJobRun.PlannedJobRun, }));
 
             // Wait
@@ -43,6 +45,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Wait for 3 Jobs with at least 2 updates each
@@ -73,9 +76,11 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
-            
+
             // Act: Second Plan that also contains the first item (would not start the first anymore...)
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun }));
 
             // Wait
@@ -97,10 +102,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Act: Create & send first plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow.AddDays(1));
 
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
 
             // Act: Send second plan
             var updatedJobRun1 = new PlannedJobRun { Id = fakeJobRun1.Id, PlannedStartDateTimeUtc = DateTime.UtcNow };
+
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { updatedJobRun1 }));
 
             // Wait
@@ -125,9 +133,11 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Act 2: Send updated plan
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Wait

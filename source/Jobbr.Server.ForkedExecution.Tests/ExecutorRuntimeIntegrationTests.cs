@@ -49,6 +49,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
             // Act
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeRun.PlannedJobRun }));
 
             // Test
@@ -74,6 +75,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             // Act
             var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Wait
@@ -100,6 +103,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             fakeRun.JobRunInfo.Type = "NotExistentClrType";
 
             // Act
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
@@ -123,6 +127,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             fakeRun.JobRunInfo.Type = "SimpleJob";
 
             // Act
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
@@ -146,6 +151,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             fakeRun.JobRunInfo.Type = "JobWithArtefacts";
 
             // Act
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
@@ -169,6 +175,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             fakeRun.JobRunInfo.Type = "JobWithOneProgress";
 
             // Act
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
@@ -199,6 +206,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var expectedWorkdir = Path.Combine(tempDir, $"jobbr-{fakeRun.Id}", "work");
 
             // Act
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Wait until process has exited
@@ -231,6 +239,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var expectedWorkdir = Path.Combine(tempDir, $"jobbr-{fakeRun.Id}", "work");
 
             // Act
+            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Wait until process has exited
