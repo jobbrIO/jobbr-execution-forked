@@ -120,5 +120,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
             this.jobRunArtefactUploads[uniqueId].Add(fileName);
         }
+
+        public void PublishPid(long jobRunId, int pid, string host)
+        {
+        }
     }
 }

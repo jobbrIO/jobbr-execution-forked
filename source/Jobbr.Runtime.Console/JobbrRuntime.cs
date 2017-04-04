@@ -270,7 +270,7 @@ namespace Jobbr.Runtime.Console
             this.context = new RuntimeContext
             {
                 UserId = this.jobInfo.UserId,
-                UserName = this.jobInfo.UserName
+                UserDisplayName = this.jobInfo.UserDisplayName
             };
 
             var registrator = this.dependencyResolver as IJobbrDependencyRegistrator;

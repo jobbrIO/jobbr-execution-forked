@@ -12,6 +12,6 @@ namespace Jobbr.Server.ForkedExecution
 
         public long TriggerId { get; internal set; }
 
-        public long? UserId { get; internal set; }
+        public string UserId { get; internal set; }
     }
 }

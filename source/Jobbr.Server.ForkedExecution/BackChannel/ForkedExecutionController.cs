@@ -43,7 +43,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 JobId = jobRun.JobId,
                 TriggerId = jobRun.TriggerId,
                 UserId = jobRun.UserId,
-                Username = jobRun.Username,
+                UserDisplayName = jobRun.UserDisplayName,
                 JobRunId = jobRunId,
                 JobName = jobRun.UniqueName,
                 JobType = jobRun.Type,

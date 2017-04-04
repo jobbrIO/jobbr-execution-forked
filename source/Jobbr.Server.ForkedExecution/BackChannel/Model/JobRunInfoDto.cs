@@ -11,9 +11,9 @@ namespace Jobbr.Server.ForkedExecution.BackChannel.Model
 
         public long TriggerId { get; set; }
 
-        public long? UserId { get; set; }
+        public string UserId { get; set; }
 
-        public string Username { get; set; }
+        public string UserDisplayName { get; set; }
 
         public long JobRunId { get; set; }
 
