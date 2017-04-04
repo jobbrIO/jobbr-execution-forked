@@ -15,7 +15,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
-            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
 
             // Act
             var fakeJobRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
@@ -24,13 +24,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeJobRun.PlannedJobRun, }));
 
             // Wait
-            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeJobRun.Id].Count == 2, 3000);
+            this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun.Id].Contains(JobRunStates.Starting), 3000);
 
             // Test
             var allStatesForJob = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun.Id];
 
-            Assert.AreEqual(2, allStatesForJob.Count, "There should be two transitions instead of a timeout");
-            Assert.AreEqual(JobRunStates.Started, allStatesForJob[1], "The last state should be 'Started' even if the process has exited sucesfully because the runtime needs to set the 'Complete'-State");
+            Assert.AreEqual(1, allStatesForJob.Count, "There should be two transitions instead of a timeout");
+            Assert.AreEqual(JobRunStates.Starting, allStatesForJob[0], "The Mock should have issued the state 'Starting'");
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
-            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
 
             // Act: create jobruns & send plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
@@ -49,20 +49,17 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Wait for 3 Jobs with at least 2 updates each
-            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.Count == 3 && allUpdates.All(kvp => kvp.Value.Count >= 2), 3000);
+            this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 3 && updatesFromAllJobs.All(kvp => kvp.Value.Contains(JobRunStates.Starting)), 3000);
 
             // Test
             var allStatesForJob1 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun1.Id];
             var allStatesForJob2 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun2.Id];
             var allStatesForJob3 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun3.Id];
 
-            Assert.IsTrue(allStatesForJob1.Count >= 2, "There should be at least two updates after 3s for job1, but only got: " + string.Join(", ", allStatesForJob1.Select(s => s)));
-            Assert.IsTrue(allStatesForJob2.Count >= 2, "There should be at least two updates after 3s for job2, but only got: " + string.Join(", ", allStatesForJob2.Select(s => s)));
-            Assert.IsTrue(allStatesForJob3.Count >= 2, "There should be at least two updates after 3s for job3, but only got: " + string.Join(", ", allStatesForJob3.Select(s => s)));
-
-            Assert.AreEqual(JobRunStates.Started, allStatesForJob1[1], "The second state of job1 should be 'Started'");
-            Assert.AreEqual(JobRunStates.Started, allStatesForJob2[1], "The second state of job2 should be 'Started'");
-            Assert.AreEqual(JobRunStates.Started, allStatesForJob3[1], "The second state of job3 should be 'Started'");
+            Assert.AreEqual(3, this.jobRunContextMockFactory.Count, "The factory should have created only the requested amount of contexts");
+            Assert.AreEqual(JobRunStates.Starting, allStatesForJob1[0], "The first state of job1 should be 'Starting'");
+            Assert.AreEqual(JobRunStates.Starting, allStatesForJob2[0], "The first state of job2 should be 'Starting'");
+            Assert.AreEqual(JobRunStates.Starting, allStatesForJob3[0], "The first state of job3 should be 'Starting'");
         }
 
         [TestMethod]
@@ -70,7 +67,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
-            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
 
             // Act: Create & send First Plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
@@ -84,7 +81,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun }));
 
             // Wait
-            var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.Count == 2 && allUpdates.All(kvp => kvp.Value.Count >= 2), 5000);
+            var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 2 && updatesFromAllJobs.All(kvp => kvp.Value.Contains(JobRunStates.Starting)), 5000);
 
             // Test
             var statesPerJobRun = string.Join("\n", this.storedProgressUpdates.AllStatusUpdates.Select(u => $"- JobRun #{u.Key}, States: {string.Join(",", u.Value)}"));
@@ -97,7 +94,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
             forkedExecutionConfiguration.MaxConcurrentProcesses = 1;
-            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
 
             // Act: Create & send first plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow.AddDays(1));
@@ -108,25 +105,26 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Act: Send second plan
             var updatedJobRun1 = new PlannedJobRun { Id = fakeJobRun1.Id, PlannedStartDateTimeUtc = DateTime.UtcNow };
 
+            // Move time a bit up to that the updated jobRun gets executed
             this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { updatedJobRun1 }));
 
             // Wait
-            var didStartJob = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(kvp => kvp.Value).Count() == 2, 3000);
+            var didStartJob = this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun1.Id].Contains(JobRunStates.Starting), 3000);
 
             // Test
-            Assert.IsTrue(didStartJob, "A job should have been started.");
+            Assert.IsTrue(didStartJob, "A job should have been starting.");
         }
 
         [TestMethod]
-        public void LimitTo2Jobs_GetsNewPlanWith3Jobs_ExecutesMaxConfiguredJobs()
+        public void LimitTo2JobsAndStartWith2_GetsUpdatedPlanWith3Jobs_DoesNotStartThird()
         {
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
             
             // Only run 2 jobs at a time
             forkedExecutionConfiguration.MaxConcurrentProcesses = 2;
-            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
 
             // Act 1: Create & Send only first plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
@@ -141,7 +139,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Wait
-            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeJobRun1.Id].Count + allUpdates[fakeJobRun2.Id].Count == 4, 3000);
+            this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun1.Id].Count + updatesFromAllJobs[fakeJobRun2.Id].Count == 2, 3000);
 
             // Test
             Assert.IsFalse(this.storedProgressUpdates.AllStatusUpdates.ContainsKey(fakeJobRun3.Id), "There should be no updates for the third job");
