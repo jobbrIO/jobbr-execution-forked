@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
@@ -40,7 +38,6 @@ namespace Jobbr.Server.ForkedExecution.Execution
             this.progressChannel = progressChannel;
             this.periodicTimer = periodicTimer;
             this.dateTimeProvider = dateTimeProvider;
-
 
             this.periodicTimer.Setup(this.StartReadyJobsFromQueue, StartNewJobsEverySeconds);
         }
@@ -93,12 +90,6 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
             lock (this.syncRoot)
             {
-                // Load all existing Schedules into the local memory
-                if (!newPlan.Any())
-                {
-                    return;
-                }
-
                 Logger.InfoFormat($"Got a plan with {newPlan.Count} scheduled JobRuns with an upcoming startdate");
 
                 // Update startdates of existing
