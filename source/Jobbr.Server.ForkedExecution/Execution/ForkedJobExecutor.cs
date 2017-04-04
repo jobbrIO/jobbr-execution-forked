@@ -162,12 +162,14 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 {
                     Logger.Debug($"Trying to start job with Id '{jobRun.Id}' which was planned for {jobRun.PlannedStartDateTimeUtc}.");
 
+                    IJobRunContext wrapper = null;
+
                     try
                     {
                         Logger.Debug($"Getting Metadata for a job (Id '{jobRun.Id}') that needs to be started.");
                         var jobRunInfo = this.jobRunInformationService.GetByJobRunId(jobRun.Id);
 
-                        var wrapper = this.jobRunContextFactory.CreateJobRunContext(jobRunInfo);
+                        wrapper = this.jobRunContextFactory.CreateJobRunContext(jobRunInfo);
 
                         this.activeContexts.Add(wrapper);
                         this.plannedJobRuns.Remove(jobRun);
@@ -177,6 +179,11 @@ namespace Jobbr.Server.ForkedExecution.Execution
                     }
                     catch (Exception e)
                     {
+                        if (wrapper != null)
+                        {
+                            wrapper.Ended -= this.ContextOnEnded;
+                        }
+
                         Logger.ErrorException($"Exception was thrown while starting a new JobRun with Id: {jobRun.Id}.", e);
                     }
                 }
