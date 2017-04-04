@@ -148,31 +148,37 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
-        public void StartOverbooked_RemoveQueued_DoesNotStartRemoved()
+        public void StartOverbooked_ReducedPlan_DoesNotStartRemoved()
         {
-            Assert.Inconclusive("Test is unreliable because it dependes on a race-condition and bug to not fail.");
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
 
             // Only run 2 jobs at a time
             forkedExecutionConfiguration.MaxConcurrentProcesses = 2;
-            var executor = this.GivenAStartedExecutor(forkedExecutionConfiguration);
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
 
-            // Act 1: Create & Send only first plan
+            // Create & Send only first plan
             var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
-            this.manualTimeProvider.AddSecond();
+            // Increase current time so that the fake jobs are in the past
+            this.manualTimeProvider.AddSecond(); 
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
-            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates.SelectMany(j => j.Value).Count(s => s == JobRunStates.Completed) == 2, 6000);
-
             // Act 2: Send an empty plan
-            this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>());
 
-            // Wait
+            // Complete 1. Job
+            this.jobRunContextMockFactory[fakeJobRun1.Id].RaiseEnded();
+
+            // Should not have created an additional jobruns
+            this.manualTimeProvider.AddSecond();
+
+            // Force starting new possible runs
+            this.periodicTimerMock.CallbackOnce();
+
+            Assert.AreEqual(2, this.jobRunContextMockFactory.Count);
         }
     }
 }
