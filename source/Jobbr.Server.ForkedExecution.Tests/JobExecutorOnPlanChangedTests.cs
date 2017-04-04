@@ -117,6 +117,33 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
+        public void StartDateInFuture_MoveToFuture_ShouldExecute()
+        {
+            // Setup
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+            forkedExecutionConfiguration.MaxConcurrentProcesses = 1;
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
+
+            // Act: Create & send first plan
+            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow.AddDays(1));
+
+            this.manualTimeProvider.AddSecond();
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun }));
+
+            // Act: Move time to future
+            this.manualTimeProvider.Set(DateTime.UtcNow.AddDays(1));
+
+            // Force re-evaluation
+            this.periodicTimerMock.CallbackOnce();
+
+            // Wait
+            var didStartJob = this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun1.Id].Contains(JobRunStates.Starting), 3000);
+
+            // Test
+            Assert.IsTrue(didStartJob, "A job should have been starting.");
+        }
+
+        [TestMethod]
         public void LimitTo2JobsAndStartWith2_GetsUpdatedPlanWith3Jobs_DoesNotStartThird()
         {
             // Setup
@@ -143,6 +170,41 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             // Test
             Assert.IsFalse(this.storedProgressUpdates.AllStatusUpdates.ContainsKey(fakeJobRun3.Id), "There should be no updates for the third job");
+        }
+
+        [TestMethod]
+        public void LimitTo2JobsAndStartWith2_GetsUpdatedPlanWith3Jobs_StartsThirdIfCapacityIsAvailable()
+        {
+            // Setup
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+
+            // Only run 2 jobs at a time
+            forkedExecutionConfiguration.MaxConcurrentProcesses = 2;
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
+
+            // Act 1: Create & Send only first plan
+            var fakeJobRun1 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            var fakeJobRun2 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            var fakeJobRun3 = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+
+            this.manualTimeProvider.AddSecond();
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun }));
+
+            // Act 2: Send updated plan
+            this.manualTimeProvider.AddSecond();
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
+
+            // Act 3: Set the first job to completed
+            this.jobRunContextMockFactory[fakeJobRun1.Id].RaiseEnded();
+
+            // Simulate timer
+            this.periodicTimerMock.CallbackOnce();
+
+            // Wait (optional)
+            this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 3, 3000);
+
+            // Test
+            Assert.AreEqual(3, this.jobRunContextMockFactory.Count, "The third job should have been started after the first one has ended");
         }
 
         [TestMethod]
