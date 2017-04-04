@@ -106,6 +106,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public void Start()
         {
+            this.progressChannel.PublishStatusUpdate(this.jobRunInfo.Id, JobRunStates.Starting);
         }
 
         public void RaiseProgressUpdate(double progress)
