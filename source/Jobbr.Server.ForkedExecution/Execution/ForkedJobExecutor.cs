@@ -176,8 +176,8 @@ namespace Jobbr.Server.ForkedExecution.Execution
                         this.activeContexts.Add(wrapper);
                         this.plannedJobRuns.Remove(jobRun);
 
-                        wrapper.Start();
                         wrapper.Ended += this.ContextOnEnded;
+                        wrapper.Start();
                     }
                     catch (Exception e)
                     {
