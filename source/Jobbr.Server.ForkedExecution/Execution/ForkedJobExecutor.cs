@@ -21,21 +21,22 @@ namespace Jobbr.Server.ForkedExecution.Execution
         private readonly IJobRunInformationService jobRunInformationService;
         private readonly ForkedExecutionConfiguration configuration;
         private readonly IJobRunProgressChannel progressChannel;
+        private readonly IPeriodicTimer periodicTimer;
 
         private readonly List<PlannedJobRun> plannedJobRuns = new List<PlannedJobRun>();
 
         private readonly List<JobRunContext> activeContexts = new List<JobRunContext>();
 
         private readonly object syncRoot = new object();
-        private Timer timer;
 
-        public ForkedJobExecutor(IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel, ForkedExecutionConfiguration configuration)
+        public ForkedJobExecutor(IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel, IPeriodicTimer periodicTimer, ForkedExecutionConfiguration configuration)
         {
             this.jobRunInformationService = jobRunInformationService;
             this.configuration = configuration;
             this.progressChannel = progressChannel;
+            this.periodicTimer = periodicTimer;
 
-            this.timer = new Timer(this.StartReadyJobsFromQueue, null, Timeout.Infinite, Timeout.Infinite);
+            this.periodicTimer.Setup(this.StartReadyJobsFromQueue, StartNewJobsEverySeconds);
         }
 
         public void Dispose()
@@ -70,13 +71,14 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
                 // ReSharper disable once InconsistentlySynchronizedField
                 Logger.Info($"Enabling periodic check for JobRuns to start every {StartNewJobsEverySeconds}s");
-                this.timer.Change(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(StartNewJobsEverySeconds));
+
+                this.periodicTimer.Start();
             });
         }
 
         public void Stop()
         {
-            this.timer.Change(Timeout.Infinite, Timeout.Infinite);
+            this.periodicTimer.Stop();
         }
 
         public void OnPlanChanged(List<PlannedJobRun> newPlan)
@@ -124,7 +126,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
             if (hadChanges > 0)
             {
                 // Immediately handle changes
-                this.timer.Change(TimeSpan.FromMilliseconds(0), TimeSpan.FromSeconds(StartNewJobsEverySeconds));
+                this.StartReadyJobsFromQueue();
             }
         }
 
@@ -138,15 +140,10 @@ namespace Jobbr.Server.ForkedExecution.Execution
             if (disposing)
             {
                 // free managed resources
-                if (this.timer != null)
-                {
-                    this.timer.Dispose();
-                    this.timer = null;
-                }
             }
         }
 
-        private void StartReadyJobsFromQueue(object state)
+        private void StartReadyJobsFromQueue()
         {
             lock (this.syncRoot)
             {

@@ -8,6 +8,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         protected FakeGeneratedJobRunsStore jobRunFakeTuples;
         protected JobRunProgressUpdateStore storedProgressUpdates;
         protected JobRunInfoServiceMock jobRunInformationService;
+        private PeriodicTimerMock periodicTimerMock;
 
         public TestBase()
         {
@@ -31,7 +32,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         protected ForkedJobExecutor GivenAStartedExecutor(ForkedExecutionConfiguration forkedExecutionConfiguration)
         {
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, this.storedProgressUpdates, forkedExecutionConfiguration);
+            this.periodicTimerMock = new PeriodicTimerMock();
+
+            var executor = new ForkedJobExecutor(this.jobRunInformationService, this.storedProgressUpdates, this.periodicTimerMock,  forkedExecutionConfiguration);
 
             executor.Start();
 

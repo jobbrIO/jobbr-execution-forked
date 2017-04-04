@@ -97,6 +97,8 @@
     <Compile Include="BackChannel\Startup.cs" />
     <Compile Include="BackChannel\TraceSourceExceptionLogger.cs" />
     <Compile Include="ConfigurationValidator.cs" />
+    <Compile Include="Execution\FixedIntervalTimer.cs" />
+    <Compile Include="Execution\IPeriodicTimer.cs" />
     <Compile Include="Execution\JobRunContext.cs" />
     <Compile Include="Execution\JobRunEndedEventArgs.cs" />
     <Compile Include="JobRunStartInfo.cs" />

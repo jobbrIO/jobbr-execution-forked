@@ -105,6 +105,7 @@
     <Compile Include="Infrastructure\FakeJobRunStoreTuple.cs" />
     <Compile Include="Infrastructure\FakeGeneratedJobRunsStore.cs" />
     <Compile Include="Infrastructure\JobbrServiceProviderMock.cs" />
+    <Compile Include="Infrastructure\PeriodicTimerMock.cs" />
     <Compile Include="JobExecutorOnPlanChangedTests.cs" />
     <Compile Include="Infrastructure\JobRunInfoServiceMock.cs" />
     <Compile Include="Infrastructure\JobRunProgressUpdateStore.cs" />

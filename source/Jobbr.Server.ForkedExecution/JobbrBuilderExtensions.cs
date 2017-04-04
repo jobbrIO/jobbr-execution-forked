@@ -21,6 +21,8 @@ namespace Jobbr.Server.ForkedExecution
 
             builder.Add<ForkedExecutionConfiguration>(defaultConfig);
 
+            builder.Add<IPeriodicTimer>(new FixedIntervalTimer());
+
             builder.Register<IJobbrComponent>(typeof(BackChannelWebHost));
             builder.Register<IJobExecutor>(typeof(ForkedJobExecutor));
 
