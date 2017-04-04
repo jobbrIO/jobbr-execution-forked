@@ -1,4 +1,6 @@
 using System.IO;
+using Jobbr.ComponentModel.Execution;
+using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.Execution;
 
 namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
@@ -36,7 +38,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             this.periodicTimerMock = new PeriodicTimerMock();
             this.manualTimeProvider = new ManualTimeProvider();
 
-            var executor = new ForkedJobExecutor(this.jobRunInformationService, this.storedProgressUpdates, this.periodicTimerMock, this.manualTimeProvider, forkedExecutionConfiguration);
+            var jobRunContextFactory = new JobRunContextFactory(forkedExecutionConfiguration, this.storedProgressUpdates);
+
+            var executor = new ForkedJobExecutor(jobRunContextFactory,  this.jobRunInformationService, this.storedProgressUpdates, this.periodicTimerMock, this.manualTimeProvider, forkedExecutionConfiguration);
 
             executor.Start();
 

@@ -101,6 +101,7 @@
     <Compile Include="Execution\IDateTimeProvider.cs" />
     <Compile Include="Execution\IPeriodicTimer.cs" />
     <Compile Include="Execution\JobRunContext.cs" />
+    <Compile Include="Execution\JobRunContextFactory.cs" />
     <Compile Include="Execution\JobRunEndedEventArgs.cs" />
     <Compile Include="Execution\UtcNowTimeProvider.cs" />
     <Compile Include="JobRunStartInfo.cs" />

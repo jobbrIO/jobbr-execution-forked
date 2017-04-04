@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Jobbr.ComponentModel.Execution;
@@ -18,6 +19,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
         private static readonly int StartNewJobsEverySeconds = 1;
 
+        private readonly IJobRunContextFactory jobRunContextFactory;
         private readonly IJobRunInformationService jobRunInformationService;
         private readonly ForkedExecutionConfiguration configuration;
         private readonly IJobRunProgressChannel progressChannel;
@@ -26,17 +28,19 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
         private readonly List<PlannedJobRun> plannedJobRuns = new List<PlannedJobRun>();
 
-        private readonly List<JobRunContext> activeContexts = new List<JobRunContext>();
+        private readonly List<IJobRunContext> activeContexts = new List<IJobRunContext>();
 
         private readonly object syncRoot = new object();
 
-        public ForkedJobExecutor(IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel, IPeriodicTimer periodicTimer, IDateTimeProvider dateTimeProvider, ForkedExecutionConfiguration configuration)
+        public ForkedJobExecutor(IJobRunContextFactory jobRunContextFactory, IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel, IPeriodicTimer periodicTimer, IDateTimeProvider dateTimeProvider, ForkedExecutionConfiguration configuration)
         {
+            this.jobRunContextFactory = jobRunContextFactory;
             this.jobRunInformationService = jobRunInformationService;
             this.configuration = configuration;
             this.progressChannel = progressChannel;
             this.periodicTimer = periodicTimer;
             this.dateTimeProvider = dateTimeProvider;
+
 
             this.periodicTimer.Setup(this.StartReadyJobsFromQueue, StartNewJobsEverySeconds);
         }
@@ -172,7 +176,8 @@ namespace Jobbr.Server.ForkedExecution.Execution
                         Logger.Debug($"Getting Metadata for a job (Id '{jobRun.Id}') that needs to be started.");
                         var jobRunInfo = this.jobRunInformationService.GetByJobRunId(jobRun.Id);
 
-                        var wrapper = new JobRunContext(jobRunInfo, this.configuration, this.progressChannel);
+                        var wrapper = this.jobRunContextFactory.CreateJobRunContext(jobRunInfo);
+
                         this.activeContexts.Add(wrapper);
                         this.plannedJobRuns.Remove(jobRun);
 
@@ -189,7 +194,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
         private void ContextOnEnded(object sender, JobRunEndedEventArgs args)
         {
-            var jobRunContext = sender as JobRunContext;
+            var jobRunContext = sender as IJobRunContext;
             if (jobRunContext == null)
             {
                 return;
