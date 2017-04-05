@@ -118,11 +118,11 @@ namespace Jobbr.Server.ForkedExecution.Execution
             proc.Exited += (o, args) => this.OnEnded(new JobRunEndedEventArgs() { ExitCode = proc.ExitCode, JobRun = jobRun, ProcInfo = proc, DidReportProgress = this.didReportProgress });
 
             this.progressChannel.PublishStatusUpdate(this.jobRunInfo.Id, JobRunStates.Starting);
-
             Logger.InfoFormat("[{0}] Starting '{1} {2}' in '{3}'", jobRun.Id, runnerFileExe, arguments, workDir);
             proc.Start();
 
             Logger.InfoFormat("[{0}] Started Runner with ProcessId '{1}' at '{2}'", jobRun.Id, proc.Id, proc.StartTime);
+            this.progressChannel.PublishPid(jobRun.Id, proc.Id, Environment.MachineName);
 
             proc.BeginOutputReadLine();
         }
