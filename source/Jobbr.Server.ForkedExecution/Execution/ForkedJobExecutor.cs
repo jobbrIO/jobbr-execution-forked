@@ -220,6 +220,19 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 {
                     Logger.ErrorException($"Exception while setting the end-time of the jobRun with id: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})", e);
                 }
+
+                if (args.DidReportProgress)
+                {
+                    try
+                    {
+                        this.progressChannel.PublishProgressUpdate(args.JobRun.Id, 100);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.ErrorException($"Exception while setting progress to 100% after completion of the jobRun with id: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})", e);
+                    }
+                }
+
             }
             else
             {
