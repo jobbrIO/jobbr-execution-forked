@@ -74,5 +74,64 @@ namespace Jobbr.Server.ForkedExecution.Tests
             Assert.AreEqual(2, this.storedProgressUpdates.AllProgressUpdates[fakeJobRun.Id].Count, "There should be the explicit progress update and the one at the end.");
             Assert.AreEqual(100, this.storedProgressUpdates.AllProgressUpdates[fakeJobRun.Id][1], "There should be a 100% message if the job has ended without error code");
         }
+
+        [TestMethod]
+        public void ProcessExists_HadProgressWithNonZeroExitCode_PercentIsUntouched()
+        {
+            // Setup
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
+
+            // Act
+            var fakeJobRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+
+            this.manualTimeProvider.AddSecond();
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun.PlannedJobRun, }));
+
+            this.jobRunContextMockFactory[fakeJobRun.Id].RaiseProgressUpdate(54);
+            this.jobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(-2564);
+
+            // Test
+            Assert.AreEqual(1, this.storedProgressUpdates.AllProgressUpdates[fakeJobRun.Id].Count, "There should be only one progress change");
+            Assert.AreEqual(54, this.storedProgressUpdates.AllProgressUpdates[fakeJobRun.Id][0], "There should be a 100% message if the job has ended without error code");
+        }
+
+        [TestMethod]
+        public void ProcessExists_NoProgressWithZeroExitCode_NoProgress()
+        {
+            // Setup
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
+
+            // Act
+            var fakeJobRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+
+            this.manualTimeProvider.AddSecond();
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun.PlannedJobRun, }));
+
+            this.jobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(0);
+
+            // Test
+            Assert.IsFalse(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeJobRun.Id), "Not expecting any progress updates for this job");
+        }
+
+        [TestMethod]
+        public void ProcessExists_NoProgressWithNonZeroExitCode_NoProgress()
+        {
+            // Setup
+            var forkedExecutionConfiguration = GivenAMinimalConfiguration();
+            var executor = this.GivenAMockedExecutor(forkedExecutionConfiguration);
+
+            // Act
+            var fakeJobRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+
+            this.manualTimeProvider.AddSecond();
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun.PlannedJobRun, }));
+
+            this.jobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(-2564);
+
+            // Test
+            Assert.IsFalse(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeJobRun.Id), "Not expecting any progress updates for this job");
+        }
     }
 }
