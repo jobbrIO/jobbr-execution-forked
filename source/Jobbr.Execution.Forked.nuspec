@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>Jobbr.Execution.Forked</id>
     <version>$version$</version>
@@ -10,6 +10,9 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Jobbr is a .NET JobServer</description>
     <copyright>Copyright 2017</copyright>
+    <dependencies>
+      <dependency id="Microsoft.Owin.Host.HttpListener" version="[3,4]"/>
+    </dependencies>
   </metadata>
   <files>
     <file src="..\ilmerged\Jobbr.Server.ForkedExecution.dll" target="lib\net45"/>
