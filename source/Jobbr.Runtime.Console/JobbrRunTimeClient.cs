@@ -54,7 +54,7 @@ namespace Jobbr.Runtime.Console
                 multipartContent.Add(new StreamContent(File.OpenRead(file)), "result", fileName);
             }
 
-            var url = string.Format("jobRun/{0}/artefacts", this.jobRunId);
+            var url = $"jobRun/{this.jobRunId}/artefacts";
             var response = this.httpClient.PostAsync(url, multipartContent).Result;
         
             return response.StatusCode == HttpStatusCode.Accepted;

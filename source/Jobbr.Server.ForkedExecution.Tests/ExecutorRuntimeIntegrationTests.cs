@@ -139,6 +139,30 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
+        public void RunnerExecutable_ParamsJobWithoutParams_Completes()
+        {
+            // Setup
+            var config = GivenAMinimalConfiguration();
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+
+            this.GivenAStartedBackChannelHost(config);
+            var executor = this.GivenAStartedExecutor(config);
+
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            fakeRun.JobRunInfo.Type = "JobWithParameters";
+            
+            // Act
+            this.manualTimeProvider.AddSecond();
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
+
+            // Test
+            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+
+            Assert.IsTrue(hasCompleted, "The runner executable should complete, but did not within 3s");
+            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "There should be a completed state for this jobRun");
+        }
+
+        [TestMethod]
         public void RunnerExecutable_JobWithArtefacts_UploadsFiles()
         {
             // Setup

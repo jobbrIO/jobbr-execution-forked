@@ -49,13 +49,13 @@ namespace Jobbr.Runtime.Console
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
 
-            Logger.InfoFormat("JobbrRuntime started at {0} (UTC) with cmd-arguments {1}", DateTime.UtcNow, string.Join(" ", args));
+            Logger.Info($"JobbrRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {string.Join(" ", args)}");
 
             this.ParseArguments(args);
 
-            Logger.InfoFormat("JobRunId:  {0}", this.commandlineOptions.JobRunId);
-            Logger.InfoFormat("JobServer: {0}", this.commandlineOptions.JobServer);
-            Logger.InfoFormat("IsDebug:   {0}", this.commandlineOptions.IsDebug);
+            Logger.Info($"JobRunId:  {this.commandlineOptions.JobRunId}");
+            Logger.Info($"JobServer: {this.commandlineOptions.JobServer}");
+            Logger.Info($"IsDebug:   {this.commandlineOptions.IsDebug}");
 
             this.InitializeClient();
             
@@ -161,7 +161,7 @@ namespace Jobbr.Runtime.Console
                 var parameterizedMethod = runMethods.FirstOrDefault(m => m.GetParameters().Length == 2);
                 if (parameterizedMethod != null)
                 {
-                    Logger.DebugFormat("Decided to use parameterized method '{0}' with JobParameter '{1}' and InstanceParameters '{2}'.", parameterizedMethod, this.jobInfo.JobParameter ?? "<null>", this.jobInfo.InstanceParameter ?? "<null>");
+                    Logger.Debug($"Decided to use parameterized method '{parameterizedMethod}' with JobParameter '{this.jobInfo.JobParameter ?? "<null>"}' and InstanceParameters '{this.jobInfo.InstanceParameter ?? "<null>"}'.");
                     var allParams = parameterizedMethod.GetParameters().OrderBy(p => p.Position).ToList();
 
                     var param1Type = allParams[0].ParameterType;
@@ -183,7 +183,7 @@ namespace Jobbr.Runtime.Console
 
                     if (fallBackMethod != null)
                     {
-                        Logger.DebugFormat("Decided to use parameterless method '{0}'", fallBackMethod);
+                        Logger.Debug($"Decided to use parameterless method '{fallBackMethod}'");
                         this.jobRunTask = new Task(() => fallBackMethod.Invoke(this.jobInstance, null), this.cancellationTokenSource.Token);
                     }
                 }
@@ -191,12 +191,13 @@ namespace Jobbr.Runtime.Console
                 if (this.jobRunTask != null)
                 {
                     Logger.Debug("Starting Task to execute the Run()-Method.");
+
                     this.jobRunTask.Start();
                     this.client.PublishState(JobRunState.Processing);
                 }
                 else
                 {
-                    Logger.ErrorFormat("None of your Run()-Methods are compatible with Jobbr. Please see coeumentation");
+                    Logger.Error("None of your Run()-Methods are compatible with Jobbr. Please see coeumentation");
                 }
             }
             else
@@ -210,22 +211,22 @@ namespace Jobbr.Runtime.Console
         {
             object castedValue;
 
-            Logger.InfoFormat("Casting {0}-parameter to its target value '{1}' based on the Run()-Parameter {2}", jobbrParamName, targetType, parameterName);
+            Logger.Info($"Casting {jobbrParamName}-parameter to its target value '{targetType}' based on the Run()-Parameter {parameterName}");
 
             // Try to cast them to specific types
             if (value == null)
             {
-                Logger.DebugFormat("The {0}-parameter is null - no cast needed.", jobbrParamName);
+                Logger.Debug($"The {jobbrParamName}-parameter is null - no cast needed.");
                 castedValue = null;
             }
             else if (targetType == typeof(object))
             {
-                Logger.DebugFormat("The {0}-parameter is of type 'object' - no cast needed.", jobbrParamName);
+                Logger.Debug($"The {jobbrParamName}-parameter is of type 'object' - no cast needed.");
                 castedValue = value;
             }
             else
             {
-                Logger.DebugFormat("The {0}-parameter '{1}' is from type '{2}'. Casting this value to '{2}'", jobbrParamName, parameterName, targetType);
+                Logger.Debug(string.Format("The {0}-parameter '{1}' is from type '{2}'. Casting this value to '{2}'", jobbrParamName, parameterName, targetType));
                 castedValue = JsonConvert.DeserializeObject(value.ToString(), targetType);
             }
 
@@ -240,19 +241,19 @@ namespace Jobbr.Runtime.Console
 
             var typeName = this.jobInfo.JobType;
 
-            Logger.DebugFormat("Trying to resolve the specified type '{0}'...", this.jobInfo.JobType);
+            Logger.Debug($"Trying to resolve the specified type '{this.jobInfo.JobType}'...");
             
             var type = this.ResolveType(typeName);
 
             if (type == null)
             {
-                Logger.ErrorFormat("Unable to resolve the type '{0}'!", this.jobInfo.JobType);
+                Logger.Error($"Unable to resolve the type '{this.jobInfo.JobType}'!");
 
                 this.client.PublishState(JobRunState.Failed);
             }
             else
             {
-                Logger.InfoFormat("Type '{0}' has been resolved to '{1}'. Activating now.", this.jobInfo.JobType, type);
+                Logger.Info($"Type '{this.jobInfo.JobType}' has been resolved to '{type}'. Activating now.");
 
                 try
                 {
@@ -280,12 +281,12 @@ namespace Jobbr.Runtime.Console
 
         private Type ResolveType(string typeName)
         {
-            Logger.DebugFormat("Resolve type using '{0}' like a full qualified CLR-Name", typeName);
+            Logger.Debug($"Resolve type using '{typeName}' like a full qualified CLR-Name");
             var type = Type.GetType(typeName);
 
             if (type == null && this.defaultAssembly != null)
             {
-                Logger.DebugFormat("Trying to resolve '{0}' by the assembly '{1}'", typeName, this.defaultAssembly.FullName);
+                Logger.Debug($"Trying to resolve '{typeName}' by the assembly '{this.defaultAssembly.FullName}'");
                 type = this.defaultAssembly.GetType(typeName);
             }
 
@@ -294,7 +295,7 @@ namespace Jobbr.Runtime.Console
                 // Search in all Assemblies
                 var allReferenced = Assembly.GetExecutingAssembly().GetReferencedAssemblies();
 
-                Logger.DebugFormat("Trying to resolve type by asking all referenced assemblies ('{0}')", string.Join(", ", allReferenced.Select(a => a.Name)));
+                Logger.Debug($"Trying to resolve type by asking all referenced assemblies ('{string.Join(", ", allReferenced.Select(a => a.Name))}')");
 
                 foreach (var assemblyName in allReferenced)
                 {
@@ -311,23 +312,23 @@ namespace Jobbr.Runtime.Console
 
             if (type == null)
             {
-                Logger.DebugFormat("Still no luck finding '{0}' somewhere. Iterating through all types and comparing class-names. Please hold on", typeName);
+                Logger.Debug($"Still no luck finding '{typeName}' somewhere. Iterating through all types and comparing class-names. Please hold on");
 
                 // Absolutely no clue
                 var matchingTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes()).Where(x => string.Equals(x.Name, typeName, StringComparison.Ordinal) && x.IsClass && !x.IsAbstract).ToList();
 
                 if (matchingTypes.Count() == 1)
                 {
-                    Logger.DebugFormat("Found matching type: '{0}'", matchingTypes[0]);
+                    Logger.Debug($"Found matching type: '{matchingTypes[0]}'");
                     type = matchingTypes.First();
                 }
                 else if (matchingTypes.Count > 1)
                 {
-                    Logger.WarnFormat("More than one matching type found for '{0}'. Matches: ", typeName, string.Join(", ", matchingTypes.Select(t => t.FullName)));
+                    Logger.Warn($"More than one matching type found for '{typeName}'. Matches: {string.Join(", ", matchingTypes.Select(t => t.FullName))}");
                 }
                 else
                 {
-                    Logger.WarnFormat("No matching type found for '{0}'.", typeName);
+                    Logger.Warn($"No matching type found for '{typeName}'.");
                 }
             }
 
