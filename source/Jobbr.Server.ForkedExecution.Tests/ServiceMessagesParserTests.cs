@@ -26,18 +26,6 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
-        public void UnknownMessageType_WhenParsed_ReturnsNull()
-        {
-            var parser = new ServiceMessageParser();
-
-            var raw = "##jobbr[blabla value='57']";
-
-            var message = parser.Parse(raw);
-
-            Assert.IsNull(message);
-        }
-
-        [TestMethod]
         public void MessageWitIntValue_WhenParsed_ContainsValue()
         {
             var parser = new ServiceMessageParser();
@@ -61,6 +49,18 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             Assert.IsNotNull(message);
             Assert.AreEqual("hello world", message.Value);
+        }
+
+        [TestMethod]
+        public void UnknownMessageType_WhenParsed_ReturnsNull()
+        {
+            var parser = new ServiceMessageParser();
+
+            var raw = "##jobbr[blabla value='57']";
+
+            var message = parser.Parse(raw);
+
+            Assert.IsNull(message);
         }
 
         public class DoubleServiceMessage : ServiceMessage
