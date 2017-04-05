@@ -55,7 +55,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
-        public void ProcessExistsHadPercent_OnZeroExitCode_PercentIs100()
+        public void ProcessExists_HadProgressWithZeroExitCode_PercentIs100()
         {
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
@@ -71,6 +71,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.jobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(0);
 
             // Test
+            Assert.AreEqual(2, this.storedProgressUpdates.AllProgressUpdates[fakeJobRun.Id].Count, "There should be the explicit progress update and the one at the end.");
             Assert.AreEqual(100, this.storedProgressUpdates.AllProgressUpdates[fakeJobRun.Id][1], "There should be a 100% message if the job has ended without error code");
         }
     }
