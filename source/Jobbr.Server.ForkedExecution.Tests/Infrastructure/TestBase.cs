@@ -88,11 +88,11 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         }
     }
 
-
     public class MockedJobContext : IJobRunContext
     {
         private readonly JobRunInfo jobRunInfo;
         private readonly IJobRunProgressChannel progressChannel;
+        private bool didReportProgress;
 
         public MockedJobContext(JobRunInfo jobRunInfo, IJobRunProgressChannel progressChannel)
         {
@@ -111,6 +111,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public void RaiseProgressUpdate(double progress)
         {
+            this.didReportProgress = true;
             this.progressChannel.PublishProgressUpdate(this.jobRunInfo.Id, progress);
         }
 
@@ -121,7 +122,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public void RaiseEnded(int exitCode = 0)
         {
-            this.OnEnded(new JobRunEndedEventArgs() { ExitCode = exitCode, JobRun = this.jobRunInfo });
+            this.OnEnded(new JobRunEndedEventArgs() { ExitCode = exitCode, JobRun = this.jobRunInfo, DidReportProgress = this.didReportProgress });
         }
 
         protected virtual void OnEnded(JobRunEndedEventArgs e)

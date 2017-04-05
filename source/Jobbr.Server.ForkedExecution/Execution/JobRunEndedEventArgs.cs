@@ -10,6 +10,8 @@ namespace Jobbr.Server.ForkedExecution.Execution
     {
         public int ExitCode { get; set; }
 
+        public bool DidReportProgress { get; set; }
+
         public JobRunInfo JobRun { get; set; }
 
         public Process ProcInfo { get; set; }

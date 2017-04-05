@@ -23,6 +23,8 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
         private readonly ServiceMessageParser serviceMessageParser;
 
+        private bool didReportProgress;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="JobRunContext"/> class.
         /// </summary>
@@ -113,7 +115,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
             // Wire events
             proc.OutputDataReceived += this.ProcOnOutputDataReceived;
-            proc.Exited += (o, args) => this.OnEnded(new JobRunEndedEventArgs() { ExitCode = proc.ExitCode, JobRun = jobRun, ProcInfo = proc });
+            proc.Exited += (o, args) => this.OnEnded(new JobRunEndedEventArgs() { ExitCode = proc.ExitCode, JobRun = jobRun, ProcInfo = proc, DidReportProgress = this.didReportProgress });
 
             this.progressChannel.PublishStatusUpdate(this.jobRunInfo.Id, JobRunStates.Starting);
 
@@ -192,6 +194,8 @@ namespace Jobbr.Server.ForkedExecution.Execution
         private bool HandleMessage(ProgressServiceMessage message)
         {
             this.progressChannel.PublishProgressUpdate(this.jobRunInfo.Id, message.Percent);
+            this.didReportProgress = true;
+
             return true;
         }
     }
