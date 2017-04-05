@@ -153,7 +153,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 var showStatusInformationNow = (DateTime.Now.Second % 5) == 0;
                 var canStartAllReadyJobs = jobsToStart.Count > 0 && jobsToStart.Count <= possibleJobsToStart;
 
-                if ((queueCannotStartAll && showStatusInformationNow) || canStartAllReadyJobs)
+                if (queueCannotStartAll && showStatusInformationNow || canStartAllReadyJobs)
                 {
                     Logger.Info($"There are {readyJobs.Count} planned jobs in the queue and currently {this.activeContexts.Count} running jobs. Number of possible jobs to start: {possibleJobsToStart}");
                 }
@@ -179,12 +179,12 @@ namespace Jobbr.Server.ForkedExecution.Execution
                     }
                     catch (Exception e)
                     {
+                        Logger.ErrorException($"Exception was thrown while starting a new JobRun with Id: {jobRun.Id}.", e);
+
                         if (wrapper != null)
                         {
                             wrapper.Ended -= this.ContextOnEnded;
                         }
-
-                        Logger.ErrorException($"Exception was thrown while starting a new JobRun with Id: {jobRun.Id}.", e);
                     }
                 }
             }
@@ -236,7 +236,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
             }
             else
             {
-                Logger.WarnFormat($"The process within the context JobRun has exited with a non-zero exit code. JobRunId: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})");
+                Logger.Error($"The process within the context JobRun has exited with a non-zero exit code. JobRunId: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})");
 
                 try
                 {
@@ -247,22 +247,6 @@ namespace Jobbr.Server.ForkedExecution.Execution
                     Logger.ErrorException($"Exception while setting the 'Failed'-State to the jobRun with id: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})", e);
                 }
             }
-
-            ////else
-            ////{
-                // TODO: Validate of this is still needed? Was that a race-condition
-                ////if (args.JobRun.Progress > 0)
-                ////{
-                ////    try
-                ////    {
-                ////        // TODO: this.stateService.UpdateJobRunProgress(args.JobRun.Id, 100);
-                ////    }
-                ////    catch (Exception e)
-                ////    {
-                ////        Logger.ErrorException(string.Format("Exception while setting progress to 100% after completion of the jobRun with id: {0} (TriggerId: {1}, JobId: {2})", run.Id, run.TriggerId, run.JobId), e);
-                ////    }
-                ////}
-            ////}
         }
     }
 }
