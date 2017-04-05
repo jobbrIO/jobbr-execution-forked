@@ -198,7 +198,6 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "JobWithOneProgress";
-            fakeRun.JobRunInfo.InstanceParameters = JsonConvert.SerializeObject(new {});
             
             // Act
             this.manualTimeProvider.AddSecond();
@@ -226,7 +225,6 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "JobWithOneProgress";
-            fakeRun.JobRunInfo.InstanceParameters = JsonConvert.SerializeObject(new { });
 
             // Act
             this.manualTimeProvider.AddSecond();

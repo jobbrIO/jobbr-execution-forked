@@ -90,7 +90,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
             lock (this.syncRoot)
             {
-                Logger.InfoFormat($"Got a plan with {newPlan.Count} scheduled JobRuns with an upcoming startdate");
+                Logger.Info($"Got a plan with {newPlan.Count} scheduled JobRuns with an upcoming startdate");
 
                 // Update startdates of existing
                 foreach (var plannedJobRun in newPlan)
@@ -110,14 +110,14 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 this.plannedJobRuns.AddRange(toAdd);
                 hadChanges += toAdd.Count;
 
-                Logger.InfoFormat($"Added {toAdd.Count} new planned jobruns based on the new plan");
+                Logger.Info($"Added {toAdd.Count} new planned jobruns based on the new plan");
 
                 // Remove non existing
                 var toRemove = this.plannedJobRuns.Where(existingItem => newPlan.All(newItem => existingItem.Id != newItem.Id)).ToList();
                 this.plannedJobRuns.RemoveAll(p => toRemove.Contains(p));
                 hadChanges += toRemove.Count;
 
-                Logger.InfoFormat($"Removed {toRemove.Count} previously planned jobruns.");
+                Logger.Info($"Removed {toRemove.Count} previously planned jobruns.");
             }
 
             if (hadChanges > 0)
@@ -153,7 +153,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 var showStatusInformationNow = (DateTime.Now.Second % 5) == 0;
                 var canStartAllReadyJobs = jobsToStart.Count > 0 && jobsToStart.Count <= possibleJobsToStart;
 
-                if (queueCannotStartAll && showStatusInformationNow || canStartAllReadyJobs)
+                if ((queueCannotStartAll && showStatusInformationNow) || canStartAllReadyJobs)
                 {
                     Logger.Info($"There are {readyJobs.Count} planned jobs in the queue and currently {this.activeContexts.Count} running jobs. Number of possible jobs to start: {possibleJobsToStart}");
                 }
@@ -205,7 +205,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 jobRunContext.Ended -= this.ContextOnEnded;
 
                 run = args.JobRun;
-                Logger.InfoFormat($"Removing context for JobRun with Id: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})");
+                Logger.Info($"Removing context for JobRun with Id: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})");
 
                 this.activeContexts.Remove(jobRunContext);
             }

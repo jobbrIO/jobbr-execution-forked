@@ -161,7 +161,14 @@ namespace Jobbr.Runtime.Console
                 var parameterizedMethod = runMethods.FirstOrDefault(m => m.GetParameters().Length == 2);
                 if (parameterizedMethod != null)
                 {
-                    Logger.Debug($"Decided to use parameterized method '{parameterizedMethod}' with JobParameter '{this.jobInfo.JobParameter ?? "<null>"}' and InstanceParameters '{this.jobInfo.InstanceParameter ?? "<null>"}'.");
+                    var jobParamValue = this.jobInfo.JobParameter ?? "<null>";
+                    var instanceParamValue = this.jobInfo.InstanceParameter ?? "<null>";
+
+                    var jobParamJsonString = jobParamValue.ToString();
+                    var instanceParamJsonString = instanceParamValue.ToString();
+
+                    // Note: We cannot use string interpolation here, because LibLog is using string.format again and will fail if there are { } chars in the string, even if there is no formatting needed.
+                    Logger.DebugFormat($"Decided to use parameterized method '{parameterizedMethod}' with JobParameter '{0}' and InstanceParameters '{1}'.", jobParamJsonString, instanceParamJsonString);
                     var allParams = parameterizedMethod.GetParameters().OrderBy(p => p.Position).ToList();
 
                     var param1Type = allParams[0].ParameterType;
