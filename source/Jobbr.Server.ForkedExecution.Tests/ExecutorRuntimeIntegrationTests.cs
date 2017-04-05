@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.BackChannel;
+using Jobbr.Server.ForkedExecution.TestRunner.TestJobs;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -203,14 +204,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
-            this.storedProgressUpdates.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Any(), 3000);
+            this.storedProgressUpdates.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), 3000);
 
-            Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
-
-            Assert.IsTrue(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeRun.Id), "There should be progress updates from the run");
-            Assert.AreEqual(1, this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id].Count, "There should be exact one progress update!");
+            Assert.IsTrue(this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), "The runner executable should have send one progress update");
         }
 
         [TestMethod]
@@ -262,12 +258,15 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Test
             var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 3000);
 
-            Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
-            this.storedProgressUpdates.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Count == 2, 3000);
+            Assert.IsTrue(hasCompleted, "The runner executable should have failed in the meantime, but did not within 3s");
 
+            this.storedProgressUpdates.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), 3000);
+
+            Assert.IsTrue(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeRun.Id), "There should be any progress update");
             Assert.AreEqual(1, this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id].Count, "Got: [" + string.Join(", ", this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id]) + "]");
             Assert.AreEqual(JobRunStates.Failed, this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Last(), "The job did not complete");
         }
+
         [TestMethod]
         public void RunnerExecutable_AdditionalParameters_PassedToExecutable()
         {

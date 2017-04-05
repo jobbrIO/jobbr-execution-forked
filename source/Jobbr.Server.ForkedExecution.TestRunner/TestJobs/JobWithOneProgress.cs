@@ -2,6 +2,7 @@
 
 namespace Jobbr.Server.ForkedExecution.TestRunner.TestJobs
 {
+
     public class TestArguments
     {
         public bool ShouldFail { get; set; }
@@ -9,11 +10,14 @@ namespace Jobbr.Server.ForkedExecution.TestRunner.TestJobs
 
     public class JobWithOneProgress
     {
+        public static double DefinedProgressValue = 42.135;
+
         public void Run(object jobParams, TestArguments runParams)
         {
-            Console.WriteLine("##jobbr[progress percent='42.135']");
 
-            if (runParams.ShouldFail)
+            Console.WriteLine("##jobbr[progress percent='" + DefinedProgressValue + "']");
+
+            if (runParams?.ShouldFail == true)
             {
                 Environment.Exit(-38464);
             }

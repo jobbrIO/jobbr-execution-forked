@@ -125,6 +125,7 @@ namespace Jobbr.Runtime.Console
             if (this.jobRunTask == null || this.jobRunTask.IsFaulted)
             {
                 this.client.PublishState(JobRunState.Failed);
+                Environment.ExitCode = 1;
             }
             else
             {
