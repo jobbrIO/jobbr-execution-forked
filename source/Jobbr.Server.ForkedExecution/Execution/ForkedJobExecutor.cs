@@ -232,7 +232,6 @@ namespace Jobbr.Server.ForkedExecution.Execution
                         Logger.ErrorException($"Exception while setting progress to 100% after completion of the jobRun with id: {run.Id} (TriggerId: {run.TriggerId}, JobId: {run.JobId})", e);
                     }
                 }
-
             }
             else
             {
