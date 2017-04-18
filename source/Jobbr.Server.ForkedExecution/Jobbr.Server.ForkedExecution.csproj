@@ -24,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\JobbrRuleSet.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +34,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\JobbrRuleSet.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Jobbr.ComponentModel.Execution, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -103,6 +105,7 @@
     <Compile Include="Execution\JobRunContextFactory.cs" />
     <Compile Include="Execution\JobRunEndedEventArgs.cs" />
     <Compile Include="Execution\UtcNowTimeProvider.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="JobRunStartInfo.cs" />
     <Compile Include="Execution\ServiceMessaging\ProgressServiceMessage.cs" />
     <Compile Include="Execution\ServiceMessaging\ServiceMessage.cs" />
