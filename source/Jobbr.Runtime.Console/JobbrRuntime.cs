@@ -6,8 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using Jobbr.ConsoleApp.Runtime.Logging;
-using Jobbr.Runtime.Console.Execution;
 using Jobbr.Runtime.Console.RestClient;
+using Jobbr.Runtime.Core;
 
 namespace Jobbr.Runtime.Console
 {
