@@ -68,18 +68,8 @@ namespace Jobbr.Runtime.Console
 
         public void Run(string[] args)
         {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+            this.Setup(args);
 
-            Logger.Info($"JobbrRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {string.Join(" ", args)}");
-
-            this.ParseArguments(args);
-
-            Logger.Info($"JobRunId:  {this.commandlineOptions.JobRunId}");
-            Logger.Info($"JobServer: {this.commandlineOptions.JobServer}");
-            Logger.Info($"IsDebug:   {this.commandlineOptions.IsDebug}");
-
-            this.InitializeClient();
-            
             try
             {
                 this.WaitForDebuggerIfEnabled();
@@ -107,6 +97,21 @@ namespace Jobbr.Runtime.Console
             }
 
             this.End();
+        }
+
+        private void Setup(string[] args)
+        {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+
+            Logger.Info($"JobbrRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {string.Join(" ", args)}");
+
+            this.ParseArguments(args);
+
+            Logger.Info($"JobRunId:  {this.commandlineOptions.JobRunId}");
+            Logger.Info($"JobServer: {this.commandlineOptions.JobServer}");
+            Logger.Info($"IsDebug:   {this.commandlineOptions.IsDebug}");
+
+            this.InitializeClient();
         }
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
