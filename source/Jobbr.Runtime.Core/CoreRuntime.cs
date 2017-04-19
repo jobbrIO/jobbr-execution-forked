@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 
 namespace Jobbr.Runtime.Core
 {
-
     public class CoreRuntime : IDisposable
     {
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
@@ -255,7 +254,7 @@ namespace Jobbr.Runtime.Core
                 UserDisplayName = this.jobInfo.UserDisplayName
             };
 
-            var registrator = this.dependencyResolver as IJobbrDependencyRegistrator;
+            var registrator = this.dependencyResolver as IRuntimeContextRegistrator;
 
             registrator?.RegisterInstance(this.context);
         }

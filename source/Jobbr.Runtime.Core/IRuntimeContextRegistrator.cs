@@ -1,6 +1,6 @@
 ﻿namespace Jobbr.Runtime.Core
 {
-    public interface IJobbrDependencyRegistrator : IJobActivator
+    public interface IRuntimeContextRegistrator : IJobActivator
     {
         void RegisterInstance<T>(T instance);
     }
