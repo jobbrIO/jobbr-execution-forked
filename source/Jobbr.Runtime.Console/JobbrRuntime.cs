@@ -13,6 +13,8 @@ namespace Jobbr.Runtime.Console
 {
     public class JobbrRuntime
     {
+        private static readonly ILog Logger = LogProvider.For<JobbrRuntime>();
+
         private readonly Assembly defaultAssembly;
         private readonly IJobbrDependencyResolver dependencyResolver;
 
@@ -30,7 +32,43 @@ namespace Jobbr.Runtime.Console
         {
             var oldRuntime = new OldJobbrRuntime(this.defaultAssembly, this.dependencyResolver);
 
-            oldRuntime.Run(args);
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+
+            Logger.Info($"JobbrRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {String.Join(" ", args)}");
+
+            var cmdlineOptions = ParseArguments(args);
+
+            Logger.Info($"JobRunId:  {cmdlineOptions.JobRunId}");
+            Logger.Info($"JobServer: {cmdlineOptions.JobServer}");
+            Logger.Info($"IsDebug:   {cmdlineOptions.IsDebug}");
+
+            oldRuntime.commandlineOptionsIsDebug = cmdlineOptions.IsDebug;
+
+            var jobbrRuntimeClient = InitializeClient(cmdlineOptions);
+
+            oldRuntime.client = jobbrRuntimeClient;
+
+            oldRuntime.RunCore();
+        }
+
+        private static JobbrRuntimeClient InitializeClient(CommandlineOptions cmdlineOptions)
+        {
+            var jobbrRuntimeClient = new JobbrRuntimeClient(cmdlineOptions.JobServer, cmdlineOptions.JobRunId);
+            jobbrRuntimeClient.PublishState(JobRunState.Connected);
+            return jobbrRuntimeClient;
+        }
+
+        private static CommandlineOptions ParseArguments(string[] args)
+        {
+            var commandlineOptions = new CommandlineOptions();
+            Parser.Default.ParseArguments(args, commandlineOptions);
+            var cmdlineOptions = commandlineOptions;
+            return cmdlineOptions;
+        }
+
+        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
+        {
+            Logger.FatalException("Unhandled Infrastructure Exception in Jobbr-Runtime. Please contact the developers!", (Exception)unhandledExceptionEventArgs.ExceptionObject);
         }
     }
 
@@ -54,7 +92,7 @@ namespace Jobbr.Runtime.Console
 
         private RuntimeContext context;
 
-        private bool commandlineOptionsIsDebug;
+        public bool commandlineOptionsIsDebug;
 
         public OldJobbrRuntime(Assembly defaultAssembly, IJobbrDependencyResolver dependencyResolver)
         {
@@ -66,10 +104,8 @@ namespace Jobbr.Runtime.Console
         {
         }
 
-        public void Run(string[] args)
+        public void RunCore()
         {
-            this.Setup(args);
-
             try
             {
                 this.WaitForDebuggerIfEnabled();
@@ -97,27 +133,6 @@ namespace Jobbr.Runtime.Console
             }
 
             this.End();
-        }
-
-        private void Setup(string[] args)
-        {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-
-            Logger.Info($"JobbrRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {string.Join(" ", args)}");
-
-            var cmdlineOptions = this.ParseArguments(args);
-            this.commandlineOptionsIsDebug = cmdlineOptions.IsDebug;
-
-            Logger.Info($"JobRunId:  {cmdlineOptions.JobRunId}");
-            Logger.Info($"JobServer: {cmdlineOptions.JobServer}");
-            Logger.Info($"IsDebug:   {cmdlineOptions.IsDebug}");
-
-            this.InitializeClient(cmdlineOptions.JobServer, cmdlineOptions.JobRunId);
-        }
-
-        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
-        {
-            Logger.FatalException("Unhandled Infrastructure Exception in Jobbr-Runtime. Please contact the developers!", (Exception)unhandledExceptionEventArgs.ExceptionObject);
         }
 
         private void WaitForCompletion()
@@ -370,12 +385,6 @@ namespace Jobbr.Runtime.Console
             return type;
         }
 
-        private void InitializeClient(string commandlineOptionsJobServer, long commandlineOptionsJobRunId)
-        {
-            this.client = new JobbrRuntimeClient(commandlineOptionsJobServer, commandlineOptionsJobRunId);
-            this.client.PublishState(JobRunState.Connected);
-        }
-
         private void WaitForDebuggerIfEnabled()
         {
             if (this.commandlineOptionsIsDebug)
@@ -405,14 +414,6 @@ namespace Jobbr.Runtime.Console
             {
                 Debugger.Break();
             }
-        }
-
-        private CommandlineOptions ParseArguments(string[] args)
-        {
-            var commandlineOptions = new CommandlineOptions();
-            Parser.Default.ParseArguments(args, commandlineOptions);
-
-            return commandlineOptions;
         }
 
         public void Dispose()
