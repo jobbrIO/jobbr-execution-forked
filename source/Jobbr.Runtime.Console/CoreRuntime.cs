@@ -12,7 +12,7 @@ namespace Jobbr.Runtime.Console
 
     public class CoreRuntime : IDisposable
     {
-        public event EventHandler<StateChangedEventArgs> OnStateChanged;
+        public event EventHandler<StateChangedEventArgs> StateChanged;
 
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
         
@@ -77,9 +77,7 @@ namespace Jobbr.Runtime.Console
 
         private void PublishState(JobRunState state)
         {
-            // this.client.PublishState(state);
-
-            this.OnOnStateChanged(new StateChangedEventArgs() { State = state });
+            this.OnStateChanged(new StateChangedEventArgs() { State = state });
         }
 
 
@@ -361,9 +359,9 @@ namespace Jobbr.Runtime.Console
             }
         }
 
-        protected virtual void OnOnStateChanged(StateChangedEventArgs e)
+        protected virtual void OnStateChanged(StateChangedEventArgs e)
         {
-            this.OnStateChanged?.Invoke(this, e);
+            this.StateChanged?.Invoke(this, e);
         }
     }
 

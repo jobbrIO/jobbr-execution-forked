@@ -19,7 +19,7 @@ namespace Jobbr.Runtime.Console
         {
             this.coreRuntime = new CoreRuntime(defaultAssembly, dependencyResolver);
 
-            this.coreRuntime.OnStateChanged += this.CoreRuntimeOnOnStateChanged;
+            this.coreRuntime.StateChanged += this.CoreRuntimeOnOnStateChanged;
         }
 
         private void CoreRuntimeOnOnStateChanged(object sender, StateChangedEventArgs stateChangedEventArgs)
