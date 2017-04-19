@@ -42,13 +42,44 @@ namespace Jobbr.Runtime.Console
             Logger.Info($"JobServer: {cmdlineOptions.JobServer}");
             Logger.Info($"IsDebug:   {cmdlineOptions.IsDebug}");
 
-            oldRuntime.commandlineOptionsIsDebug = cmdlineOptions.IsDebug;
+            WaitForDebugger(cmdlineOptions.IsDebug);
 
             var jobbrRuntimeClient = InitializeClient(cmdlineOptions);
 
             oldRuntime.client = jobbrRuntimeClient;
 
             oldRuntime.RunCore();
+        }
+
+        private static void WaitForDebugger(bool isDebugEnabled)
+        {
+            if (isDebugEnabled)
+            {
+                var beginWaitForDebugger = DateTime.Now;
+                var endWaitForDebugger = beginWaitForDebugger.AddSeconds(10);
+                var pressedEnter = false;
+
+                System.Console.WriteLine(string.Empty);
+                System.Console.WriteLine(">>> DEBUG-Mode is enabled. You have 10s to attach a Debugger");
+                System.Console.Write("    or press enter to continue. Counting...");
+
+                new TaskFactory().StartNew(
+                    () =>
+                    {
+                        System.Console.ReadLine();
+                        pressedEnter = true;
+                    });
+
+                while (!(pressedEnter || Debugger.IsAttached || endWaitForDebugger < DateTime.Now))
+                {
+                    Thread.Sleep(500);
+                }
+            }
+
+            if (Debugger.IsAttached)
+            {
+                Debugger.Break();
+            }
         }
 
         private static JobbrRuntimeClient InitializeClient(CommandlineOptions cmdlineOptions)
@@ -92,8 +123,6 @@ namespace Jobbr.Runtime.Console
 
         private RuntimeContext context;
 
-        public bool commandlineOptionsIsDebug;
-
         public OldJobbrRuntime(Assembly defaultAssembly, IJobbrDependencyResolver dependencyResolver)
         {
             this.defaultAssembly = defaultAssembly;
@@ -108,8 +137,6 @@ namespace Jobbr.Runtime.Console
         {
             try
             {
-                this.WaitForDebuggerIfEnabled();
-
                 this.InitializeJob();
 
                 this.StartJob();
@@ -383,37 +410,6 @@ namespace Jobbr.Runtime.Console
             }
 
             return type;
-        }
-
-        private void WaitForDebuggerIfEnabled()
-        {
-            if (this.commandlineOptionsIsDebug)
-            {
-                var beginWaitForDebugger = DateTime.Now;
-                var endWaitForDebugger = beginWaitForDebugger.AddSeconds(10);
-                var pressedEnter = false;
-
-                System.Console.WriteLine(string.Empty);
-                System.Console.WriteLine(">>> DEBUG-Mode is enabled. You have 10s to attach a Debugger");
-                System.Console.Write("    or press enter to continue. Counting...");
-
-                new TaskFactory().StartNew(
-                    () =>
-                        {
-                            System.Console.ReadLine();
-                            pressedEnter = true;
-                        });
-
-                while (!(pressedEnter || Debugger.IsAttached || endWaitForDebugger < DateTime.Now))
-                {
-                    Thread.Sleep(500);
-                }
-            }
-
-            if (Debugger.IsAttached)
-            {
-                Debugger.Break();
-            }
         }
 
         public void Dispose()
