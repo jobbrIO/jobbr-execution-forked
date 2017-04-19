@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Jobbr.Runtime.Console.Execution
+namespace Jobbr.Runtime.Core
 {
     /// <summary>
     /// Represents an interface for the range of the dependencies.

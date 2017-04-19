@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using Jobbr.Runtime.Console.Execution;
+using Jobbr.Runtime.Core;
 using Newtonsoft.Json;
 
 namespace Jobbr.Runtime.Console.RestClient

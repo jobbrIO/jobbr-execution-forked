@@ -3,21 +3,16 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Jobbr.ConsoleApp.Runtime.Logging;
-using Jobbr.Runtime.Console.RestClient;
+using Jobbr.Runtime.Core.Logging;
 using Newtonsoft.Json;
 
-namespace Jobbr.Runtime.Console.Execution
+namespace Jobbr.Runtime.Core
 {
 
     public class CoreRuntime : IDisposable
     {
-        public event EventHandler<StateChangedEventArgs> StateChanged;
-
-        public event EventHandler<FinishingEventArgs> Finishing; 
-
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
-        
+
         private readonly Assembly defaultAssembly;
 
         private readonly IJobActivator dependencyResolver;
@@ -28,9 +23,13 @@ namespace Jobbr.Runtime.Console.Execution
 
         private Task jobRunTask;
 
-        private JobRunInfoDto jobInfo;
+        private JobRunInfo jobInfo;
 
         private RuntimeContext context;
+
+        public event EventHandler<StateChangedEventArgs> StateChanged;
+
+        public event EventHandler<FinishingEventArgs> Finishing;
 
         public CoreRuntime(Assembly defaultAssembly, IJobActivator dependencyResolver)
         {
@@ -42,7 +41,7 @@ namespace Jobbr.Runtime.Console.Execution
         {
         }
 
-        public void RunCore(JobRunInfoDto jobRunInfo)
+        public void RunCore(JobRunInfo jobRunInfo)
         {
             this.jobInfo = jobRunInfo;
 
@@ -350,6 +349,19 @@ namespace Jobbr.Runtime.Console.Execution
         {
             this.Finishing?.Invoke(this, e);
         }
+    }
+
+    public class JobRunInfo
+    {
+        public object JobParameter { get; set; }
+
+        public object InstanceParameter { get; set; }
+
+        public string JobType { get; set; }
+
+        public string UserId { get; set; }
+
+        public string UserDisplayName { get; set; }
     }
 
     public class FinishingEventArgs

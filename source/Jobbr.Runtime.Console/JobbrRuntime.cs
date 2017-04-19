@@ -47,7 +47,7 @@ namespace Jobbr.Runtime.Console
             this.forkedExecutionRestClient = InitializeClient(cmdlineOptions);
             var jobRunInfoDto = this.forkedExecutionRestClient.GetJobRunInfo();
 
-            this.coreRuntime.RunCore(jobRunInfoDto);
+            this.coreRuntime.RunCore(new JobRunInfo { JobType = jobRunInfoDto.JobType, JobParameter = jobRunInfoDto.JobParameter, InstanceParameter = jobRunInfoDto.InstanceParameter, UserId = jobRunInfoDto.UserId, UserDisplayName = jobRunInfoDto.UserDisplayName });
         }
 
         private static void WaitForDebugger(bool isDebugEnabled)

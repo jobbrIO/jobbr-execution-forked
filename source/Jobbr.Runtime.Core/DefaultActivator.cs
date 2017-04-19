@@ -1,6 +1,6 @@
 using System;
 
-namespace Jobbr.Runtime.Console.Execution
+namespace Jobbr.Runtime.Core
 {
     /// <summary>
     /// The no dependency resolver.
