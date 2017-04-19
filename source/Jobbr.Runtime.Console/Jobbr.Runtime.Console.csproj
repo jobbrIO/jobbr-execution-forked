@@ -59,13 +59,13 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="CommandlineOptions.cs" />
     <Compile Include="Execution\IJobbrDependencyRegistrator.cs" />
-    <Compile Include="IJobbrDependencyResolver.cs" />
+    <Compile Include="IJobActivator.cs" />
     <Compile Include="JobbrRuntime.cs" />
     <Compile Include="RestClient\ForkedExecutionRestClient.cs" />
     <Compile Include="RestClient\JobRunInfoDto.cs" />
     <Compile Include="Execution\JobRunState.cs" />
     <Compile Include="RestClient\JobRunUpdateDto.cs" />
-    <Compile Include="NoDependencyResolver.cs" />
+    <Compile Include="DefaultActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Execution\RuntimeContext.cs" />
   </ItemGroup>

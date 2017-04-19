@@ -20,7 +20,7 @@ namespace Jobbr.Runtime.Console.Execution
         
         private readonly Assembly defaultAssembly;
 
-        private readonly IJobbrDependencyResolver dependencyResolver;
+        private readonly IJobActivator dependencyResolver;
 
         private object jobInstance;
 
@@ -32,13 +32,13 @@ namespace Jobbr.Runtime.Console.Execution
 
         private RuntimeContext context;
 
-        public CoreRuntime(Assembly defaultAssembly, IJobbrDependencyResolver dependencyResolver)
+        public CoreRuntime(Assembly defaultAssembly, IJobActivator dependencyResolver)
         {
             this.defaultAssembly = defaultAssembly;
             this.dependencyResolver = dependencyResolver;
         }
 
-        public CoreRuntime(Assembly defaultAssembly) : this(defaultAssembly, new NoDependencyResolver())
+        public CoreRuntime(Assembly defaultAssembly) : this(defaultAssembly, new DefaultActivator())
         {
         }
 

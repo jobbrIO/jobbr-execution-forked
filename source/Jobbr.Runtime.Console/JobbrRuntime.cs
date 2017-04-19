@@ -18,7 +18,7 @@ namespace Jobbr.Runtime.Console
         private CoreRuntime coreRuntime;
         private ForkedExecutionRestClient forkedExecutionRestClient;
 
-        public JobbrRuntime(Assembly defaultAssembly, IJobbrDependencyResolver dependencyResolver)
+        public JobbrRuntime(Assembly defaultAssembly, IJobActivator dependencyResolver)
         {
             this.coreRuntime = new CoreRuntime(defaultAssembly, dependencyResolver);
 
@@ -26,7 +26,7 @@ namespace Jobbr.Runtime.Console
             this.coreRuntime.Finishing += this.CoreRuntimeOnFinishing;
         }
 
-        public JobbrRuntime(Assembly defaultAssembly) : this(defaultAssembly, new NoDependencyResolver())
+        public JobbrRuntime(Assembly defaultAssembly) : this(defaultAssembly, new DefaultActivator())
         {
         }
 
