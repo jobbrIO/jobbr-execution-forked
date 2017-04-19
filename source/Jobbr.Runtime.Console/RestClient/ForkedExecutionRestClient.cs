@@ -3,27 +3,28 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using Jobbr.Runtime.Console.Execution;
 using Newtonsoft.Json;
 
-namespace Jobbr.Runtime.Console
+namespace Jobbr.Runtime.Console.RestClient
 {
     /// <summary>
     /// The jobbr run time client.
     /// </summary>
-    public class JobbrRuntimeClient : IDisposable
+    public class ForkedExecutionRestClient : IDisposable
     {
         private readonly long jobRunId;
 
         private HttpClient httpClient;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="JobbrRuntimeClient"/> class.
+        /// Initializes a new instance of the <see cref="ForkedExecutionRestClient"/> class.
         /// </summary>
         /// <param name="jobServer">
         /// The server url.
         /// </param>
         /// <param name="jobRunId"></param>
-        public JobbrRuntimeClient(string jobServer, long jobRunId)
+        public ForkedExecutionRestClient(string jobServer, long jobRunId)
         {
             this.jobRunId = jobRunId;
 

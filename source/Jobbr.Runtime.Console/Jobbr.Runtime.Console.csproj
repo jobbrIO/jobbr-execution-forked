@@ -55,19 +55,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Packages\LibLog.3.1\LibLog.cs" />
-    <Compile Include="CoreRuntime.cs" />
+    <Compile Include="Execution\CoreRuntime.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="CommandlineOptions.cs" />
-    <Compile Include="IJobbrDependencyRegistrator.cs" />
+    <Compile Include="Execution\IJobbrDependencyRegistrator.cs" />
     <Compile Include="IJobbrDependencyResolver.cs" />
     <Compile Include="JobbrRuntime.cs" />
-    <Compile Include="JobbrRunTimeClient.cs" />
-    <Compile Include="JobRunInfoDto.cs" />
-    <Compile Include="JobRunState.cs" />
-    <Compile Include="JobRunUpdateDto.cs" />
+    <Compile Include="RestClient\ForkedExecutionRestClient.cs" />
+    <Compile Include="RestClient\JobRunInfoDto.cs" />
+    <Compile Include="Execution\JobRunState.cs" />
+    <Compile Include="RestClient\JobRunUpdateDto.cs" />
     <Compile Include="NoDependencyResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RuntimeContext.cs" />
+    <Compile Include="Execution\RuntimeContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -84,6 +84,7 @@
     <Analyzer Include="..\packages\System.Security.Cryptography.Hashing.Algorithms.Analyzers.1.1.0\analyzers\dotnet\cs\System.Security.Cryptography.Hashing.Algorithms.Analyzers.dll" />
     <Analyzer Include="..\packages\System.Security.Cryptography.Hashing.Algorithms.Analyzers.1.1.0\analyzers\dotnet\cs\System.Security.Cryptography.Hashing.Algorithms.CSharp.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

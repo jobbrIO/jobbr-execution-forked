@@ -1,13 +1,13 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Jobbr.ConsoleApp.Runtime.Logging;
+using Jobbr.Runtime.Console.RestClient;
 using Newtonsoft.Json;
 
-namespace Jobbr.Runtime.Console
+namespace Jobbr.Runtime.Console.Execution
 {
 
     public class CoreRuntime : IDisposable

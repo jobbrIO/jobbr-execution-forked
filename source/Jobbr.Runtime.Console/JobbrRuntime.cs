@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using Jobbr.ConsoleApp.Runtime.Logging;
+using Jobbr.Runtime.Console.Execution;
+using Jobbr.Runtime.Console.RestClient;
 
 namespace Jobbr.Runtime.Console
 {
@@ -14,7 +16,7 @@ namespace Jobbr.Runtime.Console
         private static readonly ILog Logger = LogProvider.For<JobbrRuntime>();
 
         private CoreRuntime coreRuntime;
-        private JobbrRuntimeClient jobbrRuntimeClient;
+        private ForkedExecutionRestClient forkedExecutionRestClient;
 
         public JobbrRuntime(Assembly defaultAssembly, IJobbrDependencyResolver dependencyResolver)
         {
@@ -42,8 +44,8 @@ namespace Jobbr.Runtime.Console
 
             WaitForDebugger(cmdlineOptions.IsDebug);
 
-            this.jobbrRuntimeClient = InitializeClient(cmdlineOptions);
-            var jobRunInfoDto = this.jobbrRuntimeClient.GetJobRunInfo();
+            this.forkedExecutionRestClient = InitializeClient(cmdlineOptions);
+            var jobRunInfoDto = this.forkedExecutionRestClient.GetJobRunInfo();
 
             this.coreRuntime.RunCore(jobRunInfoDto);
         }
@@ -79,9 +81,9 @@ namespace Jobbr.Runtime.Console
             }
         }
 
-        private static JobbrRuntimeClient InitializeClient(CommandlineOptions cmdlineOptions)
+        private static ForkedExecutionRestClient InitializeClient(CommandlineOptions cmdlineOptions)
         {
-            var jobbrRuntimeClient = new JobbrRuntimeClient(cmdlineOptions.JobServer, cmdlineOptions.JobRunId);
+            var jobbrRuntimeClient = new ForkedExecutionRestClient(cmdlineOptions.JobServer, cmdlineOptions.JobRunId);
             jobbrRuntimeClient.PublishState(JobRunState.Connected);
             return jobbrRuntimeClient;
         }
@@ -101,16 +103,16 @@ namespace Jobbr.Runtime.Console
 
         private void CoreRuntimeOnFinishing(object sender, FinishingEventArgs finishingEventArgs)
         {
-            this.jobbrRuntimeClient.PublishState(JobRunState.Collecting);
+            this.forkedExecutionRestClient.PublishState(JobRunState.Collecting);
 
             var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
 
-            this.jobbrRuntimeClient.SendFiles(allFiles);
+            this.forkedExecutionRestClient.SendFiles(allFiles);
         }
 
         private void CoreRuntimeOnOnStateChanged(object sender, StateChangedEventArgs stateChangedEventArgs)
         {
-            this.jobbrRuntimeClient.PublishState(stateChangedEventArgs.State);
+            this.forkedExecutionRestClient.PublishState(stateChangedEventArgs.State);
         }
     }
 }
