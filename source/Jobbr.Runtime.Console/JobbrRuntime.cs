@@ -39,10 +39,8 @@ namespace Jobbr.Runtime.Console
             this.dependencyResolver = dependencyResolver;
         }
 
-        public JobbrRuntime(Assembly defaultAssembly)
+        public JobbrRuntime(Assembly defaultAssembly) : this(defaultAssembly, new NoDependencyResolver())
         {
-            this.defaultAssembly = defaultAssembly;
-            this.dependencyResolver = new NoDependencyResolver();
         }
 
         public void Run(string[] args)
