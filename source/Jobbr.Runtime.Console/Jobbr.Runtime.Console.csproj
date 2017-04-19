@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Packages\LibLog.3.1\LibLog.cs" />
+    <Compile Include="CoreRuntime.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="CommandlineOptions.cs" />
     <Compile Include="IJobbrDependencyRegistrator.cs" />
