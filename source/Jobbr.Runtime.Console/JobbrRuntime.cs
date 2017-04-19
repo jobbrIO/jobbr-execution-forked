@@ -111,7 +111,7 @@ namespace Jobbr.Runtime.Console
             Logger.Info($"JobServer: {this.commandlineOptions.JobServer}");
             Logger.Info($"IsDebug:   {this.commandlineOptions.IsDebug}");
 
-            this.InitializeClient();
+            this.InitializeClient(this.commandlineOptions.JobServer, this.commandlineOptions.JobRunId);
         }
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
@@ -369,9 +369,9 @@ namespace Jobbr.Runtime.Console
             return type;
         }
 
-        private void InitializeClient()
+        private void InitializeClient(string commandlineOptionsJobServer, long commandlineOptionsJobRunId)
         {
-            this.client = new JobbrRuntimeClient(this.commandlineOptions.JobServer, this.commandlineOptions.JobRunId);
+            this.client = new JobbrRuntimeClient(commandlineOptionsJobServer, commandlineOptionsJobRunId);
             this.client.PublishState(JobRunState.Connected);
         }
 
