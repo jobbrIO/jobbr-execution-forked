@@ -45,10 +45,10 @@ namespace Jobbr.Runtime.Console
             WaitForDebugger(cmdlineOptions.IsDebug);
 
             var jobbrRuntimeClient = InitializeClient(cmdlineOptions);
+            var jobRunInfoDto = jobbrRuntimeClient.GetJobRunInfo();
 
             oldRuntime.client = jobbrRuntimeClient;
-
-            oldRuntime.RunCore();
+            oldRuntime.RunCore(jobRunInfoDto);
         }
 
         private static void WaitForDebugger(bool isDebugEnabled)
@@ -133,11 +133,15 @@ namespace Jobbr.Runtime.Console
         {
         }
 
-        public void RunCore()
+        public void RunCore(JobRunInfoDto jobRunInfo)
         {
+            this.jobInfo = jobRunInfo;
+
             try
             {
-                this.InitializeJob();
+                this.client.PublishState(JobRunState.Initializing);
+
+                this.ActivateJob();
 
                 this.StartJob();
 
@@ -310,16 +314,14 @@ namespace Jobbr.Runtime.Console
             return castedValue;
         }
 
-        private void InitializeJob()
+        private void ActivateJob()
         {
-            this.client.PublishState(JobRunState.Initializing);
-            this.jobInfo = this.client.GetJobRunInfo();
             this.SetRuntimeContext();
 
             var typeName = this.jobInfo.JobType;
 
             Logger.Debug($"Trying to resolve the specified type '{this.jobInfo.JobType}'...");
-            
+
             var type = this.ResolveType(typeName);
 
             if (type == null)
