@@ -12,13 +12,19 @@ namespace Jobbr.Runtime.Console
     {
         private static readonly ILog Logger = LogProvider.For<JobbrRuntime>();
 
-        private readonly Assembly defaultAssembly;
-        private readonly IJobbrDependencyResolver dependencyResolver;
+        private CoreRuntime coreRuntime;
+        private JobbrRuntimeClient jobbrRuntimeClient;
 
         public JobbrRuntime(Assembly defaultAssembly, IJobbrDependencyResolver dependencyResolver)
         {
-            this.defaultAssembly = defaultAssembly;
-            this.dependencyResolver = dependencyResolver;
+            this.coreRuntime = new CoreRuntime(defaultAssembly, dependencyResolver);
+
+            this.coreRuntime.OnStateChanged += this.CoreRuntimeOnOnStateChanged;
+        }
+
+        private void CoreRuntimeOnOnStateChanged(object sender, StateChangedEventArgs stateChangedEventArgs)
+        {
+            this.jobbrRuntimeClient.PublishState(stateChangedEventArgs.State);
         }
 
         public JobbrRuntime(Assembly defaultAssembly) : this(defaultAssembly, new NoDependencyResolver())
@@ -27,8 +33,6 @@ namespace Jobbr.Runtime.Console
 
         public void Run(string[] args)
         {
-            var oldRuntime = new CoreRuntime(this.defaultAssembly, this.dependencyResolver);
-
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
 
             Logger.Info($"JobbrRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {String.Join(" ", args)}");
@@ -41,11 +45,11 @@ namespace Jobbr.Runtime.Console
 
             WaitForDebugger(cmdlineOptions.IsDebug);
 
-            var jobbrRuntimeClient = InitializeClient(cmdlineOptions);
-            var jobRunInfoDto = jobbrRuntimeClient.GetJobRunInfo();
+            this.jobbrRuntimeClient = InitializeClient(cmdlineOptions);
+            var jobRunInfoDto = this.jobbrRuntimeClient.GetJobRunInfo();
 
-            oldRuntime.client = jobbrRuntimeClient;
-            oldRuntime.RunCore(jobRunInfoDto);
+            this.coreRuntime.client = this.jobbrRuntimeClient;
+            this.coreRuntime.RunCore(jobRunInfoDto);
         }
 
         private static void WaitForDebugger(bool isDebugEnabled)

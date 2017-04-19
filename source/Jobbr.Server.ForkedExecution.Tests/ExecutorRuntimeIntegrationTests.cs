@@ -188,7 +188,34 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
-        public void RunnerExecutable_JobWithProgress_SendsPogress()
+        public void RunnerExecutable_JobWithProgress_SendsMultipleStates()
+        {
+            // Setup
+            var config = GivenAMinimalConfiguration();
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+
+            this.GivenAStartedBackChannelHost(config);
+            var executor = this.GivenAStartedExecutor(config);
+
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+            fakeRun.JobRunInfo.Type = "SimpleJob";
+
+            // Act
+            this.manualTimeProvider.AddSecond();
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
+
+            this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+
+            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Connected), "It should contain the Connected state");
+            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Initializing), "It should contain the Initializing state");
+            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Processing), "It should contain the Processing state");
+            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Finishing), "It should contain the Finishing state");
+            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Collecting), "It should contain the Collecting state");
+            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "It should contain the Collecting state");
+        }
+
+        [TestMethod]
+        public void RunnerExecutable_JobWithProgress_MultipleStatus()
         {
             // Setup
             var config = GivenAMinimalConfiguration();
@@ -199,7 +226,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "JobWithOneProgress";
-            
+
             // Act
             this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));

@@ -9,8 +9,11 @@ using Newtonsoft.Json;
 
 namespace Jobbr.Runtime.Console
 {
+
     public class CoreRuntime : IDisposable
     {
+        public event EventHandler<StateChangedEventArgs> OnStateChanged;
+
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
         
         private readonly Assembly defaultAssembly;
@@ -45,7 +48,7 @@ namespace Jobbr.Runtime.Console
 
             try
             {
-                this.client.PublishState(JobRunState.Initializing);
+                this.PublishState(JobRunState.Initializing);
 
                 this.ActivateJob();
 
@@ -72,6 +75,14 @@ namespace Jobbr.Runtime.Console
             this.End();
         }
 
+        private void PublishState(JobRunState state)
+        {
+            // this.client.PublishState(state);
+
+            this.OnOnStateChanged(new StateChangedEventArgs() { State = state });
+        }
+
+
         private void WaitForCompletion()
         {
             if (this.jobRunTask == null)
@@ -91,11 +102,11 @@ namespace Jobbr.Runtime.Console
             if (this.jobRunTask.IsFaulted)
             {
                 Logger.ErrorException("The execution of the job has faulted. See Exception for details.", this.jobRunTask.Exception);
-                this.client.PublishState(JobRunState.Failed);
+                this.PublishState(JobRunState.Failed);
             }
             else
             {
-                this.client.PublishState(JobRunState.Finishing);
+                this.PublishState(JobRunState.Finishing);
             }
         }
 
@@ -103,12 +114,12 @@ namespace Jobbr.Runtime.Console
         {
             if (this.jobRunTask == null || this.jobRunTask.IsFaulted)
             {
-                this.client.PublishState(JobRunState.Failed);
+                this.PublishState(JobRunState.Failed);
                 Environment.ExitCode = 1;
             }
             else
             {
-                this.client.PublishState(JobRunState.Completed);
+                this.PublishState(JobRunState.Completed);
             }
         }
 
@@ -116,7 +127,7 @@ namespace Jobbr.Runtime.Console
         {
             if (this.jobRunTask != null)
             {
-                this.client.PublishState(JobRunState.Collecting);
+                this.PublishState(JobRunState.Collecting);
 
                 var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
 
@@ -180,7 +191,7 @@ namespace Jobbr.Runtime.Console
                     Logger.Debug("Starting Task to execute the Run()-Method.");
 
                     this.jobRunTask.Start();
-                    this.client.PublishState(JobRunState.Processing);
+                    this.PublishState(JobRunState.Processing);
                 }
                 else
                 {
@@ -190,7 +201,7 @@ namespace Jobbr.Runtime.Console
             else
             {
                 Logger.Error("Unable to find an entrypoint to call your job. Is there at least a public Run()-Method?");
-                this.client.PublishState(JobRunState.Failed);
+                this.PublishState(JobRunState.Failed);
             }
         }
 
@@ -234,7 +245,7 @@ namespace Jobbr.Runtime.Console
             {
                 Logger.Error($"Unable to resolve the type '{this.jobInfo.JobType}'!");
 
-                this.client.PublishState(JobRunState.Failed);
+                this.PublishState(JobRunState.Failed);
             }
             else
             {
@@ -349,5 +360,15 @@ namespace Jobbr.Runtime.Console
                 }
             }
         }
+
+        protected virtual void OnOnStateChanged(StateChangedEventArgs e)
+        {
+            this.OnStateChanged?.Invoke(this, e);
+        }
+    }
+
+    public class StateChangedEventArgs
+    {
+        public JobRunState State { get; set; }
     }
 }
