@@ -12,6 +12,6 @@ namespace Jobbr.Runtime.Core
         /// </summary>
         /// <param name="serviceType">The service to be retrieved.</param>
         /// <returns>The retrieved service.</returns>
-        object GetService(Type serviceType);
+        object Activate(Type serviceType);
     }
 }

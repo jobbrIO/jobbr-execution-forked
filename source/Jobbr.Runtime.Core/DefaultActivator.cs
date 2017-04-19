@@ -7,7 +7,7 @@ namespace Jobbr.Runtime.Core
     /// </summary>
     public class DefaultActivator : IJobActivator
     {
-        public object GetService(Type serviceType)
+        public object Activate(Type serviceType)
         {
             return Activator.CreateInstance(serviceType);
         }

@@ -238,7 +238,7 @@ namespace Jobbr.Runtime.Core
 
                 try
                 {
-                    this.jobInstance = this.dependencyResolver.GetService(type);
+                    this.jobInstance = this.dependencyResolver.Activate(type);
                 }
                 catch (Exception exception)
                 {
