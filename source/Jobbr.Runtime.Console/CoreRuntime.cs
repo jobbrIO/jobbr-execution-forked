@@ -14,13 +14,13 @@ namespace Jobbr.Runtime.Console
     {
         public event EventHandler<StateChangedEventArgs> StateChanged;
 
+        public event EventHandler<FinishingEventArgs> Finishing; 
+
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
         
         private readonly Assembly defaultAssembly;
 
         private readonly IJobbrDependencyResolver dependencyResolver;
-
-        public JobbrRuntimeClient client;
 
         private object jobInstance;
 
@@ -56,7 +56,7 @@ namespace Jobbr.Runtime.Console
 
                 this.WaitForCompletion();
 
-                this.Collect();
+                this.OnFinishing(new FinishingEventArgs() { Successful = true });
             }
             catch (Exception e)
             {
@@ -65,7 +65,7 @@ namespace Jobbr.Runtime.Console
 
                 try
                 {
-                    this.Collect();
+                    this.OnFinishing(new FinishingEventArgs() { Successful = false, Exception = e});
                 }
                 catch (Exception)
                 {
@@ -118,18 +118,6 @@ namespace Jobbr.Runtime.Console
             else
             {
                 this.PublishState(JobRunState.Completed);
-            }
-        }
-
-        private void Collect()
-        {
-            if (this.jobRunTask != null)
-            {
-                this.PublishState(JobRunState.Collecting);
-
-                var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
-
-                this.client.SendFiles(allFiles);
             }
         }
 
@@ -339,12 +327,6 @@ namespace Jobbr.Runtime.Console
         {
             if (disposing)
             {
-                if (this.client != null)
-                {
-                    this.client.Dispose();
-                    this.client = null;
-                }
-
                 if (this.cancellationTokenSource != null)
                 {
                     this.cancellationTokenSource.Dispose();
@@ -363,6 +345,18 @@ namespace Jobbr.Runtime.Console
         {
             this.StateChanged?.Invoke(this, e);
         }
+
+        protected virtual void OnFinishing(FinishingEventArgs e)
+        {
+            this.Finishing?.Invoke(this, e);
+        }
+    }
+
+    public class FinishingEventArgs
+    {
+        public bool Successful { get; set; }
+
+        public Exception Exception { get; set; }
     }
 
     public class StateChangedEventArgs

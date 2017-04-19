@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,11 +21,7 @@ namespace Jobbr.Runtime.Console
             this.coreRuntime = new CoreRuntime(defaultAssembly, dependencyResolver);
 
             this.coreRuntime.StateChanged += this.CoreRuntimeOnOnStateChanged;
-        }
-
-        private void CoreRuntimeOnOnStateChanged(object sender, StateChangedEventArgs stateChangedEventArgs)
-        {
-            this.jobbrRuntimeClient.PublishState(stateChangedEventArgs.State);
+            this.coreRuntime.Finishing += this.CoreRuntimeOnFinishing;
         }
 
         public JobbrRuntime(Assembly defaultAssembly) : this(defaultAssembly, new NoDependencyResolver())
@@ -48,7 +45,6 @@ namespace Jobbr.Runtime.Console
             this.jobbrRuntimeClient = InitializeClient(cmdlineOptions);
             var jobRunInfoDto = this.jobbrRuntimeClient.GetJobRunInfo();
 
-            this.coreRuntime.client = this.jobbrRuntimeClient;
             this.coreRuntime.RunCore(jobRunInfoDto);
         }
 
@@ -101,6 +97,20 @@ namespace Jobbr.Runtime.Console
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
             Logger.FatalException("Unhandled Infrastructure Exception in Jobbr-Runtime. Please contact the developers!", (Exception)unhandledExceptionEventArgs.ExceptionObject);
+        }
+
+        private void CoreRuntimeOnFinishing(object sender, FinishingEventArgs finishingEventArgs)
+        {
+            this.jobbrRuntimeClient.PublishState(JobRunState.Collecting);
+
+            var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
+
+            this.jobbrRuntimeClient.SendFiles(allFiles);
+        }
+
+        private void CoreRuntimeOnOnStateChanged(object sender, StateChangedEventArgs stateChangedEventArgs)
+        {
+            this.jobbrRuntimeClient.PublishState(stateChangedEventArgs.State);
         }
     }
 }
