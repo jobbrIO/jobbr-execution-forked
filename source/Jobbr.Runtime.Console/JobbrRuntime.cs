@@ -11,9 +11,32 @@ using Newtonsoft.Json;
 
 namespace Jobbr.Runtime.Console
 {
-    public class JobbrRuntime : IDisposable
+    public class JobbrRuntime
     {
-        private static readonly ILog Logger = LogProvider.For<JobbrRuntime>();
+        private readonly Assembly defaultAssembly;
+        private readonly IJobbrDependencyResolver dependencyResolver;
+
+        public JobbrRuntime(Assembly defaultAssembly, IJobbrDependencyResolver dependencyResolver)
+        {
+            this.defaultAssembly = defaultAssembly;
+            this.dependencyResolver = dependencyResolver;
+        }
+
+        public JobbrRuntime(Assembly defaultAssembly) : this(defaultAssembly, new NoDependencyResolver())
+        {
+        }
+
+        public void Run(string[] args)
+        {
+            var oldRuntime = new OldJobbrRuntime(this.defaultAssembly, this.dependencyResolver);
+
+            oldRuntime.Run(args);
+        }
+    }
+
+    public class OldJobbrRuntime : IDisposable
+    {
+        private static readonly ILog Logger = LogProvider.For<OldJobbrRuntime>();
         
         private readonly Assembly defaultAssembly;
 
@@ -33,13 +56,13 @@ namespace Jobbr.Runtime.Console
 
         private RuntimeContext context;
 
-        public JobbrRuntime(Assembly defaultAssembly, IJobbrDependencyResolver dependencyResolver)
+        public OldJobbrRuntime(Assembly defaultAssembly, IJobbrDependencyResolver dependencyResolver)
         {
             this.defaultAssembly = defaultAssembly;
             this.dependencyResolver = dependencyResolver;
         }
 
-        public JobbrRuntime(Assembly defaultAssembly) : this(defaultAssembly, new NoDependencyResolver())
+        public OldJobbrRuntime(Assembly defaultAssembly) : this(defaultAssembly, new NoDependencyResolver())
         {
         }
 
