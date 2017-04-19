@@ -42,9 +42,7 @@ namespace Jobbr.Runtime.Console
 
         private readonly IJobbrDependencyResolver dependencyResolver;
 
-        private JobbrRuntimeClient client;
-
-        private CommandlineOptions commandlineOptions;
+        public JobbrRuntimeClient client;
 
         private object jobInstance;
 
@@ -55,6 +53,8 @@ namespace Jobbr.Runtime.Console
         private JobRunInfoDto jobInfo;
 
         private RuntimeContext context;
+
+        private bool commandlineOptionsIsDebug;
 
         public OldJobbrRuntime(Assembly defaultAssembly, IJobbrDependencyResolver dependencyResolver)
         {
@@ -105,13 +105,14 @@ namespace Jobbr.Runtime.Console
 
             Logger.Info($"JobbrRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {string.Join(" ", args)}");
 
-            this.ParseArguments(args);
+            var cmdlineOptions = this.ParseArguments(args);
+            this.commandlineOptionsIsDebug = cmdlineOptions.IsDebug;
 
-            Logger.Info($"JobRunId:  {this.commandlineOptions.JobRunId}");
-            Logger.Info($"JobServer: {this.commandlineOptions.JobServer}");
-            Logger.Info($"IsDebug:   {this.commandlineOptions.IsDebug}");
+            Logger.Info($"JobRunId:  {cmdlineOptions.JobRunId}");
+            Logger.Info($"JobServer: {cmdlineOptions.JobServer}");
+            Logger.Info($"IsDebug:   {cmdlineOptions.IsDebug}");
 
-            this.InitializeClient(this.commandlineOptions.JobServer, this.commandlineOptions.JobRunId);
+            this.InitializeClient(cmdlineOptions.JobServer, cmdlineOptions.JobRunId);
         }
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
@@ -377,7 +378,7 @@ namespace Jobbr.Runtime.Console
 
         private void WaitForDebuggerIfEnabled()
         {
-            if (this.commandlineOptions.IsDebug)
+            if (this.commandlineOptionsIsDebug)
             {
                 var beginWaitForDebugger = DateTime.Now;
                 var endWaitForDebugger = beginWaitForDebugger.AddSeconds(10);
@@ -406,10 +407,12 @@ namespace Jobbr.Runtime.Console
             }
         }
 
-        private void ParseArguments(string[] args)
+        private CommandlineOptions ParseArguments(string[] args)
         {
-            this.commandlineOptions = new CommandlineOptions();
-            Parser.Default.ParseArguments(args, this.commandlineOptions);
+            var commandlineOptions = new CommandlineOptions();
+            Parser.Default.ParseArguments(args, commandlineOptions);
+
+            return commandlineOptions;
         }
 
         public void Dispose()
