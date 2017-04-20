@@ -8,6 +8,19 @@ using Newtonsoft.Json;
 
 namespace Jobbr.Runtime.Core
 {
+    public class RuntimeConfiguration
+    {
+        public RuntimeConfiguration(Assembly primaryJobSearchAssembly, IJobActivator dependencyResolver)
+        {
+            this.PrimaryJobSearchAssembly = primaryJobSearchAssembly;
+            this.DependencyResolver = dependencyResolver;
+        }
+
+        public Assembly PrimaryJobSearchAssembly { get; private set; }
+
+        public IJobActivator DependencyResolver { get; private set; }
+    }
+
     public class CoreRuntime : IDisposable
     {
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
@@ -30,14 +43,10 @@ namespace Jobbr.Runtime.Core
 
         public event EventHandler<FinishingEventArgs> Finishing;
 
-        public CoreRuntime(Assembly defaultAssembly, IJobActivator dependencyResolver)
+        public CoreRuntime(RuntimeConfiguration runtimeConfiguration)
         {
-            this.defaultAssembly = defaultAssembly;
-            this.dependencyResolver = dependencyResolver;
-        }
-
-        public CoreRuntime(Assembly defaultAssembly) : this(defaultAssembly, new DefaultActivator())
-        {
+            this.defaultAssembly = runtimeConfiguration.PrimaryJobSearchAssembly;
+            this.dependencyResolver = runtimeConfiguration.DependencyResolver;
         }
 
         public void RunCore(JobRunInfo jobRunInfo)
@@ -217,8 +226,6 @@ namespace Jobbr.Runtime.Core
 
         private void ActivateJob()
         {
-            this.SetRuntimeContext();
-
             var typeName = this.jobInfo.JobType;
 
             Logger.Debug($"Trying to resolve the specified type '{this.jobInfo.JobType}'...");
@@ -237,6 +244,8 @@ namespace Jobbr.Runtime.Core
 
                 try
                 {
+                    this.SetRuntimeContext();
+
                     this.jobInstance = this.dependencyResolver.Activate(type);
                 }
                 catch (Exception exception)

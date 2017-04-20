@@ -20,7 +20,7 @@ namespace Jobbr.Runtime.Console
 
         public JobbrRuntime(Assembly defaultAssembly, IJobActivator dependencyResolver)
         {
-            this.coreRuntime = new CoreRuntime(defaultAssembly, dependencyResolver);
+            this.coreRuntime = new CoreRuntime(new RuntimeConfiguration(defaultAssembly, dependencyResolver));
 
             this.coreRuntime.StateChanged += this.CoreRuntimeOnOnStateChanged;
             this.coreRuntime.Finishing += this.CoreRuntimeOnFinishing;
