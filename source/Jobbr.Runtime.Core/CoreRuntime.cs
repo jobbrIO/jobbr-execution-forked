@@ -44,7 +44,7 @@ namespace Jobbr.Runtime.Core
             {
                 this.PublishState(JobRunState.Initializing);
 
-                this.ActivateJob();
+                this.ActivateJob(this.jobInfo.JobType);
 
                 this.StartJob();
 
@@ -210,23 +210,23 @@ namespace Jobbr.Runtime.Core
             return castedValue;
         }
 
-        private void ActivateJob()
+        private void ActivateJob(string jobTypeName)
         {
-            var typeName = this.jobInfo.JobType;
+            Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
 
-            Logger.Debug($"Trying to resolve the specified type '{this.jobInfo.JobType}'...");
-
-            var type = this.jobTypeResolver.ResolveType(typeName);
+            var type = this.jobTypeResolver.ResolveType(jobTypeName);
 
             if (type == null)
             {
-                Logger.Error($"Unable to resolve the type '{this.jobInfo.JobType}'!");
+                Logger.Error($"Unable to resolve the type '{jobTypeName}'!");
 
                 this.PublishState(JobRunState.Failed);
+                return;
             }
+
             else
             {
-                Logger.Info($"Type '{this.jobInfo.JobType}' has been resolved to '{type}'. Activating now.");
+                Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
 
                 try
                 {
@@ -236,7 +236,8 @@ namespace Jobbr.Runtime.Core
                 }
                 catch (Exception exception)
                 {
-                    Logger.ErrorException("Failed while activating type '{0}'. See Exception for details!", exception, type);
+                    Logger.ErrorException("Failed while activating type '{0}'. See Exception for details!", exception,
+                        type);
                 }
             }
         }
