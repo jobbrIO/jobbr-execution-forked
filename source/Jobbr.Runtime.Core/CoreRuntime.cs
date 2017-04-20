@@ -24,6 +24,7 @@ namespace Jobbr.Runtime.Core
     {
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
 
+        private JobRunInfo jobInfo;
 
         private readonly JobTypeResolver jobTypeResolver;
 
@@ -34,8 +35,6 @@ namespace Jobbr.Runtime.Core
         private CancellationTokenSource cancellationTokenSource;
 
         private Task jobRunTask;
-
-        private JobRunInfo jobInfo;
 
         private RuntimeContext context;
 
@@ -87,7 +86,6 @@ namespace Jobbr.Runtime.Core
         {
             this.OnStateChanged(new StateChangedEventArgs() { State = state });
         }
-
 
         private void WaitForCompletion()
         {
