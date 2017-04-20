@@ -44,10 +44,24 @@ namespace Jobbr.Runtime.Console
 
             WaitForDebugger(cmdlineOptions.IsDebug);
 
-            this.forkedExecutionRestClient = InitializeClient(cmdlineOptions);
+            // Create client
+            var jobbrRuntimeClient = new ForkedExecutionRestClient(cmdlineOptions.JobServer, cmdlineOptions.JobRunId);
+            this.forkedExecutionRestClient = jobbrRuntimeClient;
+
+            jobbrRuntimeClient.PublishState(JobRunState.Connected);
+
             var jobRunInfoDto = this.forkedExecutionRestClient.GetJobRunInfo();
 
-            this.coreRuntime.RunCore(new JobRunInfo { JobType = jobRunInfoDto.JobType, JobParameter = jobRunInfoDto.JobParameter, InstanceParameter = jobRunInfoDto.InstanceParameter, UserId = jobRunInfoDto.UserId, UserDisplayName = jobRunInfoDto.UserDisplayName });
+            var jobRunInfo = new JobRunInfo
+            {
+                JobType = jobRunInfoDto.JobType,
+                JobParameter = jobRunInfoDto.JobParameter,
+                InstanceParameter = jobRunInfoDto.InstanceParameter,
+                UserId = jobRunInfoDto.UserId,
+                UserDisplayName = jobRunInfoDto.UserDisplayName
+            };
+
+            this.coreRuntime.RunCore(jobRunInfo);
         }
 
         private static void WaitForDebugger(bool isDebugEnabled)
@@ -79,13 +93,6 @@ namespace Jobbr.Runtime.Console
             {
                 Debugger.Break();
             }
-        }
-
-        private static ForkedExecutionRestClient InitializeClient(CommandlineOptions cmdlineOptions)
-        {
-            var jobbrRuntimeClient = new ForkedExecutionRestClient(cmdlineOptions.JobServer, cmdlineOptions.JobRunId);
-            jobbrRuntimeClient.PublishState(JobRunState.Connected);
-            return jobbrRuntimeClient;
         }
 
         private static CommandlineOptions ParseArguments(string[] args)
