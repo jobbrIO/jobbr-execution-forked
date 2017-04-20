@@ -10,15 +10,14 @@ namespace Jobbr.Runtime.Core
 {
     public class RuntimeConfiguration
     {
-        public RuntimeConfiguration(Assembly primaryJobSearchAssembly, IJobActivator dependencyResolver)
+        public Assembly JobTypeSearchAssembly { get; set; }
+
+        public IJobActivator JobActivator { get; set; }
+
+        public RuntimeConfiguration()
         {
-            this.PrimaryJobSearchAssembly = primaryJobSearchAssembly;
-            this.DependencyResolver = dependencyResolver;
+            this.JobActivator = new DefaultActivator();
         }
-
-        public Assembly PrimaryJobSearchAssembly { get; private set; }
-
-        public IJobActivator DependencyResolver { get; private set; }
     }
 
     public class CoreRuntime : IDisposable
@@ -45,8 +44,8 @@ namespace Jobbr.Runtime.Core
 
         public CoreRuntime(RuntimeConfiguration runtimeConfiguration)
         {
-            this.defaultAssembly = runtimeConfiguration.PrimaryJobSearchAssembly;
-            this.dependencyResolver = runtimeConfiguration.DependencyResolver;
+            this.defaultAssembly = runtimeConfiguration.JobTypeSearchAssembly;
+            this.dependencyResolver = runtimeConfiguration.JobActivator;
         }
 
         public void RunCore(JobRunInfo jobRunInfo)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -18,15 +17,20 @@ namespace Jobbr.Runtime.Console
         private CoreRuntime coreRuntime;
         private ForkedExecutionRestClient forkedExecutionRestClient;
 
-        public JobbrRuntime(Assembly defaultAssembly, IJobActivator dependencyResolver)
+        public JobbrRuntime(RuntimeConfiguration runtimeConfiguration)
         {
-            this.coreRuntime = new CoreRuntime(new RuntimeConfiguration(defaultAssembly, dependencyResolver));
+            if (runtimeConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(runtimeConfiguration));
+            }
+
+            this.coreRuntime = new CoreRuntime(runtimeConfiguration);
 
             this.coreRuntime.StateChanged += this.CoreRuntimeOnOnStateChanged;
             this.coreRuntime.Finishing += this.CoreRuntimeOnFinishing;
         }
 
-        public JobbrRuntime(Assembly defaultAssembly) : this(defaultAssembly, new DefaultActivator())
+        public JobbrRuntime() : this(new RuntimeConfiguration {} )
         {
         }
 
