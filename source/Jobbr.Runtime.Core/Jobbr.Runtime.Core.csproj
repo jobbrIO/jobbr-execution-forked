@@ -51,6 +51,7 @@
     <Compile Include="JobRunState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeContext.cs" />
+    <Compile Include="JobTypeResolver.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
