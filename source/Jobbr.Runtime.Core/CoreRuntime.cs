@@ -55,7 +55,6 @@ namespace Jobbr.Runtime.Core
             catch (Exception e)
             {
                 Logger.FatalException("Exception in the Jobbr-Runtime. Please see details: ", e);
-                Environment.ExitCode = 1;
 
                 try
                 {
@@ -106,7 +105,6 @@ namespace Jobbr.Runtime.Core
             if (this.jobRunTask == null || this.jobRunTask.IsFaulted)
             {
                 this.PublishState(JobRunState.Failed);
-                Environment.ExitCode = 1;
             }
             else
             {

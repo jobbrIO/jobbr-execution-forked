@@ -114,6 +114,11 @@ namespace Jobbr.Runtime.Console
 
         private void CoreRuntimeOnFinishing(object sender, FinishingEventArgs finishingEventArgs)
         {
+            if (!finishingEventArgs.Successful)
+            {
+                Environment.ExitCode = 1;
+            }
+
             this.forkedExecutionRestClient.PublishState(JobRunState.Collecting);
 
             var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
@@ -123,6 +128,11 @@ namespace Jobbr.Runtime.Console
 
         private void CoreRuntimeOnOnStateChanged(object sender, StateChangedEventArgs stateChangedEventArgs)
         {
+            if (stateChangedEventArgs.State == JobRunState.Failed)
+            {
+                Environment.ExitCode = 1;
+            }
+
             this.forkedExecutionRestClient.PublishState(stateChangedEventArgs.State);
         }
     }
