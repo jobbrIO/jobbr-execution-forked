@@ -46,12 +46,16 @@
     <Compile Include="App_Packages\LibLog.3.1\LibLog.cs" />
     <Compile Include="CoreRuntime.cs" />
     <Compile Include="DefaultActivator.cs" />
+    <Compile Include="FinishingEventArgs.cs" />
     <Compile Include="IJobActivator.cs" />
     <Compile Include="IRuntimeContextRegistrator.cs" />
+    <Compile Include="JobRunInfo.cs" />
     <Compile Include="JobRunState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RuntimeConfiguration.cs" />
     <Compile Include="RuntimeContext.cs" />
     <Compile Include="JobTypeResolver.cs" />
+    <Compile Include="StateChangedEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

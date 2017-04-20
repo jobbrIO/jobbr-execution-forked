@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Jobbr.Runtime.Core.Logging;
@@ -8,18 +7,6 @@ using Newtonsoft.Json;
 
 namespace Jobbr.Runtime.Core
 {
-    public class RuntimeConfiguration
-    {
-        public Assembly JobTypeSearchAssembly { get; set; }
-
-        public IJobActivator JobActivator { get; set; }
-
-        public RuntimeConfiguration()
-        {
-            this.JobActivator = new DefaultActivator();
-        }
-    }
-
     public class CoreRuntime : IDisposable
     {
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
@@ -300,30 +287,5 @@ namespace Jobbr.Runtime.Core
         {
             this.Finishing?.Invoke(this, e);
         }
-    }
-
-    public class JobRunInfo
-    {
-        public object JobParameter { get; set; }
-
-        public object InstanceParameter { get; set; }
-
-        public string JobType { get; set; }
-
-        public string UserId { get; set; }
-
-        public string UserDisplayName { get; set; }
-    }
-
-    public class FinishingEventArgs
-    {
-        public bool Successful { get; set; }
-
-        public Exception Exception { get; set; }
-    }
-
-    public class StateChangedEventArgs
-    {
-        public JobRunState State { get; set; }
     }
 }
