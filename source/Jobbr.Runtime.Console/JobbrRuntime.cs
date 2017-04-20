@@ -34,7 +34,7 @@ namespace Jobbr.Runtime.Console
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
 
-            Logger.Info($"JobbrRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {String.Join(" ", args)}");
+            Logger.Info($"JobbrRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {string.Join(" ", args)}");
 
             var cmdlineOptions = ParseArguments(args);
 
