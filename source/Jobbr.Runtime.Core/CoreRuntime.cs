@@ -67,7 +67,16 @@ namespace Jobbr.Runtime.Core
                             task.Start();
                             this.PublishState(JobRunState.Processing);
 
-                            this.WaitForCompletion(task);
+                            var result = this.WaitForCompletion(task);
+
+                            if (result)
+                            {
+                                this.PublishState(JobRunState.Finishing);
+                            }
+                            else
+                            {
+                                this.PublishState(JobRunState.Failed);
+                            }
 
                             this.OnFinishing(new FinishingEventArgs() { Successful = true });
                         }
@@ -95,7 +104,7 @@ namespace Jobbr.Runtime.Core
             this.OnStateChanged(new StateChangedEventArgs() { State = state });
         }
 
-        private void WaitForCompletion(Task runTask)
+        private bool WaitForCompletion(Task runTask)
         {
             var cancellationTokenSource = new CancellationTokenSource();
 
@@ -111,12 +120,10 @@ namespace Jobbr.Runtime.Core
             if (runTask.IsFaulted)
             {
                 Logger.ErrorException("The execution of the job has faulted. See Exception for details.", runTask.Exception);
-                this.PublishState(JobRunState.Failed);
+                return false;
             }
-            else
-            {
-                this.PublishState(JobRunState.Finishing);
-            }
+
+            return true;
         }
 
         private void End(Task runTask)
