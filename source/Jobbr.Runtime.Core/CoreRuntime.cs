@@ -17,8 +17,6 @@ namespace Jobbr.Runtime.Core
 
         private readonly IJobActivator dependencyResolver;
 
-        private Task jobRunTask;
-
         private RuntimeContext context;
 
         public event EventHandler<StateChangedEventArgs> StateChanged;
@@ -36,6 +34,8 @@ namespace Jobbr.Runtime.Core
         {
             this.jobInfo = jobRunInfo;
 
+            Task task = null;
+
             try
             {
                 this.PublishState(JobRunState.Initializing);
@@ -44,15 +44,20 @@ namespace Jobbr.Runtime.Core
 
                 if (jobClassInstance != null)
                 {
-                    this.StartJob(jobClassInstance);
+                    task = this.CreateRunTask(jobClassInstance);
 
-                    if (this.jobRunTask != null)
+                    if (task != null)
                     {
-                        this.WaitForCompletion();
+                        Logger.Debug("Starting Task to execute the Run()-Method.");
+
+                        task.Start();
+                        this.PublishState(JobRunState.Processing);
+
+                        this.WaitForCompletion(task);
+
+                        this.OnFinishing(new FinishingEventArgs() { Successful = true });
                     }
                 }
-
-                this.OnFinishing(new FinishingEventArgs() { Successful = true });
             }
             catch (Exception e)
             {
@@ -67,7 +72,7 @@ namespace Jobbr.Runtime.Core
                 }
             }
 
-            this.End();
+            this.End(task);
         }
 
         private void PublishState(JobRunState state)
@@ -75,22 +80,22 @@ namespace Jobbr.Runtime.Core
             this.OnStateChanged(new StateChangedEventArgs() { State = state });
         }
 
-        private void WaitForCompletion()
+        private void WaitForCompletion(Task runTask)
         {
             var cancellationTokenSource = new CancellationTokenSource();
 
             try
             {
-                this.jobRunTask.Wait(cancellationTokenSource.Token);
+                runTask.Wait(cancellationTokenSource.Token);
             }
             catch (Exception e)
             {
                 Logger.ErrorException("Exception while waiting for completion of job", e);
             }
 
-            if (this.jobRunTask.IsFaulted)
+            if (runTask.IsFaulted)
             {
-                Logger.ErrorException("The execution of the job has faulted. See Exception for details.", this.jobRunTask.Exception);
+                Logger.ErrorException("The execution of the job has faulted. See Exception for details.", runTask.Exception);
                 this.PublishState(JobRunState.Failed);
             }
             else
@@ -99,9 +104,9 @@ namespace Jobbr.Runtime.Core
             }
         }
 
-        private void End()
+        private void End(Task runTask)
         {
-            if (this.jobRunTask == null || this.jobRunTask.IsFaulted)
+            if (runTask == null || runTask.IsFaulted)
             {
                 this.PublishState(JobRunState.Failed);
             }
@@ -111,20 +116,7 @@ namespace Jobbr.Runtime.Core
             }
         }
 
-        private void StartJob(object jobClassInstance)
-        {
-            this.CreateRunTask(jobClassInstance);
-
-            if (this.jobRunTask != null)
-            {
-                Logger.Debug("Starting Task to execute the Run()-Method.");
-
-                this.jobRunTask.Start();
-                this.PublishState(JobRunState.Processing);
-            }
-        }
-
-        private void CreateRunTask(object jobClassInstance)
+        private Task CreateRunTask(object jobClassInstance)
         {
             var runMethods = jobClassInstance.GetType().GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
 
@@ -134,7 +126,7 @@ namespace Jobbr.Runtime.Core
             {
                 Logger.Error("Unable to find an entrypoint to call your job. Is there at least a public Run()-Method?");
                 this.PublishState(JobRunState.Failed);
-                return;
+                return null;
             }
 
             // Try to use the method with 2 concrete parameters
@@ -162,7 +154,7 @@ namespace Jobbr.Runtime.Core
                 var instanceParamaterValue = this.GetCastedParameterValue(param2Name, param2Type, "instance", this.jobInfo.InstanceParameter);
 
                 Logger.Debug("Initializing task for JobRun");
-                this.jobRunTask = new Task(() => { parameterizedMethod.Invoke(jobClassInstance, new[] {jobParameterValue, instanceParamaterValue}); }, cancellationTokenSource.Token);
+                return new Task(() => { parameterizedMethod.Invoke(jobClassInstance, new[] {jobParameterValue, instanceParamaterValue}); }, cancellationTokenSource.Token);
             }
             else
             {
@@ -171,14 +163,12 @@ namespace Jobbr.Runtime.Core
                 if (fallBackMethod != null)
                 {
                     Logger.Debug($"Decided to use parameterless method '{fallBackMethod}'");
-                    this.jobRunTask = new Task(() => fallBackMethod.Invoke(jobClassInstance, null), cancellationTokenSource.Token);
+                    return new Task(() => fallBackMethod.Invoke(jobClassInstance, null), cancellationTokenSource.Token);
                 }
             }
 
-            if (this.jobRunTask == null)
-            {
-                Logger.Error("None of your Run()-Methods are compatible with Jobbr. Please see coeumentation");
-            }
+            Logger.Error("None of your Run()-Methods are compatible with Jobbr. Please see coeumentation");
+            return null;
         }
 
         private object GetCastedParameterValue(string parameterName, Type targetType, string jobbrParamName, object value)
@@ -262,11 +252,6 @@ namespace Jobbr.Runtime.Core
         {
             if (disposing)
             {
-                if (this.jobRunTask != null)
-                {
-                    this.jobRunTask.Dispose();
-                    this.jobRunTask = null;
-                }
             }
         }
 
