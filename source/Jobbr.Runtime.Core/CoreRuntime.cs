@@ -19,8 +19,6 @@ namespace Jobbr.Runtime.Core
 
         private object jobInstance;
 
-        private CancellationTokenSource cancellationTokenSource;
-
         private Task jobRunTask;
 
         private RuntimeContext context;
@@ -77,6 +75,8 @@ namespace Jobbr.Runtime.Core
 
         private void WaitForCompletion()
         {
+            var cancellationTokenSource = new CancellationTokenSource();
+
             if (this.jobRunTask == null)
             {
                 return;
@@ -84,7 +84,7 @@ namespace Jobbr.Runtime.Core
 
             try
             {
-                this.jobRunTask.Wait(this.cancellationTokenSource.Token);
+                this.jobRunTask.Wait(cancellationTokenSource.Token);
             }
             catch (Exception e)
             {
@@ -123,7 +123,7 @@ namespace Jobbr.Runtime.Core
 
             var runMethods = this.jobInstance.GetType().GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
 
-            this.cancellationTokenSource = new CancellationTokenSource();
+            var cancellationTokenSource = new CancellationTokenSource();
 
             if (runMethods.Any())
             {
@@ -152,7 +152,7 @@ namespace Jobbr.Runtime.Core
                     var instanceParamaterValue = this.GetCastedParameterValue(param2Name, param2Type, "instance", this.jobInfo.InstanceParameter);
 
                     Logger.Debug("Initializing task for JobRun");
-                    this.jobRunTask = new Task(() => { parameterizedMethod.Invoke(this.jobInstance, new[] { jobParameterValue, instanceParamaterValue }); }, this.cancellationTokenSource.Token);
+                    this.jobRunTask = new Task(() => { parameterizedMethod.Invoke(this.jobInstance, new[] { jobParameterValue, instanceParamaterValue }); }, cancellationTokenSource.Token);
                 }
                 else
                 {
@@ -161,7 +161,7 @@ namespace Jobbr.Runtime.Core
                     if (fallBackMethod != null)
                     {
                         Logger.Debug($"Decided to use parameterless method '{fallBackMethod}'");
-                        this.jobRunTask = new Task(() => fallBackMethod.Invoke(this.jobInstance, null), this.cancellationTokenSource.Token);
+                        this.jobRunTask = new Task(() => fallBackMethod.Invoke(this.jobInstance, null), cancellationTokenSource.Token);
                     }
                 }
 
@@ -265,12 +265,6 @@ namespace Jobbr.Runtime.Core
         {
             if (disposing)
             {
-                if (this.cancellationTokenSource != null)
-                {
-                    this.cancellationTokenSource.Dispose();
-                    this.cancellationTokenSource = null;
-                }
-
                 if (this.jobRunTask != null)
                 {
                     this.jobRunTask.Dispose();
