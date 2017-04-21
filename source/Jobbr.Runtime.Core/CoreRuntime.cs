@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace Jobbr.Runtime.Core
 {
-    public class CoreRuntime : IDisposable
+    public class CoreRuntime
     {
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
 
@@ -240,19 +240,6 @@ namespace Jobbr.Runtime.Core
             var registrator = this.dependencyResolver as IRuntimeContextRegistrator;
 
             registrator?.RegisterInstance(this.context);
-        }
-
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-            }
         }
 
         protected virtual void OnStateChanged(StateChangedEventArgs e)
