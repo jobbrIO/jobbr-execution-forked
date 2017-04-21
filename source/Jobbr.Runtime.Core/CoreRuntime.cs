@@ -40,22 +40,37 @@ namespace Jobbr.Runtime.Core
             {
                 this.PublishState(JobRunState.Initializing);
 
-                var jobClassInstance = this.ActivateJob(this.jobInfo.JobType);
+                string jobTypeName = this.jobInfo.JobType;
 
-                if (jobClassInstance != null)
+                Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
+
+                var type = this.jobTypeResolver.ResolveType(jobTypeName);
+
+                if (type == null)
                 {
-                    task = this.CreateRunTask(jobClassInstance);
+                    Logger.Error($"Unable to resolve the type '{jobTypeName}'!");
 
-                    if (task != null)
+                    this.PublishState(JobRunState.Failed);
+                }
+                else
+                {
+                    var jobClassInstance = this.CreateJobClassInstance(jobTypeName, type);
+
+                    if (jobClassInstance != null)
                     {
-                        Logger.Debug("Starting Task to execute the Run()-Method.");
+                        task = this.CreateRunTask(jobClassInstance);
 
-                        task.Start();
-                        this.PublishState(JobRunState.Processing);
+                        if (task != null)
+                        {
+                            Logger.Debug("Starting Task to execute the Run()-Method.");
 
-                        this.WaitForCompletion(task);
+                            task.Start();
+                            this.PublishState(JobRunState.Processing);
 
-                        this.OnFinishing(new FinishingEventArgs() { Successful = true });
+                            this.WaitForCompletion(task);
+
+                            this.OnFinishing(new FinishingEventArgs() { Successful = true });
+                        }
                     }
                 }
             }
@@ -197,35 +212,20 @@ namespace Jobbr.Runtime.Core
             return castedValue;
         }
 
-        private object ActivateJob(string jobTypeName)
+        private object CreateJobClassInstance(string jobTypeName, Type type)
         {
-            Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
+            Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
 
-            var type = this.jobTypeResolver.ResolveType(jobTypeName);
-
-            if (type == null)
+            try
             {
-                Logger.Error($"Unable to resolve the type '{jobTypeName}'!");
+                this.SetRuntimeContext();
 
-                this.PublishState(JobRunState.Failed);
-                return null;
+                return this.dependencyResolver.Activate(type);
             }
-
-            else
+            catch (Exception exception)
             {
-                Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
-
-                try
-                {
-                    this.SetRuntimeContext();
-
-                    return this.dependencyResolver.Activate(type);
-                }
-                catch (Exception exception)
-                {
-                    Logger.ErrorException("Failed while activating type '{0}'. See Exception for details!", exception, type);
-                    return null;
-                }
+                Logger.ErrorException("Failed while activating type '{0}'. See Exception for details!", exception, type);
+                return null;
             }
         }
 
