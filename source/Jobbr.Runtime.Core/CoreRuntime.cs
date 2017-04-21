@@ -44,11 +44,16 @@ namespace Jobbr.Runtime.Core
 
                 this.jobInstance = this.ActivateJob(this.jobInfo.JobType);
 
-                this.StartJob();
 
-                this.WaitForCompletion();
+                if (this.jobInstance != null)
+                {
+                    this.StartJob(this.jobInstance);
 
-
+                    if (this.jobRunTask != null)
+                    {
+                        this.WaitForCompletion();
+                    }
+                }
 
                 this.OnFinishing(new FinishingEventArgs() { Successful = true });
             }
@@ -76,11 +81,6 @@ namespace Jobbr.Runtime.Core
         private void WaitForCompletion()
         {
             var cancellationTokenSource = new CancellationTokenSource();
-
-            if (this.jobRunTask == null)
-            {
-                return;
-            }
 
             try
             {
@@ -116,11 +116,6 @@ namespace Jobbr.Runtime.Core
 
         private void StartJob()
         {
-            if (this.jobInstance == null)
-            {
-                return;
-            }
-
             var runMethods = this.jobInstance.GetType().GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
 
             var cancellationTokenSource = new CancellationTokenSource();
