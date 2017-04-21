@@ -117,62 +117,61 @@ namespace Jobbr.Runtime.Core
 
             var cancellationTokenSource = new CancellationTokenSource();
 
-            if (runMethods.Any())
-            {
-                // Try to use the method with 2 concrete parameters
-                var parameterizedMethod = runMethods.FirstOrDefault(m => m.GetParameters().Length == 2);
-                if (parameterizedMethod != null)
-                {
-                    var jobParamValue = this.jobInfo.JobParameter ?? "<null>";
-                    var instanceParamValue = this.jobInfo.InstanceParameter ?? "<null>";
-
-                    var jobParamJsonString = jobParamValue.ToString();
-                    var instanceParamJsonString = instanceParamValue.ToString();
-
-                    // Note: We cannot use string interpolation here, because LibLog is using string.format again and will fail if there are { } chars in the string, even if there is no formatting needed.
-                    Logger.DebugFormat($"Decided to use parameterized method '{parameterizedMethod}' with JobParameter '{0}' and InstanceParameters '{1}'.", jobParamJsonString, instanceParamJsonString);
-                    var allParams = parameterizedMethod.GetParameters().OrderBy(p => p.Position).ToList();
-
-                    var param1Type = allParams[0].ParameterType;
-                    var param2Type = allParams[1].ParameterType;
-
-                    var param1Name = allParams[0].Name;
-                    var param2Name = allParams[1].Name;
-
-                    // Casting in the most preferrable type
-                    var jobParameterValue = this.GetCastedParameterValue(param1Name, param1Type, "job", this.jobInfo.JobParameter);
-                    var instanceParamaterValue = this.GetCastedParameterValue(param2Name, param2Type, "instance", this.jobInfo.InstanceParameter);
-
-                    Logger.Debug("Initializing task for JobRun");
-                    this.jobRunTask = new Task(() => { parameterizedMethod.Invoke(jobClassInstance, new[] { jobParameterValue, instanceParamaterValue }); }, cancellationTokenSource.Token);
-                }
-                else
-                {
-                    var fallBackMethod = runMethods.FirstOrDefault(m => !m.GetParameters().Any());
-
-                    if (fallBackMethod != null)
-                    {
-                        Logger.Debug($"Decided to use parameterless method '{fallBackMethod}'");
-                        this.jobRunTask = new Task(() => fallBackMethod.Invoke(jobClassInstance, null), cancellationTokenSource.Token);
-                    }
-                }
-
-                if (this.jobRunTask != null)
-                {
-                    Logger.Debug("Starting Task to execute the Run()-Method.");
-
-                    this.jobRunTask.Start();
-                    this.PublishState(JobRunState.Processing);
-                }
-                else
-                {
-                    Logger.Error("None of your Run()-Methods are compatible with Jobbr. Please see coeumentation");
-                }
-            }
-            else
+            if (!runMethods.Any())
             {
                 Logger.Error("Unable to find an entrypoint to call your job. Is there at least a public Run()-Method?");
                 this.PublishState(JobRunState.Failed);
+                return;
+            }
+
+            // Try to use the method with 2 concrete parameters
+            var parameterizedMethod = runMethods.FirstOrDefault(m => m.GetParameters().Length == 2);
+            if (parameterizedMethod != null)
+            {
+                var jobParamValue = this.jobInfo.JobParameter ?? "<null>";
+                var instanceParamValue = this.jobInfo.InstanceParameter ?? "<null>";
+
+                var jobParamJsonString = jobParamValue.ToString();
+                var instanceParamJsonString = instanceParamValue.ToString();
+
+                // Note: We cannot use string interpolation here, because LibLog is using string.format again and will fail if there are { } chars in the string, even if there is no formatting needed.
+                Logger.DebugFormat($"Decided to use parameterized method '{parameterizedMethod}' with JobParameter '{0}' and InstanceParameters '{1}'.", jobParamJsonString, instanceParamJsonString);
+                var allParams = parameterizedMethod.GetParameters().OrderBy(p => p.Position).ToList();
+
+                var param1Type = allParams[0].ParameterType;
+                var param2Type = allParams[1].ParameterType;
+
+                var param1Name = allParams[0].Name;
+                var param2Name = allParams[1].Name;
+
+                // Casting in the most preferrable type
+                var jobParameterValue = this.GetCastedParameterValue(param1Name, param1Type, "job", this.jobInfo.JobParameter);
+                var instanceParamaterValue = this.GetCastedParameterValue(param2Name, param2Type, "instance", this.jobInfo.InstanceParameter);
+
+                Logger.Debug("Initializing task for JobRun");
+                this.jobRunTask = new Task(() => { parameterizedMethod.Invoke(jobClassInstance, new[] {jobParameterValue, instanceParamaterValue}); }, cancellationTokenSource.Token);
+            }
+            else
+            {
+                var fallBackMethod = runMethods.FirstOrDefault(m => !m.GetParameters().Any());
+
+                if (fallBackMethod != null)
+                {
+                    Logger.Debug($"Decided to use parameterless method '{fallBackMethod}'");
+                    this.jobRunTask = new Task(() => fallBackMethod.Invoke(jobClassInstance, null), cancellationTokenSource.Token);
+                }
+            }
+
+            if (this.jobRunTask != null)
+            {
+                Logger.Debug("Starting Task to execute the Run()-Method.");
+
+                this.jobRunTask.Start();
+                this.PublishState(JobRunState.Processing);
+            }
+            else
+            {
+                Logger.Error("None of your Run()-Methods are compatible with Jobbr. Please see coeumentation");
             }
         }
 
