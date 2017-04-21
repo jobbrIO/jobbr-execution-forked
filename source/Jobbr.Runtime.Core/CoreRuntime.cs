@@ -17,8 +17,6 @@ namespace Jobbr.Runtime.Core
 
         private readonly IJobActivator dependencyResolver;
 
-        private object jobInstance;
-
         private Task jobRunTask;
 
         private RuntimeContext context;
@@ -42,12 +40,11 @@ namespace Jobbr.Runtime.Core
             {
                 this.PublishState(JobRunState.Initializing);
 
-                this.jobInstance = this.ActivateJob(this.jobInfo.JobType);
+                var jobClassInstance = this.ActivateJob(this.jobInfo.JobType);
 
-
-                if (this.jobInstance != null)
+                if (jobClassInstance != null)
                 {
-                    this.StartJob(this.jobInstance);
+                    this.StartJob(jobClassInstance);
 
                     if (this.jobRunTask != null)
                     {
