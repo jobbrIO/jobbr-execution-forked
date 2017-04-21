@@ -34,13 +34,13 @@ namespace Jobbr.Runtime.Core
         {
             this.jobInfo = jobRunInfo;
 
-            Task task = null;
+            bool executionResult = false;
 
             try
             {
                 this.PublishState(JobRunState.Initializing);
 
-                string jobTypeName = this.jobInfo.JobType;
+                var jobTypeName = this.jobInfo.JobType;
 
                 Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
 
@@ -49,8 +49,6 @@ namespace Jobbr.Runtime.Core
                 if (type == null)
                 {
                     Logger.Error($"Unable to resolve the type '{jobTypeName}'!");
-
-                    this.PublishState(JobRunState.Failed);
                 }
                 else
                 {
@@ -58,7 +56,7 @@ namespace Jobbr.Runtime.Core
 
                     if (jobClassInstance != null)
                     {
-                        task = this.CreateRunTask(jobClassInstance);
+                        var task = this.CreateRunTask(jobClassInstance);
 
                         if (task != null)
                         {
@@ -67,18 +65,7 @@ namespace Jobbr.Runtime.Core
                             task.Start();
                             this.PublishState(JobRunState.Processing);
 
-                            var result = this.WaitForCompletion(task);
-
-                            if (result)
-                            {
-                                this.PublishState(JobRunState.Finishing);
-                            }
-                            else
-                            {
-                                this.PublishState(JobRunState.Failed);
-                            }
-
-                            this.OnFinishing(new FinishingEventArgs() { Successful = true });
+                            executionResult = this.WaitForCompletion(task);
                         }
                     }
                 }
@@ -87,16 +74,22 @@ namespace Jobbr.Runtime.Core
             {
                 Logger.FatalException("Exception in the Jobbr-Runtime. Please see details: ", e);
 
-                try
+            }
+            finally
+            {
+                this.PublishState(JobRunState.Finishing);
+
+                this.OnFinishing(new FinishingEventArgs() { Successful = executionResult });
+
+                if (executionResult)
                 {
-                    this.OnFinishing(new FinishingEventArgs() { Successful = false, Exception = e});
+                    this.PublishState(JobRunState.Completed);
                 }
-                catch (Exception)
+                else
                 {
+                    this.PublishState(JobRunState.Failed);
                 }
             }
-
-            this.End(task);
         }
 
         private void PublishState(JobRunState state)
@@ -126,18 +119,6 @@ namespace Jobbr.Runtime.Core
             return true;
         }
 
-        private void End(Task runTask)
-        {
-            if (runTask == null || runTask.IsFaulted)
-            {
-                this.PublishState(JobRunState.Failed);
-            }
-            else
-            {
-                this.PublishState(JobRunState.Completed);
-            }
-        }
-
         private Task CreateRunTask(object jobClassInstance)
         {
             var runMethods = jobClassInstance.GetType().GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
@@ -147,7 +128,6 @@ namespace Jobbr.Runtime.Core
             if (!runMethods.Any())
             {
                 Logger.Error("Unable to find an entrypoint to call your job. Is there at least a public Run()-Method?");
-                this.PublishState(JobRunState.Failed);
                 return null;
             }
 
