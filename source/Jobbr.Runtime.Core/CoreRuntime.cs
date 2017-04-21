@@ -44,11 +44,13 @@ namespace Jobbr.Runtime.Core
             {
                 this.PublishState(JobRunState.Initializing);
 
-                this.ActivateJob(this.jobInfo.JobType);
+                this.jobInstance = this.ActivateJob(this.jobInfo.JobType);
 
                 this.StartJob();
 
                 this.WaitForCompletion();
+
+
 
                 this.OnFinishing(new FinishingEventArgs() { Successful = true });
             }
@@ -208,7 +210,7 @@ namespace Jobbr.Runtime.Core
             return castedValue;
         }
 
-        private void ActivateJob(string jobTypeName)
+        private object ActivateJob(string jobTypeName)
         {
             Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
 
@@ -219,7 +221,7 @@ namespace Jobbr.Runtime.Core
                 Logger.Error($"Unable to resolve the type '{jobTypeName}'!");
 
                 this.PublishState(JobRunState.Failed);
-                return;
+                return null;
             }
 
             else
@@ -230,7 +232,7 @@ namespace Jobbr.Runtime.Core
                 {
                     this.SetRuntimeContext();
 
-                    this.jobInstance = this.dependencyResolver.Activate(type);
+                    return this.dependencyResolver.Activate(type);
                 }
                 catch (Exception exception)
                 {
