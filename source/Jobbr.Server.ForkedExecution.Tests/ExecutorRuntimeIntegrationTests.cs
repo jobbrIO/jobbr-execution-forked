@@ -211,7 +211,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Processing), "It should contain the Processing state");
             Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Finishing), "It should contain the Finishing state");
             Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Collecting), "It should contain the Collecting state");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "It should contain the Collecting state");
+            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "It should contain the Completed state");
         }
 
         [TestMethod]
