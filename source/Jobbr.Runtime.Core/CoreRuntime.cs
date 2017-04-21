@@ -162,17 +162,16 @@ namespace Jobbr.Runtime.Core
                 }
             }
 
-            if (this.jobRunTask != null)
-            {
-                Logger.Debug("Starting Task to execute the Run()-Method.");
-
-                this.jobRunTask.Start();
-                this.PublishState(JobRunState.Processing);
-            }
-            else
+            if (this.jobRunTask == null)
             {
                 Logger.Error("None of your Run()-Methods are compatible with Jobbr. Please see coeumentation");
+                return;
             }
+
+            Logger.Debug("Starting Task to execute the Run()-Method.");
+
+            this.jobRunTask.Start();
+            this.PublishState(JobRunState.Processing);
         }
 
         private object GetCastedParameterValue(string parameterName, Type targetType, string jobbrParamName, object value)
