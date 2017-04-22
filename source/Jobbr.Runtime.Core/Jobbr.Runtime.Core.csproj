@@ -55,6 +55,7 @@
     <Compile Include="RuntimeConfiguration.cs" />
     <Compile Include="RuntimeContext.cs" />
     <Compile Include="JobTypeResolver.cs" />
+    <Compile Include="RunWrapperFactory.cs" />
     <Compile Include="StateChangedEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
