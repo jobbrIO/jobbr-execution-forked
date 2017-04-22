@@ -25,7 +25,7 @@ namespace Jobbr.Runtime.Core
             this.jobActivator = new JobActivator(jobTypeResolver, serviceProvider);
         }
 
-        public void RunCore(JobRunInfo jobRunInfo)
+        public void Execute(ExecutionMetadata executionMetadata)
         {
             this.jobInfo = jobRunInfo;
 

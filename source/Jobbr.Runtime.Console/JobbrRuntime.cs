@@ -65,7 +65,7 @@ namespace Jobbr.Runtime.Console
                 UserDisplayName = jobRunInfoDto.UserDisplayName
             };
 
-            this.coreRuntime.RunCore(jobRunInfo);
+            this.coreRuntime.Execute(jobRunInfo);
         }
 
         private static void WaitForDebugger(bool isDebugEnabled)
