@@ -9,11 +9,8 @@ namespace Jobbr.Runtime.Core
     {
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
 
-        private ExecutionMetadata jobInfo;
-
         private readonly JobActivator jobActivator;
 
-        private RunWrapperFactory runWrapperFactory;
 
         public event EventHandler<StateChangedEventArgs> StateChanged;
 
@@ -29,22 +26,20 @@ namespace Jobbr.Runtime.Core
 
         public void Execute(ExecutionMetadata executionMetadata)
         {
-            this.jobInfo = executionMetadata;
-
             var wasSuccessful = false;
 
             try
             {
                 this.PublishState(JobRunState.Initializing);
 
-                var jobTypeName = this.jobInfo.JobType;
+                var jobTypeName = executionMetadata.JobType;
 
                 // Register additional dependencies in the DI if available and activate
                 Logger.Debug($"Trying to register additional dependencies if supported.");
                 this.jobActivator.AddDependencies(new RuntimeContext
                 {
-                    UserId = this.jobInfo.UserId,
-                    UserDisplayName = this.jobInfo.UserDisplayName
+                    UserId = executionMetadata.UserId,
+                    UserDisplayName = executionMetadata.UserDisplayName
                 });
 
                 // Create instance
@@ -59,9 +54,9 @@ namespace Jobbr.Runtime.Core
 
                 // Create task as wrapper for calling the Run() Method
                 Logger.Debug($"Create task as wrapper for calling the Run() Method");
-                this.runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), this.jobInfo.JobParameter, this.jobInfo.InstanceParameter);
+                var runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), executionMetadata.JobParameter, executionMetadata.InstanceParameter);
+                var wrapper = runWrapperFactory.CreateWrapper(jobClassInstance);
 
-                var wrapper = this.runWrapperFactory.CreateWrapper(jobClassInstance);
                 if (wrapper == null)
                 {
                     Logger.Error("Unable to create a wrapper for the job");
