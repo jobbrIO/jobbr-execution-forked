@@ -38,6 +38,7 @@ namespace Jobbr.Runtime.Core
 
                 var jobTypeName = this.jobInfo.JobType;
 
+                // Register additional dependencies in the DI if available and activate
                 Logger.Debug($"Trying to register additional dependencies if supported.");
                 this.RegisterDependencies(new RuntimeContext
                 {
