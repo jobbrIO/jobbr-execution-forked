@@ -47,44 +47,47 @@ namespace Jobbr.Runtime.Core
                 });
 
                 // Resolve Type
+                object jobClassInstance = null;
                 Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
 
                 var type = this.jobTypeResolver.ResolveType(jobTypeName);
                 if (type == null)
                 {
                     Logger.Error($"Unable to resolve the type '{jobTypeName}'!");
-                    return;
                 }
-
-                // Register additional dependencies in the DI if available and activate
-                Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
-
-                var jobClassInstance = this.CreateJobClassInstance(type);
-                if (jobClassInstance == null)
+                else
                 {
-                    Logger.Error($"Unable to create an instance ot the type '{type}'!");
-                    return;
+                    Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
+
+                    jobClassInstance = this.CreateJobClassInstance(type);
+                    if (jobClassInstance == null)
+                    {
+                        Logger.Error($"Unable to create an instance ot the type '{type}'!");
+                    }
                 }
 
-                // Create task as wrapper for calling the Run() Method
-                Logger.Debug($"Create task as wrapper for calling the Run() Method");
-                this.runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), this.jobInfo.JobParameter, this.jobInfo.InstanceParameter);
-
-                var wrapper = this.runWrapperFactory.CreateWrapper(jobClassInstance);
-                if (wrapper == null)
+                if (jobClassInstance != null)
                 {
-                    Logger.Error("Unable to create a wrapper for the job");
-                    return;
+                    // Create task as wrapper for calling the Run() Method
+                    Logger.Debug($"Create task as wrapper for calling the Run() Method");
+                    this.runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), this.jobInfo.JobParameter, this.jobInfo.InstanceParameter);
+
+                    var wrapper = this.runWrapperFactory.CreateWrapper(jobClassInstance);
+                    if (wrapper == null)
+                    {
+                        Logger.Error("Unable to create a wrapper for the job");
+                        return;
+                    }
+
+                    // Start 
+                    Logger.Debug("Starting Task to execute the Run()-Method.");
+
+                    wrapper.Start();
+                    this.PublishState(JobRunState.Processing);
+
+                    // Wait for completion
+                    wasSuccessful = wrapper.WaitForCompletion();
                 }
-
-                // Start 
-                Logger.Debug("Starting Task to execute the Run()-Method.");
-
-                wrapper.Start();
-                this.PublishState(JobRunState.Processing);
-
-                // Wait for completion
-                wasSuccessful = wrapper.WaitForCompletion();
             }
             catch (Exception e)
             {
