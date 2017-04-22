@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 
 namespace Jobbr.Runtime.Core
@@ -6,11 +7,11 @@ namespace Jobbr.Runtime.Core
     {
         public Assembly JobTypeSearchAssembly { get; set; }
 
-        public IJobActivator JobActivator { get; set; }
+        public IServiceProvider ServiceProvider { get; set; }
 
         public RuntimeConfiguration()
         {
-            this.JobActivator = new DefaultActivator();
+            this.ServiceProvider = new DefaultServiceProvider();
         }
     }
 }

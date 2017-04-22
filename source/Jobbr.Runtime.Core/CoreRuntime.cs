@@ -11,7 +11,7 @@ namespace Jobbr.Runtime.Core
 
         private readonly JobTypeResolver jobTypeResolver;
 
-        private readonly IJobActivator dependencyResolver;
+        private readonly IServiceProvider serviceProvider;
 
         private RuntimeContext context;
 
@@ -25,7 +25,7 @@ namespace Jobbr.Runtime.Core
         {
             this.jobTypeResolver = new JobTypeResolver(runtimeConfiguration.JobTypeSearchAssembly);
 
-            this.dependencyResolver = runtimeConfiguration.JobActivator;
+            this.serviceProvider = runtimeConfiguration.ServiceProvider;
         }
 
         public void RunCore(JobRunInfo jobRunInfo)
@@ -113,7 +113,7 @@ namespace Jobbr.Runtime.Core
         {
             try
             {
-                return this.dependencyResolver.Activate(type);
+                return this.serviceProvider.GetService(type);
             }
             catch (Exception exception)
             {
@@ -130,7 +130,7 @@ namespace Jobbr.Runtime.Core
                 UserDisplayName = this.jobInfo.UserDisplayName
             };
 
-            var registrator = this.dependencyResolver as IRuntimeContextRegistrator;
+            var registrator = this.serviceProvider as IConfigurableServiceProvider;
 
             try
             {

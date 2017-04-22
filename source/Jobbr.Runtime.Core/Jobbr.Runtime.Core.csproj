@@ -48,7 +48,7 @@
     <Compile Include="DefaultActivator.cs" />
     <Compile Include="FinishingEventArgs.cs" />
     <Compile Include="IJobActivator.cs" />
-    <Compile Include="IRuntimeContextRegistrator.cs" />
+    <Compile Include="IConfigurableServiceProvider.cs" />
     <Compile Include="JobRunInfo.cs" />
     <Compile Include="JobRunState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -5,9 +5,9 @@ namespace Jobbr.Runtime.Core
     /// <summary>
     /// The no dependency resolver.
     /// </summary>
-    public class DefaultActivator : IJobActivator
+    public class DefaultServiceProvider : IServiceProvider
     {
-        public object Activate(Type serviceType)
+        public object GetService(Type serviceType)
         {
             return Activator.CreateInstance(serviceType);
         }
