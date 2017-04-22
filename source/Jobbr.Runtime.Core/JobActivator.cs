@@ -30,7 +30,7 @@ namespace Jobbr.Runtime.Core
             }
 
             // Activation
-            Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
+            Logger.Debug($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
 
             object jobClassInstance;
 
