@@ -13,8 +13,6 @@ namespace Jobbr.Runtime.Core
 
         private readonly IServiceProvider serviceProvider;
 
-        private RuntimeContext context;
-
         private RunWrapperFactory runWrapperFactory;
 
         public event EventHandler<StateChangedEventArgs> StateChanged;
@@ -52,7 +50,11 @@ namespace Jobbr.Runtime.Core
 
                 // Register additional dependencies in the DI if available and activate
                 Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
-                this.RegisterDependencies();
+                this.RegisterDependencies(new RuntimeContext
+                {
+                    UserId = this.jobInfo.UserId,
+                    UserDisplayName = this.jobInfo.UserDisplayName
+                });
 
                 Logger.Debug($"Trying to activate the specified type '{type}'...");
 
@@ -122,19 +124,16 @@ namespace Jobbr.Runtime.Core
             }
         }
 
-        private void RegisterDependencies()
+        private void RegisterDependencies(params object[] additionalDependencies)
         {
-            this.context = new RuntimeContext
-            {
-                UserId = this.jobInfo.UserId,
-                UserDisplayName = this.jobInfo.UserDisplayName
-            };
-
             var registrator = this.serviceProvider as IConfigurableServiceProvider;
 
             try
             {
-                registrator?.RegisterInstance(this.context);
+                foreach (var dep in additionalDependencies)
+                {
+                    registrator?.RegisterInstance(dep);
+                }
 
             }
             catch (Exception e)
