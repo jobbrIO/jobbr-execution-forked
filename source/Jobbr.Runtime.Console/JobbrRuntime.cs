@@ -34,35 +34,6 @@ namespace Jobbr.Runtime.Console
             this.coreRuntime.Ended += this.CoreRuntimeOnEnded;
         }
 
-        private void CoreRuntimeOnEnded(object sender, ExecutionEndedEventArgs executionEndedEventArgs)
-        {
-            if (!executionEndedEventArgs.Succeeded)
-            {
-                // Indicate failure also via exit code
-                Environment.ExitCode = 1;
-            }
-
-            this.forkedExecutionRestClient.PublishState(JobRunState.Finishing);
-
-            // Are there any files to collect?
-            var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
-
-            if (allFiles.Any())
-            {
-                this.forkedExecutionRestClient.PublishState(JobRunState.Collecting);
-                this.forkedExecutionRestClient.SendFiles(allFiles);
-            }
-
-            if (executionEndedEventArgs.Succeeded)
-            {
-                this.forkedExecutionRestClient.PublishState(JobRunState.Completed);
-            }
-            else
-            {
-                this.forkedExecutionRestClient.PublishState(JobRunState.Failed);
-            }
-        }
-
         public JobbrRuntime() : this(new RuntimeConfiguration())
         {
         }
@@ -101,6 +72,14 @@ namespace Jobbr.Runtime.Console
             this.coreRuntime.Execute(jobRunInfo);
         }
 
+        private static CommandlineOptions ParseArguments(string[] args)
+        {
+            var commandlineOptions = new CommandlineOptions();
+            Parser.Default.ParseArguments(args, commandlineOptions);
+            var cmdlineOptions = commandlineOptions;
+            return cmdlineOptions;
+        }
+
         private static void WaitForDebugger(bool isDebugEnabled)
         {
             if (isDebugEnabled)
@@ -132,17 +111,39 @@ namespace Jobbr.Runtime.Console
             }
         }
 
-        private static CommandlineOptions ParseArguments(string[] args)
-        {
-            var commandlineOptions = new CommandlineOptions();
-            Parser.Default.ParseArguments(args, commandlineOptions);
-            var cmdlineOptions = commandlineOptions;
-            return cmdlineOptions;
-        }
-
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
             Logger.FatalException("Unhandled Infrastructure Exception in Jobbr-Runtime. Please contact the developers!", (Exception)unhandledExceptionEventArgs.ExceptionObject);
         }
+
+        private void CoreRuntimeOnEnded(object sender, ExecutionEndedEventArgs executionEndedEventArgs)
+        {
+            if (!executionEndedEventArgs.Succeeded)
+            {
+                // Indicate failure also via exit code
+                Environment.ExitCode = 1;
+            }
+
+            this.forkedExecutionRestClient.PublishState(JobRunState.Finishing);
+
+            // Are there any files to collect?
+            var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
+
+            if (allFiles.Any())
+            {
+                this.forkedExecutionRestClient.PublishState(JobRunState.Collecting);
+                this.forkedExecutionRestClient.SendFiles(allFiles);
+            }
+
+            if (executionEndedEventArgs.Succeeded)
+            {
+                this.forkedExecutionRestClient.PublishState(JobRunState.Completed);
+            }
+            else
+            {
+                this.forkedExecutionRestClient.PublishState(JobRunState.Failed);
+            }
+        }
+
     }
 }
