@@ -52,7 +52,7 @@ namespace Jobbr.Runtime.Core
             return jobClassInstance;
         }
 
-        public void RegisterDependencies(params object[] additionalDependencies)
+        public void AddDependencies(params object[] additionalDependencies)
         {
             var registrator = this.serviceProvider as IConfigurableServiceProvider;
 

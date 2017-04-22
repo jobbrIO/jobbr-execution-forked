@@ -39,7 +39,7 @@ namespace Jobbr.Runtime.Core
 
                 // Register additional dependencies in the DI if available and activate
                 Logger.Debug($"Trying to register additional dependencies if supported.");
-                this.jobActivator.RegisterDependencies(new RuntimeContext
+                this.jobActivator.AddDependencies(new RuntimeContext
                 {
                     UserId = this.jobInfo.UserId,
                     UserDisplayName = this.jobInfo.UserDisplayName
