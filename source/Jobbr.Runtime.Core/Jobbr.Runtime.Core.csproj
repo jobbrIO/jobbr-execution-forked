@@ -48,6 +48,7 @@
     <Compile Include="DefaultServiceProvider.cs" />
     <Compile Include="FinishingEventArgs.cs" />
     <Compile Include="IConfigurableServiceProvider.cs" />
+    <Compile Include="JobActivator.cs" />
     <Compile Include="JobRunInfo.cs" />
     <Compile Include="JobRunState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

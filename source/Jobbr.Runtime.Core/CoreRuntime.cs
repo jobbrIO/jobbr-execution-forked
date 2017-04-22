@@ -9,9 +9,7 @@ namespace Jobbr.Runtime.Core
 
         private JobRunInfo jobInfo;
 
-        private readonly JobTypeResolver jobTypeResolver;
-
-        private readonly IServiceProvider serviceProvider;
+        private readonly JobActivator jobActivator;
 
         private RunWrapperFactory runWrapperFactory;
 
@@ -21,9 +19,10 @@ namespace Jobbr.Runtime.Core
 
         public CoreRuntime(RuntimeConfiguration runtimeConfiguration)
         {
-            this.jobTypeResolver = new JobTypeResolver(runtimeConfiguration.JobTypeSearchAssembly);
+            var jobTypeResolver = new JobTypeResolver(runtimeConfiguration.JobTypeSearchAssembly);
+            var serviceProvider = runtimeConfiguration.ServiceProvider ?? new DefaultServiceProvider();
 
-            this.serviceProvider = runtimeConfiguration.ServiceProvider;
+            this.jobActivator = new JobActivator(jobTypeResolver, serviceProvider);
         }
 
         public void RunCore(JobRunInfo jobRunInfo)
@@ -37,11 +36,10 @@ namespace Jobbr.Runtime.Core
                 this.PublishState(JobRunState.Initializing);
 
                 var jobTypeName = this.jobInfo.JobType;
-                object jobClassInstance = null;
 
                 // Register additional dependencies in the DI if available and activate
                 Logger.Debug($"Trying to register additional dependencies if supported.");
-                this.RegisterDependencies(new RuntimeContext
+                this.jobActivator.RegisterDependencies(new RuntimeContext
                 {
                     UserId = this.jobInfo.UserId,
                     UserDisplayName = this.jobInfo.UserDisplayName
@@ -49,7 +47,7 @@ namespace Jobbr.Runtime.Core
 
                 // Create instance
                 Logger.Debug($"Create instance of job based on the typename '{jobTypeName}'");
-                jobClassInstance = this.CreateInstance(jobTypeName);
+                var jobClassInstance = this.jobActivator.CreateInstance(jobTypeName);
 
                 if (jobClassInstance == null)
                 {
@@ -97,62 +95,9 @@ namespace Jobbr.Runtime.Core
             }
         }
 
-        private object CreateInstance(string jobTypeName)
-        {
-
-            object jobClassInstance = null;
-            
-            // Resolve Type
-            Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
-
-            var type = this.jobTypeResolver.ResolveType(jobTypeName);
-            if (type == null)
-            {
-                Logger.Error($"Unable to resolve the type '{jobTypeName}'!");
-            }
-            else
-            {
-                Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
-
-                try
-                {
-                    jobClassInstance = this.serviceProvider.GetService(type);
-                }
-                catch (Exception exception)
-                {
-                    Logger.ErrorException("Failed while activating type '{0}'. See Exception for details!", exception, type);
-                    jobClassInstance = null;
-                }
-
-                if (jobClassInstance == null)
-                {
-                    Logger.Error($"Unable to create an instance ot the type '{type}'!");
-                }
-            }
-            return jobClassInstance;
-        }
-
         private void PublishState(JobRunState state)
         {
             this.OnStateChanged(new StateChangedEventArgs() { State = state });
-        }
-
-        private void RegisterDependencies(params object[] additionalDependencies)
-        {
-            var registrator = this.serviceProvider as IConfigurableServiceProvider;
-
-            try
-            {
-                foreach (var dep in additionalDependencies)
-                {
-                    registrator?.RegisterInstance(dep);
-                }
-
-            }
-            catch (Exception e)
-            {
-                Logger.WarnException($"Unable to register additional dependencies on {registrator}!", e);
-            }
         }
 
         protected virtual void OnStateChanged(StateChangedEventArgs e)
