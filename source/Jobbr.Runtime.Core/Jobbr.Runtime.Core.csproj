@@ -45,9 +45,8 @@
   <ItemGroup>
     <Compile Include="App_Packages\LibLog.3.1\LibLog.cs" />
     <Compile Include="CoreRuntime.cs" />
-    <Compile Include="DefaultActivator.cs" />
+    <Compile Include="DefaultServiceProvider.cs" />
     <Compile Include="FinishingEventArgs.cs" />
-    <Compile Include="IJobActivator.cs" />
     <Compile Include="IConfigurableServiceProvider.cs" />
     <Compile Include="JobRunInfo.cs" />
     <Compile Include="JobRunState.cs" />
