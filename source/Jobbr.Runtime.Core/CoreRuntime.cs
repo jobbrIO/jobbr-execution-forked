@@ -37,6 +37,7 @@ namespace Jobbr.Runtime.Core
                 this.PublishState(JobRunState.Initializing);
 
                 var jobTypeName = this.jobInfo.JobType;
+                object jobClassInstance = null;
 
                 // Register additional dependencies in the DI if available and activate
                 Logger.Debug($"Trying to register additional dependencies if supported.");
@@ -46,48 +47,34 @@ namespace Jobbr.Runtime.Core
                     UserDisplayName = this.jobInfo.UserDisplayName
                 });
 
-                // Resolve Type
-                object jobClassInstance = null;
-                Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
+                // Create instance
+                Logger.Debug($"Create instance of job based on the typename '{jobTypeName}'");
+                jobClassInstance = this.CreateInstance(jobTypeName);
 
-                var type = this.jobTypeResolver.ResolveType(jobTypeName);
-                if (type == null)
+                if (jobClassInstance == null)
                 {
-                    Logger.Error($"Unable to resolve the type '{jobTypeName}'!");
-                }
-                else
-                {
-                    Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
-
-                    jobClassInstance = this.CreateJobClassInstance(type);
-                    if (jobClassInstance == null)
-                    {
-                        Logger.Error($"Unable to create an instance ot the type '{type}'!");
-                    }
+                    return;
                 }
 
-                if (jobClassInstance != null)
+                // Create task as wrapper for calling the Run() Method
+                Logger.Debug($"Create task as wrapper for calling the Run() Method");
+                this.runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), this.jobInfo.JobParameter, this.jobInfo.InstanceParameter);
+
+                var wrapper = this.runWrapperFactory.CreateWrapper(jobClassInstance);
+                if (wrapper == null)
                 {
-                    // Create task as wrapper for calling the Run() Method
-                    Logger.Debug($"Create task as wrapper for calling the Run() Method");
-                    this.runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), this.jobInfo.JobParameter, this.jobInfo.InstanceParameter);
-
-                    var wrapper = this.runWrapperFactory.CreateWrapper(jobClassInstance);
-                    if (wrapper == null)
-                    {
-                        Logger.Error("Unable to create a wrapper for the job");
-                        return;
-                    }
-
-                    // Start 
-                    Logger.Debug("Starting Task to execute the Run()-Method.");
-
-                    wrapper.Start();
-                    this.PublishState(JobRunState.Processing);
-
-                    // Wait for completion
-                    wasSuccessful = wrapper.WaitForCompletion();
+                    Logger.Error("Unable to create a wrapper for the job");
+                    return;
                 }
+
+                // Start 
+                Logger.Debug("Starting Task to execute the Run()-Method.");
+
+                wrapper.Start();
+                this.PublishState(JobRunState.Processing);
+
+                // Wait for completion
+                wasSuccessful = wrapper.WaitForCompletion();
             }
             catch (Exception e)
             {
@@ -110,22 +97,44 @@ namespace Jobbr.Runtime.Core
             }
         }
 
+        private object CreateInstance(string jobTypeName)
+        {
+
+            object jobClassInstance = null;
+            
+            // Resolve Type
+            Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
+
+            var type = this.jobTypeResolver.ResolveType(jobTypeName);
+            if (type == null)
+            {
+                Logger.Error($"Unable to resolve the type '{jobTypeName}'!");
+            }
+            else
+            {
+                Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
+
+                try
+                {
+                    jobClassInstance = this.serviceProvider.GetService(type);
+                }
+                catch (Exception exception)
+                {
+                    Logger.ErrorException("Failed while activating type '{0}'. See Exception for details!", exception, type);
+                    jobClassInstance = null;
+                }
+
+                if (jobClassInstance == null)
+                {
+                    Logger.Error($"Unable to create an instance ot the type '{type}'!");
+                }
+            }
+            return jobClassInstance;
+        }
+
         private void PublishState(JobRunState state)
         {
             this.OnStateChanged(new StateChangedEventArgs() { State = state });
-        }
-
-        private object CreateJobClassInstance(Type type)
-        {
-            try
-            {
-                return this.serviceProvider.GetService(type);
-            }
-            catch (Exception exception)
-            {
-                Logger.ErrorException("Failed while activating type '{0}'. See Exception for details!", exception, type);
-                return null;
-            }
         }
 
         private void RegisterDependencies(params object[] additionalDependencies)
