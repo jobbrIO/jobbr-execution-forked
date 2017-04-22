@@ -51,6 +51,7 @@
     <Compile Include="JobActivator.cs" />
     <Compile Include="JobRunInfo.cs" />
     <Compile Include="JobRunState.cs" />
+    <Compile Include="JobWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeConfiguration.cs" />
     <Compile Include="RuntimeContext.cs" />
