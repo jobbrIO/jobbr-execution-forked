@@ -3,7 +3,7 @@ using System;
 namespace Jobbr.Runtime.Core
 {
     /// <summary>
-    /// The no dependency resolver.
+    /// The default service provider is able to activate jobtypes without any dependencies
     /// </summary>
     public class DefaultServiceProvider : IServiceProvider
     {
