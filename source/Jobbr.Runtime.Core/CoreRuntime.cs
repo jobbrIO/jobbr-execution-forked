@@ -83,7 +83,7 @@ namespace Jobbr.Runtime.Core
                 this.PublishState(JobRunState.Processing);
 
                 // Wait for completion
-                executionResult = this.WaitForCompletion(wrapper);
+                executionResult = wrapper.WaitForCompletion();
             }
             catch (Exception e)
             {
@@ -109,29 +109,6 @@ namespace Jobbr.Runtime.Core
         private void PublishState(JobRunState state)
         {
             this.OnStateChanged(new StateChangedEventArgs() { State = state });
-        }
-
-        private bool WaitForCompletion(JobWrapper runTask)
-        {
-            var cancellationTokenSource = new CancellationTokenSource();
-
-            try
-            {
-                runTask.Wait(cancellationTokenSource.Token);
-            }
-            catch (Exception e)
-            {
-                Logger.ErrorException("Exception while waiting for completion of job", e);
-                return false;
-            }
-
-            if (runTask.IsFaulted)
-            {
-                Logger.ErrorException("The execution of the job has faulted. See Exception for details.", runTask.Exception);
-                return false;
-            }
-
-            return true;
         }
 
         private object CreateJobClassInstance(Type type)

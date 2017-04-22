@@ -1,5 +1,4 @@
 using System;
-using System.CodeDom;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -105,29 +104,53 @@ namespace Jobbr.Runtime.Core
             }
 
             Logger.Debug("Initializing task for JobRun");
-            var cancellationTokenSource = new CancellationTokenSource();
 
-            return new JobWrapper(runMethodWrapper, cancellationTokenSource.Token);
+            return new JobWrapper(runMethodWrapper);
         }
     }
 
-    public class JobWrapper : Task
+    public class JobWrapper
     {
-        public JobWrapper(Action action, CancellationToken cancellationToken) : base(action, cancellationToken)
+        private static readonly ILog Logger = LogProvider.For<JobWrapper>();
+
+        private readonly Task task;
+
+        public JobWrapper(Action action)
         {
+            this.task = new Task(action);
         }
 
-        public new void Start()
+        public void Start()
         {
-            base.Start();
+            this.task.Start();
         }
 
-        public new void Wait(CancellationToken token)
+        public void Wait(CancellationToken token)
         {
-            base.Wait(token);
-
+            this.task.Wait(token);
         }
 
-        public new bool IsFaulted => base.IsFaulted;
+        public bool WaitForCompletion()
+        {
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            try
+            {
+                this.Wait(cancellationTokenSource.Token);
+            }
+            catch (Exception e)
+            {
+                Logger.ErrorException("Exception while waiting for completion of job", e);
+                return false;
+            }
+
+            if (this.task.IsFaulted)
+            {
+                Logger.ErrorException("The execution of the job has faulted. See Exception for details.", this.task.Exception);
+                return false;
+            }
+
+            return true;
+        }
     }
 }
