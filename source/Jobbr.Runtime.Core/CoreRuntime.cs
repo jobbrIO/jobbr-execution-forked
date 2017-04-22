@@ -42,7 +42,6 @@ namespace Jobbr.Runtime.Core
 
                 var jobTypeName = this.jobInfo.JobType;
 
-
                 // Resolve Type
                 Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
 
@@ -66,7 +65,7 @@ namespace Jobbr.Runtime.Core
                 // Create task as wrapper for calling the Run() Method
                 Logger.Debug($"Create task as wrapper for calling the Run() Method");
 
-                var task = this.CreateRunTask(jobClassInstance);
+                var task = this.CreateRunTask(jobClassInstance, jobClassInstance.GetType());
                 if (task == null)
                 {
                     Logger.Error("Unable to create task as a wrapper for the job");
@@ -131,9 +130,9 @@ namespace Jobbr.Runtime.Core
             return true;
         }
 
-        private Task CreateRunTask(object jobClassInstance)
+        private Task CreateRunTask(object jobClassInstance, Type jobType)
         {
-            var runMethods = jobClassInstance.GetType().GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
+            var runMethods = jobType.GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
 
             var cancellationTokenSource = new CancellationTokenSource();
 
