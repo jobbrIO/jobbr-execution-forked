@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Jobbr.Runtime.Core.Logging;
 
-namespace Jobbr.Runtime.Core
+namespace Jobbr.Runtime.Core.Activation
 {
     internal class JobTypeResolver
     {

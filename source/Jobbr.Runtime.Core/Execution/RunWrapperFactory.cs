@@ -3,7 +3,7 @@ using System.Linq;
 using Jobbr.Runtime.Core.Logging;
 using Newtonsoft.Json;
 
-namespace Jobbr.Runtime.Core
+namespace Jobbr.Runtime.Core.Execution
 {
     internal class RunWrapperFactory
     {

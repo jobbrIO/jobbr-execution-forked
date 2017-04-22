@@ -45,25 +45,23 @@
   <ItemGroup>
     <Compile Include="App_Packages\LibLog.3.1\LibLog.cs" />
     <Compile Include="CoreRuntime.cs" />
-    <Compile Include="DefaultServiceProvider.cs" />
+    <Compile Include="Activation\DefaultServiceProvider.cs" />
     <Compile Include="FinishingEventArgs.cs" />
     <Compile Include="IConfigurableServiceProvider.cs" />
-    <Compile Include="JobActivator.cs" />
+    <Compile Include="Activation\JobActivator.cs" />
     <Compile Include="ExecutionMetadata.cs" />
     <Compile Include="JobRunState.cs" />
-    <Compile Include="JobWrapper.cs" />
+    <Compile Include="Execution\JobWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeConfiguration.cs" />
     <Compile Include="RuntimeContext.cs" />
-    <Compile Include="JobTypeResolver.cs" />
-    <Compile Include="RunWrapperFactory.cs" />
+    <Compile Include="Activation\JobTypeResolver.cs" />
+    <Compile Include="Execution\RunWrapperFactory.cs" />
     <Compile Include="StateChangedEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Activation\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

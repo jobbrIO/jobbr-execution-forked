@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Jobbr.Runtime.Core.Logging;
 
-namespace Jobbr.Runtime.Core
+namespace Jobbr.Runtime.Core.Execution
 {
     internal class JobWrapper
     {

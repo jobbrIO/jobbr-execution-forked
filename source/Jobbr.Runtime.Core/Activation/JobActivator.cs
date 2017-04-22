@@ -1,7 +1,7 @@
 using System;
 using Jobbr.Runtime.Core.Logging;
 
-namespace Jobbr.Runtime.Core
+namespace Jobbr.Runtime.Core.Activation
 {
     internal class JobActivator
     {

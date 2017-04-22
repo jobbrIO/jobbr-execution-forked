@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Jobbr.Runtime.Core.Activation;
 
 namespace Jobbr.Runtime.Core
 {

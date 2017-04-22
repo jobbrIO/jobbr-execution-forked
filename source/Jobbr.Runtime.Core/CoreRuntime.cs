@@ -1,4 +1,6 @@
 using System;
+using Jobbr.Runtime.Core.Activation;
+using Jobbr.Runtime.Core.Execution;
 using Jobbr.Runtime.Core.Logging;
 
 namespace Jobbr.Runtime.Core
@@ -52,7 +54,6 @@ namespace Jobbr.Runtime.Core
                 if (jobClassInstance == null)
                 {
                     Logger.Error($"Cannot create activate the job based on the typename {jobTypeName}");
-
                     return;
                 }
 
