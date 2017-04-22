@@ -147,12 +147,28 @@ namespace Jobbr.Runtime.Core
 
         protected virtual void OnStateChanged(StateChangedEventArgs e)
         {
+            try
+            {
             this.StateChanged?.Invoke(this, e);
+
+            }
+            catch (Exception exception)
+            {
+                Logger.ErrorException($"Recipient of the event {nameof(this.OnStateChanged)} threw an execption", exception);
+            }
         }
 
         protected virtual void OnFinishing(FinishingEventArgs e)
         {
+            try
+            {
             this.Finishing?.Invoke(this, e);
+
+            }
+            catch (Exception exception)
+            {
+                Logger.ErrorException($"Recipient of the event {nameof(this.OnFinishing)} threw an execption", exception);
+            }
         }
     }
 }
