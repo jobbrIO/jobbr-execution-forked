@@ -134,13 +134,13 @@ namespace Jobbr.Runtime.Core
         {
             var runMethods = jobType.GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
 
-            var cancellationTokenSource = new CancellationTokenSource();
-
             if (!runMethods.Any())
             {
                 Logger.Error("Unable to find an entrypoint to call your job. Is there at least a public Run()-Method?");
                 return null;
             }
+
+            Action runMethodWrapper = null;
 
             // Try to use the method with 2 concrete parameters
             var parameterizedMethod = runMethods.FirstOrDefault(m => m.GetParameters().Length == 2);
@@ -166,8 +166,7 @@ namespace Jobbr.Runtime.Core
                 var jobParameterValue = this.GetCastedParameterValue(param1Name, param1Type, "job", this.jobInfo.JobParameter);
                 var instanceParamaterValue = this.GetCastedParameterValue(param2Name, param2Type, "instance", this.jobInfo.InstanceParameter);
 
-                Logger.Debug("Initializing task for JobRun");
-                return new Task(() => { parameterizedMethod.Invoke(jobClassInstance, new[] {jobParameterValue, instanceParamaterValue}); }, cancellationTokenSource.Token);
+                runMethodWrapper = () => { parameterizedMethod.Invoke(jobClassInstance, new[] {jobParameterValue, instanceParamaterValue}); };
             }
             else
             {
@@ -176,12 +175,20 @@ namespace Jobbr.Runtime.Core
                 if (fallBackMethod != null)
                 {
                     Logger.Debug($"Decided to use parameterless method '{fallBackMethod}'");
-                    return new Task(() => fallBackMethod.Invoke(jobClassInstance, null), cancellationTokenSource.Token);
+                    runMethodWrapper = () => fallBackMethod.Invoke(jobClassInstance, null);
                 }
             }
 
-            Logger.Error("None of your Run()-Methods are compatible with Jobbr. Please see coeumentation");
+            if (runMethodWrapper == null)
+            {
+                Logger.Error("None of your Run()-Methods are compatible with Jobbr. Please see documentation");
             return null;
+        }
+
+            Logger.Debug("Initializing task for JobRun");
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            return new Task(runMethodWrapper, cancellationTokenSource.Token);
         }
 
         private object GetCastedParameterValue(string parameterName, Type targetType, string jobbrParamName, object value)
