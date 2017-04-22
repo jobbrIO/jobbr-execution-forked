@@ -38,6 +38,13 @@ namespace Jobbr.Runtime.Core
 
                 var jobTypeName = this.jobInfo.JobType;
 
+                Logger.Debug($"Trying to register additional dependencies if supported.");
+                this.RegisterDependencies(new RuntimeContext
+                {
+                    UserId = this.jobInfo.UserId,
+                    UserDisplayName = this.jobInfo.UserDisplayName
+                });
+
                 // Resolve Type
                 Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
 
@@ -50,13 +57,6 @@ namespace Jobbr.Runtime.Core
 
                 // Register additional dependencies in the DI if available and activate
                 Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
-                this.RegisterDependencies(new RuntimeContext
-                {
-                    UserId = this.jobInfo.UserId,
-                    UserDisplayName = this.jobInfo.UserDisplayName
-                });
-
-                Logger.Debug($"Trying to activate the specified type '{type}'...");
 
                 var jobClassInstance = this.CreateJobClassInstance(type);
                 if (jobClassInstance == null)
