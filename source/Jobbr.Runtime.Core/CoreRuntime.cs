@@ -138,7 +138,7 @@ namespace Jobbr.Runtime.Core
 
             try
             {
-                this.SetRuntimeContext();
+                this.RegisterDependencies();
 
                 return this.dependencyResolver.Activate(type);
             }
@@ -149,7 +149,7 @@ namespace Jobbr.Runtime.Core
             }
         }
 
-        private void SetRuntimeContext()
+        private void RegisterDependencies()
         {
             this.context = new RuntimeContext
             {
