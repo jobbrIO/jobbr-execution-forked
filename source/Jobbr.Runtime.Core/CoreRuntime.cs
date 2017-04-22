@@ -70,7 +70,7 @@ namespace Jobbr.Runtime.Core
                 // Create task as wrapper for calling the Run() Method
                 Logger.Debug($"Create task as wrapper for calling the Run() Method");
 
-                var task = this.runWrapperFactory.CreateRunTask(jobClassInstance, type, this.jobInfo);
+                var task = this.runWrapperFactory.CreateRunTask(jobClassInstance, type, this.jobInfo.JobParameter, this.jobInfo.InstanceParameter);
                 if (task == null)
                 {
                     Logger.Error("Unable to create task as a wrapper for the job");
