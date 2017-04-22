@@ -1,6 +1,4 @@
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Jobbr.Runtime.Core.Logging;
 
 namespace Jobbr.Runtime.Core
@@ -149,7 +147,7 @@ namespace Jobbr.Runtime.Core
         {
             try
             {
-            this.StateChanged?.Invoke(this, e);
+                this.StateChanged?.Invoke(this, e);
 
             }
             catch (Exception exception)
@@ -162,7 +160,7 @@ namespace Jobbr.Runtime.Core
         {
             try
             {
-            this.Finishing?.Invoke(this, e);
+                this.Finishing?.Invoke(this, e);
 
             }
             catch (Exception exception)
