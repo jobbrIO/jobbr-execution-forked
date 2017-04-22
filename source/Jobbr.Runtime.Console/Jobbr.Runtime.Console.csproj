@@ -58,6 +58,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="CommandlineOptions.cs" />
     <Compile Include="JobbrRuntime.cs" />
+    <Compile Include="JobRunState.cs" />
     <Compile Include="RestClient\ForkedExecutionRestClient.cs" />
     <Compile Include="RestClient\JobRunInfoDto.cs" />
     <Compile Include="RestClient\JobRunUpdateDto.cs" />

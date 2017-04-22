@@ -1,4 +1,4 @@
-namespace Jobbr.Runtime.Core
+namespace Jobbr.Runtime.Console
 {
     public enum JobRunState
     {

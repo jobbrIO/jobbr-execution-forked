@@ -51,7 +51,6 @@
     <Compile Include="Activation\JobActivator.cs" />
     <Compile Include="ExecutionMetadata.cs" />
     <Compile Include="InfrastructureExceptionEventArgs.cs" />
-    <Compile Include="JobRunState.cs" />
     <Compile Include="Execution\JobWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeConfiguration.cs" />
