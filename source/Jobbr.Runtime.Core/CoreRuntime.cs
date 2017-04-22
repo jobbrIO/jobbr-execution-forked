@@ -69,21 +69,21 @@ namespace Jobbr.Runtime.Core
                 Logger.Debug($"Create task as wrapper for calling the Run() Method");
                 this.runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), this.jobInfo.JobParameter, this.jobInfo.InstanceParameter);
 
-                var task = this.runWrapperFactory.CreateRunTask(jobClassInstance);
-                if (task == null)
+                var wrapper = this.runWrapperFactory.CreateWrapper(jobClassInstance);
+                if (wrapper == null)
                 {
-                    Logger.Error("Unable to create task as a wrapper for the job");
+                    Logger.Error("Unable to create a wrapper for the job");
                     return;
                 }
 
                 // Start 
                 Logger.Debug("Starting Task to execute the Run()-Method.");
 
-                task.Start();
+                wrapper.Start();
                 this.PublishState(JobRunState.Processing);
 
                 // Wait for completion
-                executionResult = this.WaitForCompletion(task);
+                executionResult = this.WaitForCompletion(wrapper);
             }
             catch (Exception e)
             {
@@ -111,7 +111,7 @@ namespace Jobbr.Runtime.Core
             this.OnStateChanged(new StateChangedEventArgs() { State = state });
         }
 
-        private bool WaitForCompletion(Task runTask)
+        private bool WaitForCompletion(JobWrapper runTask)
         {
             var cancellationTokenSource = new CancellationTokenSource();
 

@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace Jobbr.Runtime.Core
             return castedValue;
         }
 
-        public Task CreateRunTask(object jobClassInstance)
+        public JobWrapper CreateWrapper(object jobClassInstance)
         {
             var runMethods = this.jobType.GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
 
@@ -106,7 +107,27 @@ namespace Jobbr.Runtime.Core
             Logger.Debug("Initializing task for JobRun");
             var cancellationTokenSource = new CancellationTokenSource();
 
-            return new Task(runMethodWrapper, cancellationTokenSource.Token);
+            return new JobWrapper(runMethodWrapper, cancellationTokenSource.Token);
         }
+    }
+
+    public class JobWrapper : Task
+    {
+        public JobWrapper(Action action, CancellationToken cancellationToken) : base(action, cancellationToken)
+        {
+        }
+
+        public new void Start()
+        {
+            base.Start();
+        }
+
+        public new void Wait(CancellationToken token)
+        {
+            base.Wait(token);
+
+        }
+
+        public new bool IsFaulted => base.IsFaulted;
     }
 }
