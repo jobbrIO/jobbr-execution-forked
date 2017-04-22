@@ -28,8 +28,6 @@ namespace Jobbr.Runtime.Core
             this.jobTypeResolver = new JobTypeResolver(runtimeConfiguration.JobTypeSearchAssembly);
 
             this.dependencyResolver = runtimeConfiguration.JobActivator;
-
-            this.runWrapperFactory = new RunWrapperFactory();
         }
 
         public void RunCore(JobRunInfo jobRunInfo)
@@ -69,8 +67,9 @@ namespace Jobbr.Runtime.Core
 
                 // Create task as wrapper for calling the Run() Method
                 Logger.Debug($"Create task as wrapper for calling the Run() Method");
+                this.runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), this.jobInfo.JobParameter, this.jobInfo.InstanceParameter);
 
-                var task = this.runWrapperFactory.CreateRunTask(jobClassInstance, type, this.jobInfo.JobParameter, this.jobInfo.InstanceParameter);
+                var task = this.runWrapperFactory.CreateRunTask(jobClassInstance);
                 if (task == null)
                 {
                     Logger.Error("Unable to create task as a wrapper for the job");

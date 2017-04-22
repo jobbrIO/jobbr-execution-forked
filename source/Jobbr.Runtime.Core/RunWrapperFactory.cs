@@ -11,6 +11,17 @@ namespace Jobbr.Runtime.Core
     {
         private static readonly ILog Logger = LogProvider.For<RunWrapperFactory>();
 
+        private readonly Type jobType;
+        private readonly object jobParameter;
+        private readonly object instanceParameter;
+
+        public RunWrapperFactory(Type jobType, object jobParameter, object instanceParameter)
+        {
+            this.jobType = jobType;
+            this.jobParameter = jobParameter;
+            this.instanceParameter = instanceParameter;
+        }
+
         public object GetCastedParameterValue(string parameterName, Type targetType, string jobbrParamName, object value)
         {
             object castedValue;
@@ -37,9 +48,9 @@ namespace Jobbr.Runtime.Core
             return castedValue;
         }
 
-        public Task CreateRunTask(object jobClassInstance, Type jobType, object jobParameter, object instanceParameter)
+        public Task CreateRunTask(object jobClassInstance)
         {
-            var runMethods = jobType.GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
+            var runMethods = this.jobType.GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
 
             if (!runMethods.Any())
             {
@@ -53,8 +64,8 @@ namespace Jobbr.Runtime.Core
             var parameterizedMethod = runMethods.FirstOrDefault(m => m.GetParameters().Length == 2);
             if (parameterizedMethod != null)
             {
-                var jobParamValue = jobParameter ?? "<null>";
-                var instanceParamValue = instanceParameter ?? "<null>";
+                var jobParamValue = this.jobParameter ?? "<null>";
+                var instanceParamValue = this.instanceParameter ?? "<null>";
 
                 var jobParamJsonString = jobParamValue.ToString();
                 var instanceParamJsonString = instanceParamValue.ToString();
@@ -70,8 +81,8 @@ namespace Jobbr.Runtime.Core
                 var param2Name = allParams[1].Name;
 
                 // Casting in the most preferrable type
-                var jobParameterValue = this.GetCastedParameterValue(param1Name, param1Type, "job", jobParameter);
-                var instanceParamaterValue = this.GetCastedParameterValue(param2Name, param2Type, "instance", instanceParameter);
+                var jobParameterValue = this.GetCastedParameterValue(param1Name, param1Type, "job", this.jobParameter);
+                var instanceParamaterValue = this.GetCastedParameterValue(param2Name, param2Type, "instance", this.instanceParameter);
 
                 runMethodWrapper = () => { parameterizedMethod.Invoke(jobClassInstance, new[] {jobParameterValue, instanceParamaterValue}); };
             }
