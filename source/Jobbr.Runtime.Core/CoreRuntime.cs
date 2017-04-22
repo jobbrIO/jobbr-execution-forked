@@ -11,10 +11,35 @@ namespace Jobbr.Runtime.Core
 
         private readonly JobActivator jobActivator;
 
+        /// <summary>
+        /// Raised immediately after start and indicates that the Runtime is setting up itself
+        /// </summary>
+        public event EventHandler Initializing;
 
-        public event EventHandler<StateChangedEventArgs> StateChanged;
+        /// <summary>
+        /// Raised before the runtime activates the job class
+        /// </summary>
+        public event EventHandler Activating;
 
-        public event EventHandler<FinishingEventArgs> Finishing;
+        /// <summary>
+        /// Raised before the wrapper for the Run() Method is generated
+        /// </summary>
+        public event EventHandler WiringMethod;
+
+        /// <summary>
+        /// Raised before the Run()-Method is executed
+        /// </summary>
+        public event EventHandler Starting;
+
+        /// <summary>
+        /// Raised after the job has come to the end, independent of its success
+        /// </summary>
+        public event EventHandler<ExecutionEndedEventArgs> Ended;
+
+        /// <summary>
+        /// Raised for exceptions in the Core infrastructure that have not been handled
+        /// </summary>
+        public event EventHandler<InfrastructureExceptionEventArgs> InfrastructureException;
 
         public CoreRuntime(RuntimeConfiguration runtimeConfiguration)
         {
@@ -27,10 +52,11 @@ namespace Jobbr.Runtime.Core
         public void Execute(ExecutionMetadata executionMetadata)
         {
             var wasSuccessful = false;
+            Exception lastException = null;
 
             try
             {
-                this.PublishState(JobRunState.Initializing);
+                this.OnInitializing();
 
                 var jobTypeName = executionMetadata.JobType;
 
@@ -44,6 +70,8 @@ namespace Jobbr.Runtime.Core
 
                 // Create instance
                 Logger.Debug($"Create instance of job based on the typename '{jobTypeName}'");
+                this.OnActivating();
+
                 var jobClassInstance = this.jobActivator.CreateInstance(jobTypeName);
 
                 if (jobClassInstance == null)
@@ -54,6 +82,8 @@ namespace Jobbr.Runtime.Core
 
                 // Create task as wrapper for calling the Run() Method
                 Logger.Debug($"Create task as wrapper for calling the Run() Method");
+                this.OnWiringMethod();
+
                 var runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), executionMetadata.JobParameter, executionMetadata.InstanceParameter);
                 var wrapper = runWrapperFactory.CreateWrapper(jobClassInstance);
 
@@ -65,63 +95,107 @@ namespace Jobbr.Runtime.Core
 
                 // Start 
                 Logger.Debug("Starting Task to execute the Run()-Method.");
+                this.OnStarting();
 
                 wrapper.Start();
-                this.PublishState(JobRunState.Processing);
 
                 // Wait for completion
                 wasSuccessful = wrapper.WaitForCompletion();
+                lastException = wrapper.Exception;
             }
             catch (Exception e)
             {
+                lastException = e;
+
                 Logger.FatalException("Exception in the Jobbr-Runtime. Please see details: ", e);
+                this.OnInfrastructureException(new InfrastructureExceptionEventArgs { Exception = e });
             }
             finally
             {
-                this.PublishState(JobRunState.Finishing);
-
-                this.OnFinishing(new FinishingEventArgs() { Successful = wasSuccessful });
-
-                if (wasSuccessful)
-                {
-                    this.PublishState(JobRunState.Completed);
-                }
-                else
-                {
-                    this.PublishState(JobRunState.Failed);
-                }
+                this.OnEnded(new ExecutionEndedEventArgs() { Succeeded = wasSuccessful, Exception = lastException});
             }
         }
 
-        private void PublishState(JobRunState state)
-        {
-            this.OnStateChanged(new StateChangedEventArgs() { State = state });
-        }
+        #region Event Invocators
 
-        protected virtual void OnStateChanged(StateChangedEventArgs e)
+        protected virtual void OnInitializing()
         {
             try
             {
-                this.StateChanged?.Invoke(this, e);
+                this.Initializing?.Invoke(this, EventArgs.Empty);
 
             }
             catch (Exception exception)
             {
-                Logger.ErrorException($"Recipient of the event {nameof(this.OnStateChanged)} threw an execption", exception);
+                Logger.ErrorException($"Recipient of the event {nameof(this.OnInitializing)} threw an execption", exception);
             }
         }
 
-        protected virtual void OnFinishing(FinishingEventArgs e)
+        protected virtual void OnActivating()
         {
             try
             {
-                this.Finishing?.Invoke(this, e);
+                this.Activating?.Invoke(this, EventArgs.Empty);
 
             }
             catch (Exception exception)
             {
-                Logger.ErrorException($"Recipient of the event {nameof(this.OnFinishing)} threw an execption", exception);
+                Logger.ErrorException($"Recipient of the event {nameof(this.OnActivating)} threw an execption", exception);
             }
         }
+
+        protected virtual void OnWiringMethod()
+        {
+            try
+            {
+                this.WiringMethod?.Invoke(this, EventArgs.Empty);
+
+            }
+            catch(Exception exception)
+            {
+                Logger.ErrorException($"Recipient of the event {nameof(this.OnWiringMethod)} threw an execption", exception);
+            }
+        }
+
+        protected virtual void OnStarting()
+        {
+            try
+            {
+                this.Starting?.Invoke(this, EventArgs.Empty);
+
+            }
+            catch (Exception exception)
+            {
+                Logger.ErrorException($"Recipient of the event {nameof(this.OnStarting)} threw an execption", exception);
+            }
+        }
+
+        protected virtual void OnEnded(ExecutionEndedEventArgs e)
+        {
+            try
+            {
+                this.Ended?.Invoke(this, e);
+
+            }
+            catch (Exception exception)
+            {
+                Logger.ErrorException($"Recipient of the event {nameof(this.OnEnded)} threw an execption", exception);
+            }
+        }
+
+        protected virtual void OnInfrastructureException(InfrastructureExceptionEventArgs e)
+        {
+            try
+            {
+                this.InfrastructureException?.Invoke(this, e);
+
+            }
+            catch (Exception exception)
+            {
+                Logger.ErrorException($"Recipient of the event {nameof(this.OnInfrastructureException)} threw an execption", exception);
+            }
+        }
+
+        #endregion
     }
 }

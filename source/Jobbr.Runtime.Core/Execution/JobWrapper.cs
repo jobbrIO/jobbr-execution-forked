@@ -26,6 +26,8 @@ namespace Jobbr.Runtime.Core.Execution
             this.task.Wait(token);
         }
 
+        public Exception Exception { get; private set; }
+
         internal bool WaitForCompletion()
         {
             var cancellationTokenSource = new CancellationTokenSource();
@@ -37,11 +39,13 @@ namespace Jobbr.Runtime.Core.Execution
             catch (Exception e)
             {
                 Logger.ErrorException("Exception while waiting for completion of job", e);
+                this.Exception = e;
                 return false;
             }
 
             if (this.task.IsFaulted)
             {
+                this.Exception = this.task.Exception;
                 Logger.ErrorException("The execution of the job has faulted. See Exception for details.", this.task.Exception);
                 return false;
             }

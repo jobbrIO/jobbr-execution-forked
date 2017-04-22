@@ -46,10 +46,11 @@
     <Compile Include="App_Packages\LibLog.3.1\LibLog.cs" />
     <Compile Include="CoreRuntime.cs" />
     <Compile Include="Activation\DefaultServiceProvider.cs" />
-    <Compile Include="FinishingEventArgs.cs" />
+    <Compile Include="ExecutionEndedEventArgs.cs" />
     <Compile Include="IConfigurableServiceProvider.cs" />
     <Compile Include="Activation\JobActivator.cs" />
     <Compile Include="ExecutionMetadata.cs" />
+    <Compile Include="InfrastructureExceptionEventArgs.cs" />
     <Compile Include="JobRunState.cs" />
     <Compile Include="Execution\JobWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -57,7 +58,6 @@
     <Compile Include="RuntimeContext.cs" />
     <Compile Include="Activation\JobTypeResolver.cs" />
     <Compile Include="Execution\RunWrapperFactory.cs" />
-    <Compile Include="StateChangedEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -26,8 +27,40 @@ namespace Jobbr.Runtime.Console
 
             this.coreRuntime = new CoreRuntime(runtimeConfiguration);
 
-            this.coreRuntime.StateChanged += this.CoreRuntimeOnOnStateChanged;
-            this.coreRuntime.Finishing += this.CoreRuntimeOnFinishing;
+            // Wire Events to publish status
+            this.coreRuntime.Initializing += (sender, args) => this.forkedExecutionRestClient.PublishState(JobRunState.Initializing);
+            this.coreRuntime.Starting += (sender, args) => this.forkedExecutionRestClient.PublishState(JobRunState.Processing);
+
+            this.coreRuntime.Ended += this.CoreRuntimeOnEnded;
+        }
+
+        private void CoreRuntimeOnEnded(object sender, ExecutionEndedEventArgs executionEndedEventArgs)
+        {
+            if (!executionEndedEventArgs.Succeeded)
+            {
+                // Indicate failure also via exit code
+                Environment.ExitCode = 1;
+            }
+
+            this.forkedExecutionRestClient.PublishState(JobRunState.Finishing);
+
+            // Are there any files to collect?
+            var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
+
+            if (allFiles.Any())
+            {
+                this.forkedExecutionRestClient.PublishState(JobRunState.Collecting);
+                this.forkedExecutionRestClient.SendFiles(allFiles);
+            }
+
+            if (executionEndedEventArgs.Succeeded)
+            {
+                this.forkedExecutionRestClient.PublishState(JobRunState.Completed);
+            }
+            else
+            {
+                this.forkedExecutionRestClient.PublishState(JobRunState.Failed);
+            }
         }
 
         public JobbrRuntime() : this(new RuntimeConfiguration())
@@ -110,30 +143,6 @@ namespace Jobbr.Runtime.Console
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
             Logger.FatalException("Unhandled Infrastructure Exception in Jobbr-Runtime. Please contact the developers!", (Exception)unhandledExceptionEventArgs.ExceptionObject);
-        }
-
-        private void CoreRuntimeOnFinishing(object sender, FinishingEventArgs finishingEventArgs)
-        {
-            if (!finishingEventArgs.Successful)
-            {
-                Environment.ExitCode = 1;
-            }
-
-            this.forkedExecutionRestClient.PublishState(JobRunState.Collecting);
-
-            var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
-
-            this.forkedExecutionRestClient.SendFiles(allFiles);
-        }
-
-        private void CoreRuntimeOnOnStateChanged(object sender, StateChangedEventArgs stateChangedEventArgs)
-        {
-            if (stateChangedEventArgs.State == JobRunState.Failed)
-            {
-                Environment.ExitCode = 1;
-            }
-
-            this.forkedExecutionRestClient.PublishState(stateChangedEventArgs.State);
         }
     }
 }
