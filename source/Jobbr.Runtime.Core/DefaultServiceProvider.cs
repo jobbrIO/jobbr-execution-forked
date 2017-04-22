@@ -5,7 +5,7 @@ namespace Jobbr.Runtime.Core
     /// <summary>
     /// The default service provider is able to activate jobtypes without any dependencies
     /// </summary>
-    public class DefaultServiceProvider : IServiceProvider
+    internal class DefaultServiceProvider : IServiceProvider
     {
         public object GetService(Type serviceType)
         {

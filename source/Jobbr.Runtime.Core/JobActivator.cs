@@ -3,20 +3,20 @@ using Jobbr.Runtime.Core.Logging;
 
 namespace Jobbr.Runtime.Core
 {
-    public class JobActivator
+    internal class JobActivator
     {
         private static readonly ILog Logger = LogProvider.For<JobActivator>();
 
         private readonly JobTypeResolver jobTypeResolver;
         private readonly IServiceProvider serviceProvider;
 
-        public JobActivator(JobTypeResolver jobTypeResolver, IServiceProvider serviceProvider)
+        internal JobActivator(JobTypeResolver jobTypeResolver, IServiceProvider serviceProvider)
         {
             this.jobTypeResolver = jobTypeResolver;
             this.serviceProvider = serviceProvider;
         }
 
-        public object CreateInstance(string jobTypeName)
+        internal object CreateInstance(string jobTypeName)
         {
             // Resolve Type
             Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
@@ -52,7 +52,7 @@ namespace Jobbr.Runtime.Core
             return jobClassInstance;
         }
 
-        public void AddDependencies(params object[] additionalDependencies)
+        internal void AddDependencies(params object[] additionalDependencies)
         {
             var registrator = this.serviceProvider as IConfigurableServiceProvider;
 

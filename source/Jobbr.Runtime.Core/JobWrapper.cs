@@ -5,28 +5,28 @@ using Jobbr.Runtime.Core.Logging;
 
 namespace Jobbr.Runtime.Core
 {
-    public class JobWrapper
+    internal class JobWrapper
     {
         private static readonly ILog Logger = LogProvider.For<JobWrapper>();
 
         private readonly Task task;
 
-        public JobWrapper(Action action)
+        internal JobWrapper(Action action)
         {
             this.task = new Task(action);
         }
 
-        public void Start()
+        internal void Start()
         {
             this.task.Start();
         }
 
-        public void Wait(CancellationToken token)
+        internal void Wait(CancellationToken token)
         {
             this.task.Wait(token);
         }
 
-        public bool WaitForCompletion()
+        internal bool WaitForCompletion()
         {
             var cancellationTokenSource = new CancellationTokenSource();
 

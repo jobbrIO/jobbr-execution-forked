@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace Jobbr.Runtime.Core
 {
-    public class RunWrapperFactory
+    internal class RunWrapperFactory
     {
         private static readonly ILog Logger = LogProvider.For<RunWrapperFactory>();
 
@@ -20,7 +20,7 @@ namespace Jobbr.Runtime.Core
             this.instanceParameter = instanceParameter;
         }
 
-        public object GetCastedParameterValue(string parameterName, Type targetType, string jobbrParamName, object value)
+        internal object GetCastedParameterValue(string parameterName, Type targetType, string jobbrParamName, object value)
         {
             object castedValue;
 
@@ -46,7 +46,7 @@ namespace Jobbr.Runtime.Core
             return castedValue;
         }
 
-        public JobWrapper CreateWrapper(object jobClassInstance)
+        internal JobWrapper CreateWrapper(object jobClassInstance)
         {
             var runMethods = this.jobType.GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
 

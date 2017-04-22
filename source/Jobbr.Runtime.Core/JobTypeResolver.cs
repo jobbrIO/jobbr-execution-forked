@@ -5,7 +5,7 @@ using Jobbr.Runtime.Core.Logging;
 
 namespace Jobbr.Runtime.Core
 {
-    public class JobTypeResolver
+    internal class JobTypeResolver
     {
         private static readonly ILog Logger = LogProvider.For<JobTypeResolver>();
 
@@ -16,7 +16,7 @@ namespace Jobbr.Runtime.Core
             this.defaultAssembly = defaultAssembly;
         }
 
-        public Type ResolveType(string typeName)
+        internal Type ResolveType(string typeName)
         {
             Logger.Debug($"Resolve type using '{typeName}' like a full qualified CLR-Name");
             var type = Type.GetType(typeName);
