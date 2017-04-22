@@ -14,7 +14,7 @@ namespace Jobbr.Runtime.Console
     {
         private static readonly ILog Logger = LogProvider.For<JobbrRuntime>();
 
-        private CoreRuntime coreRuntime;
+        private readonly CoreRuntime coreRuntime;
         private ForkedExecutionRestClient forkedExecutionRestClient;
 
         public JobbrRuntime(RuntimeConfiguration runtimeConfiguration)
@@ -30,7 +30,7 @@ namespace Jobbr.Runtime.Console
             this.coreRuntime.Finishing += this.CoreRuntimeOnFinishing;
         }
 
-        public JobbrRuntime() : this(new RuntimeConfiguration {} )
+        public JobbrRuntime() : this(new RuntimeConfiguration())
         {
         }
 
