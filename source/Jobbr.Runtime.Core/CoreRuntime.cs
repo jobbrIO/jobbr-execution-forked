@@ -54,10 +54,13 @@ namespace Jobbr.Runtime.Core
                     return;
                 }
 
-                // Activate Type
+                // Register additional dependencies in the DI if available and activate
+                Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
+                this.RegisterDependencies();
+
                 Logger.Debug($"Trying to activate the specified type '{type}'...");
 
-                var jobClassInstance = this.CreateJobClassInstance(jobTypeName, type);
+                var jobClassInstance = this.CreateJobClassInstance(type);
                 if (jobClassInstance == null)
                 {
                     Logger.Error($"Unable to create an instance ot the type '{type}'!");
@@ -132,14 +135,10 @@ namespace Jobbr.Runtime.Core
             return true;
         }
 
-        private object CreateJobClassInstance(string jobTypeName, Type type)
+        private object CreateJobClassInstance(Type type)
         {
-            Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
-
             try
             {
-                this.RegisterDependencies();
-
                 return this.dependencyResolver.Activate(type);
             }
             catch (Exception exception)
@@ -159,7 +158,15 @@ namespace Jobbr.Runtime.Core
 
             var registrator = this.dependencyResolver as IRuntimeContextRegistrator;
 
-            registrator?.RegisterInstance(this.context);
+            try
+            {
+                registrator?.RegisterInstance(this.context);
+
+            }
+            catch (Exception e)
+            {
+                Logger.WarnException($"Unable to register additional dependencies on {registrator}!", e);
+            }
         }
 
         protected virtual void OnStateChanged(StateChangedEventArgs e)
