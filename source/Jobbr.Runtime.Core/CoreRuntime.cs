@@ -7,6 +7,8 @@ namespace Jobbr.Runtime.Core
     {
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
 
+        private JobRunInfo jobInfo;
+
         private readonly JobTypeResolver jobTypeResolver;
 
         private readonly IServiceProvider serviceProvider;
@@ -26,13 +28,15 @@ namespace Jobbr.Runtime.Core
 
         public void RunCore(JobRunInfo jobRunInfo)
         {
+            this.jobInfo = jobRunInfo;
+
             var wasSuccessful = false;
 
             try
             {
                 this.PublishState(JobRunState.Initializing);
 
-                var jobTypeName = jobRunInfo.JobType;
+                var jobTypeName = this.jobInfo.JobType;
 
                 // Resolve Type
                 Logger.Debug($"Trying to resolve the specified type '{jobTypeName}'...");
@@ -48,8 +52,8 @@ namespace Jobbr.Runtime.Core
                 Logger.Info($"Type '{jobTypeName}' has been resolved to '{type}'. Activating now.");
                 this.RegisterDependencies(new RuntimeContext
                 {
-                    UserId = jobRunInfo.UserId,
-                    UserDisplayName = jobRunInfo.UserDisplayName
+                    UserId = this.jobInfo.UserId,
+                    UserDisplayName = this.jobInfo.UserDisplayName
                 });
 
                 Logger.Debug($"Trying to activate the specified type '{type}'...");
@@ -63,7 +67,7 @@ namespace Jobbr.Runtime.Core
 
                 // Create task as wrapper for calling the Run() Method
                 Logger.Debug($"Create task as wrapper for calling the Run() Method");
-                this.runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), jobRunInfo.JobParameter, jobRunInfo.InstanceParameter);
+                this.runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), this.jobInfo.JobParameter, this.jobInfo.InstanceParameter);
 
                 var wrapper = this.runWrapperFactory.CreateWrapper(jobClassInstance);
                 if (wrapper == null)
