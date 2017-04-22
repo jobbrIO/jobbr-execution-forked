@@ -34,7 +34,7 @@ namespace Jobbr.Runtime.Core
         {
             this.jobInfo = jobRunInfo;
 
-            var executionResult = false;
+            var wasSuccessful = false;
 
             try
             {
@@ -83,7 +83,7 @@ namespace Jobbr.Runtime.Core
                 this.PublishState(JobRunState.Processing);
 
                 // Wait for completion
-                executionResult = wrapper.WaitForCompletion();
+                wasSuccessful = wrapper.WaitForCompletion();
             }
             catch (Exception e)
             {
@@ -93,9 +93,9 @@ namespace Jobbr.Runtime.Core
             {
                 this.PublishState(JobRunState.Finishing);
 
-                this.OnFinishing(new FinishingEventArgs() { Successful = executionResult });
+                this.OnFinishing(new FinishingEventArgs() { Successful = wasSuccessful });
 
-                if (executionResult)
+                if (wasSuccessful)
                 {
                     this.PublishState(JobRunState.Completed);
                 }
