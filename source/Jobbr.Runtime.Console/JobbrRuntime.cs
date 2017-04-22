@@ -56,7 +56,7 @@ namespace Jobbr.Runtime.Console
 
             var jobRunInfoDto = this.forkedExecutionRestClient.GetJobRunInfo();
 
-            var jobRunInfo = new JobRunInfo
+            var jobRunInfo = new ExecutionMetadata
             {
                 JobType = jobRunInfoDto.JobType,
                 JobParameter = jobRunInfoDto.JobParameter,

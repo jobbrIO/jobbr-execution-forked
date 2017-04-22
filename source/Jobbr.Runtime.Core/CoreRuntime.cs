@@ -7,7 +7,7 @@ namespace Jobbr.Runtime.Core
     {
         private static readonly ILog Logger = LogProvider.For<CoreRuntime>();
 
-        private JobRunInfo jobInfo;
+        private ExecutionMetadata jobInfo;
 
         private readonly JobActivator jobActivator;
 
@@ -27,7 +27,7 @@ namespace Jobbr.Runtime.Core
 
         public void Execute(ExecutionMetadata executionMetadata)
         {
-            this.jobInfo = jobRunInfo;
+            this.jobInfo = executionMetadata;
 
             var wasSuccessful = false;
 
