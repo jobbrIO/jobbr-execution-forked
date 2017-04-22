@@ -51,6 +51,8 @@ namespace Jobbr.Runtime.Core
 
                 if (jobClassInstance == null)
                 {
+                    Logger.Error($"Cannot create activate the job based on the typename {jobTypeName}");
+
                     return;
                 }
 
