@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Jobbr.Runtime.Core.Logging;
+using Jobbr.Runtime.Logging;
 
 namespace Jobbr.Runtime.Core.Activation
 {

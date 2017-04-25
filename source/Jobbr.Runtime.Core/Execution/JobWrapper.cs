@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Jobbr.Runtime.Core.Logging;
+using Jobbr.Runtime.Logging;
 
 namespace Jobbr.Runtime.Core.Execution
 {

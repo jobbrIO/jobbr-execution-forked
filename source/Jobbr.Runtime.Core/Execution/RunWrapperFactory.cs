@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Jobbr.Runtime.Core.Logging;
+using Jobbr.Runtime.Logging;
 using Newtonsoft.Json;
 
 namespace Jobbr.Runtime.Core.Execution

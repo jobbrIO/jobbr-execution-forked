@@ -1,7 +1,7 @@
 using System;
 using Jobbr.Runtime.Core.Activation;
 using Jobbr.Runtime.Core.Execution;
-using Jobbr.Runtime.Core.Logging;
+using Jobbr.Runtime.Logging;
 
 namespace Jobbr.Runtime.Core
 {

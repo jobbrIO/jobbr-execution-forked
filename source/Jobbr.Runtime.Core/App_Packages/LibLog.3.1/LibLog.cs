@@ -30,10 +30,10 @@
 
 #pragma warning disable 1591
 
-namespace Jobbr.Runtime.Core.Logging
+namespace Jobbr.Runtime.Logging
 {
     using System.Collections.Generic;
-    using Jobbr.Runtime.Core.Logging.LogProviders;
+    using Jobbr.Runtime.Logging.LogProviders;
     using System;
     using System.Diagnostics;
 
@@ -518,7 +518,7 @@ namespace Jobbr.Runtime.Core.Logging
     }
 }
 
-namespace Jobbr.Runtime.Core.Logging.LogProviders
+namespace Jobbr.Runtime.Logging.LogProviders
 {
     using System;
     using System.Collections.Generic;
