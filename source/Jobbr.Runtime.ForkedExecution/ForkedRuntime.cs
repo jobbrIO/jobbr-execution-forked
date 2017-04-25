@@ -11,14 +11,14 @@ using Jobbr.Runtime.ForkedExecution.RestClient;
 
 namespace Jobbr.Runtime.ForkedExecution
 {
-    public class JobbrRuntime
+    public class ForkedRuntime
     {
-        private static readonly ILog Logger = LogProvider.For<JobbrRuntime>();
+        private static readonly ILog Logger = LogProvider.For<ForkedRuntime>();
 
         private readonly CoreRuntime coreRuntime;
         private ForkedExecutionRestClient forkedExecutionRestClient;
 
-        public JobbrRuntime(RuntimeConfiguration runtimeConfiguration)
+        public ForkedRuntime(RuntimeConfiguration runtimeConfiguration)
         {
             if (runtimeConfiguration == null)
             {
@@ -34,7 +34,7 @@ namespace Jobbr.Runtime.ForkedExecution
             this.coreRuntime.Ended += this.CoreRuntimeOnEnded;
         }
 
-        public JobbrRuntime() : this(new RuntimeConfiguration())
+        public ForkedRuntime() : this(new RuntimeConfiguration())
         {
         }
 
@@ -42,7 +42,7 @@ namespace Jobbr.Runtime.ForkedExecution
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
 
-            Logger.Info($"JobbrRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {string.Join(" ", args)}");
+            Logger.Info($"ForkedRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {string.Join(" ", args)}");
 
             var cmdlineOptions = ParseArguments(args);
 
