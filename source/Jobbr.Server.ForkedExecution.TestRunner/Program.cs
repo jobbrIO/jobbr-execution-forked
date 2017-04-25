@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
-using Jobbr.Runtime.Console;
+using Jobbr.Runtime.Core;
+using Jobbr.Runtime.ForkedExecution;
 
 namespace Jobbr.Server.ForkedExecution.TestRunner
 {
@@ -7,7 +8,7 @@ namespace Jobbr.Server.ForkedExecution.TestRunner
     {
         static void Main(string[] args)
         {
-            var runtime = new JobbrRuntime(Assembly.GetEntryAssembly());
+            var runtime = new ForkedRuntime(new RuntimeConfiguration() { JobTypeSearchAssembly = Assembly.GetEntryAssembly()});
 
             runtime.Run(args);
         }

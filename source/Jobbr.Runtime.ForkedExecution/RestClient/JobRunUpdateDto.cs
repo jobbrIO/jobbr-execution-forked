@@ -1,4 +1,4 @@
-﻿namespace Jobbr.Runtime.Console
+﻿namespace Jobbr.Runtime.ForkedExecution.RestClient
 {
     public class JobRunUpdateDto
     {

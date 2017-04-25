@@ -5,6 +5,7 @@
       <Value>bin\Debug\Jobbr.Server.ForkedExecution.TestRunner.exe</Value>
       <Value>bin\Debug\Jobbr.Runtime.Console.dll</Value>
       <Value>bin\Debug\CommandLine.dll</Value>
+      <Value>bin\Debug\Jobbr.Runtime.Core.dll</Value>
     </AdditionalFilesToIncludeForProject>
     <CopyReferencedAssembliesToWorkspace>True</CopyReferencedAssembliesToWorkspace>
     <HiddenComponentWarnings>

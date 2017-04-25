@@ -31,10 +31,10 @@
 
 #pragma warning disable 1591
 
-namespace Jobbr.ConsoleApp.Runtime.Logging
+namespace Jobbr.Runtime.ForkedExecution.Logging
 {
     using System.Collections.Generic;
-    using Jobbr.ConsoleApp.Runtime.Logging.LogProviders;
+    using Jobbr.Runtime.ForkedExecution.Logging.LogProviders;
     using System;
     using System.Diagnostics;
 
@@ -519,7 +519,7 @@ namespace Jobbr.ConsoleApp.Runtime.Logging
     }
 }
 
-namespace Jobbr.ConsoleApp.Runtime.Logging.LogProviders
+namespace Jobbr.Runtime.ForkedExecution.Logging.LogProviders
 {
     using System;
     using System.Collections.Generic;

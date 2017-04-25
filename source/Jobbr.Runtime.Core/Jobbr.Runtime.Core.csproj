@@ -1,21 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1D9A0A7D-0752-4A66-B3EF-7FC33E4AA1B6}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{49F0F696-79A5-4DCB-A243-6E02DDB973DF}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Jobbr.Server.ForkedExecution.TestRunner</RootNamespace>
-    <AssemblyName>Jobbr.Server.ForkedExecution.TestRunner</AssemblyName>
+    <RootNamespace>Jobbr.Runtime.Core</RootNamespace>
+    <AssemblyName>Jobbr.Runtime.Core</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -34,9 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -48,33 +43,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="App_Packages\LibLog.3.1\LibLog.cs" />
+    <Compile Include="CoreRuntime.cs" />
+    <Compile Include="Activation\DefaultServiceProvider.cs" />
+    <Compile Include="ExecutionEndedEventArgs.cs" />
+    <Compile Include="IConfigurableServiceProvider.cs" />
+    <Compile Include="Activation\JobActivator.cs" />
+    <Compile Include="ExecutionMetadata.cs" />
+    <Compile Include="InfrastructureExceptionEventArgs.cs" />
+    <Compile Include="Execution\JobWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestJobs\JobWithArtefacts.cs" />
-    <Compile Include="TestJobs\JobWithOneProgress.cs" />
-    <Compile Include="TestJobs\JobWithParameters.cs" />
-    <Compile Include="TestJobs\SimpleJob.cs" />
+    <Compile Include="RuntimeConfiguration.cs" />
+    <Compile Include="RuntimeContext.cs" />
+    <Compile Include="Activation\JobTypeResolver.cs" />
+    <Compile Include="Execution\RunWrapperFactory.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Jobbr.Runtime.Core\Jobbr.Runtime.Core.csproj">
-      <Project>{49F0F696-79A5-4DCB-A243-6E02DDB973DF}</Project>
-      <Name>Jobbr.Runtime.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Jobbr.Runtime.ForkedExecution\Jobbr.Runtime.ForkedExecution.csproj">
-      <Project>{446271f7-7880-4c71-8871-2082fb90ce86}</Project>
-      <Name>Jobbr.Runtime.ForkedExecution</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

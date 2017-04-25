@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Jobbr.Runtime.Console
+namespace Jobbr.Runtime.ForkedExecution.RestClient
 {
     /// <summary>
     /// The job run configuration.
