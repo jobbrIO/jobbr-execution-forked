@@ -60,13 +60,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Jobbr.Runtime.Console\Jobbr.Runtime.Console.csproj">
-      <Project>{446271F7-7880-4C71-8871-2082FB90CE86}</Project>
-      <Name>Jobbr.Runtime.Console</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Jobbr.Runtime.Core\Jobbr.Runtime.Core.csproj">
       <Project>{49F0F696-79A5-4DCB-A243-6E02DDB973DF}</Project>
       <Name>Jobbr.Runtime.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Jobbr.Runtime.ForkedExecution\Jobbr.Runtime.ForkedExecution.csproj">
+      <Project>{446271f7-7880-4c71-8871-2082fb90ce86}</Project>
+      <Name>Jobbr.Runtime.ForkedExecution</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
