@@ -3,10 +3,10 @@ An altertative execution model that starts new processes and executes jobs in th
 
 [![Master build status][execution-forked-badge-build-master]][execution-forked-link-build] 
 [![NuGet-Stable (Server)][execution-forked-server-badge-nuget]][execution-forked-server-link-nuget]
-[![NuGet-Stable (Runtime)][execution-forked-console-badge-nuget]][execution-forked-console-link-nuget]<br/> 
+[![NuGet-Stable (Runtime)][execution-forked-runtime-badge-nuget]][execution-forked-runtime-link-nuget]<br/> 
 [![Develop build status][execution-forked-badge-build-develop]][execution-forked-link-build] 
 [![NuGet Pre-Release][execution-forked-server-badge-nuget-pre]][execution-forked-server-link-nuget] 
-[![NuGet Pre-Release][execution-forked-console-badge-nuget-pre]][execution-forked-console-link-nuget]
+[![NuGet Pre-Release][execution-forked-runtime-badge-nuget-pre]][execution-forked-runtime-link-nuget]
 
 Jobbr supports multiple execution models as described **[here]**. The forked execition model is split on the execution extension on the Jobbr-Server and it's counterpart which needs to be included in a simple ConsoleApplication, often referenced as Runner. Please see the **[wiki:concept]** or more details.
 
@@ -140,11 +140,11 @@ This extension was built by the following awesome developers:
 
 [execution-forked-link-build]:                  https://ci.appveyor.com/project/Jobbr/jobbr-execution-forked         
 [execution-forked-server-link-nuget]:           https://www.nuget.org/packages/Jobbr.Execution.Forked
-[execution-forked-console-link-nuget]:          https://www.nuget.org/packages/Jobbr.Runtime.Console
+[execution-forked-runtime-link-nuget]:          https://www.nuget.org/packages/Jobbr.Runtime.ForkedExecution
 
 [execution-forked-badge-build-develop]:         https://img.shields.io/appveyor/ci/Jobbr/jobbr-execution-forked/develop.svg?label=develop
 [execution-forked-badge-build-master]:          https://img.shields.io/appveyor/ci/Jobbr/jobbr-execution-forked/master.svg?label=master
 [execution-forked-server-badge-nuget]:          https://img.shields.io/nuget/v/Jobbr.Execution.Forked.svg?label=NuGet%20stable%20%28Extension%29
 [execution-forked-server-badge-nuget-pre]:      https://img.shields.io/nuget/vpre/Jobbr.Execution.Forked.svg?label=NuGet%20pre%20%28Extension%29
-[execution-forked-console-badge-nuget]:         https://img.shields.io/nuget/v/Jobbr.Runtime.Console.svg?label=NuGet%20stable%20%28Runtime%29
-[execution-forked-console-badge-nuget-pre]:     https://img.shields.io/nuget/vpre/Jobbr.Runtime.Console.svg?label=NuGet%20pre%20%28Runtime%29
+[execution-forked-runtime-badge-nuget]:         https://img.shields.io/nuget/v/Jobbr.Runtime.ForkedExecution.svg?label=NuGet%20stable%20%28Runtime%29
+[execution-forked-runtime-badge-nuget-pre]:     https://img.shields.io/nuget/vpre/Jobbr.Runtime.ForkedExecution.svg?label=NuGet%20pre%20%28Runtime%29
