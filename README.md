@@ -56,16 +56,16 @@ There are additional configuration options beside the required one above.
 > **Note**: A more detailed explanation can be found the the **[wiki:configuration]**
 
 ## Runner Installation
-Creating a runner and setting up all the required dependencies for the runner is your job, a short reminder: The forked execution model bases on an additional executable that executes your job. This additional executable is not part of this package and is under your control. You'll need to reference the related Job-Types in this application. The only additional thing you need to do, is to include the NuGet Package `Jobbr.Runtime.Console` in you application and start it.
+Creating a runner and setting up all the required dependencies for the runner is your job, a short reminder: The forked execution model bases on an additional executable that executes your job. This additional executable is not part of this package and is under your control. You'll need to reference the related Job-Types in this application. The only additional thing you need to do, is to include the NuGet Package `Jobbr.Runtime.ForkedExecution` in you application and start it.
 
-    Install-Package Jobbr.Runtime.Console
+    Install-Package Jobbr.Runtime.ForkedExecution
 
 In your Main() method, make sure you instantiate a new JobbrRuntime and pass all command line arguments to the Start()-Method.
 
 ```c#
 using Demo.MyJobs;
-using Jobbr.ConsoleApp.Runtime.Logging;
-using Jobbr.Runtime.Console;
+using Jobbr.Runtime.ForkedExecution.Logging;
+using Jobbr.Runtime.ForkedExecution;
 
 // ...
 
@@ -74,15 +74,21 @@ public static void Main(string[] args)
     // Redirect Log-Output to Trace, remove this if you install any other Log-Framework
     LogProvider.SetCurrentLogProvider(new TraceLogProvider());
 
-    // Make sure the compiler does not remove the binding to this assembly
-    var jobAssemblyToQueryJobs = typeof(ProgressJob).Assembly;
-
-    // Set the default assembly to query for jobtypes
-    var runtime = new JobbrRuntime(jobAssemblyToQueryJobs);
+    // Create the runtime
+    var runtime = new ForkedRuntime();
 
     // Pass the arguments of the forked execution to the runtime
     runtime.Run(args);
 }
+```
+
+### Configuration
+
+#### JobType Search Hint
+
+```c#
+// Make sure the compiler does not remove the binding to this assembly
+var jobAssemblyToQueryJobs = typeof(ProgressJob).Assembly;
 ```
 
 There is also the possibility to register your own dependency resolver which is then used to activate your Jobs. See below
