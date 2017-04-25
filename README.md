@@ -107,7 +107,7 @@ The default dependency resolver activates the type by using the default construc
 
 **Example**
 ```c#
-// Define the assembly which contains the job
+// Create a wrapper that implements the IServiceProvider interface and delegates the calls to the used DI
 var serviceProvider = new MyDiContainerServiceProviderWrapper(new DIContainer());
 
 var config = new RuntimeConfiguration() { ServiceProvider = serviceProvider };
