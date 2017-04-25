@@ -83,20 +83,38 @@ public static void Main(string[] args)
 ```
 
 ### Configuration
+If you want to configure the runtime, please pass an instance of a `RuntimeConfiguration` to the constructor. The runtime supports the following configuration properties.
 
 #### JobType Search Hint
+Since the Job is registered by its CLR-Name, the runtime needs to find the related type before instantiating it. The type is queried with the following strategies
+1. Treat the name as full quelified and try to activate
+2. Enummerate all types from the `JobTypeSearchAssembly` if provided and match against the Job name
+3. Enummerate all currently loaded assemblies and try to find the job there
+4. Load all referenced (and not yet loaded assemblies) and query again for the job
 
+**Example**
 ```c#
-// Make sure the compiler does not remove the binding to this assembly
+// Define the assembly which contains the job
 var jobAssemblyToQueryJobs = typeof(ProgressJob).Assembly;
+
+var config = new RuntimeConfiguration() { JobTypeSearchAssembly = jobAssemblyToQueryJobs };
+
+var runtime = new ForkedRuntime(config);
 ```
 
-There is also the possibility to register your own dependency resolver which is then used to activate your Jobs. See below
+#### Custom Dependency resolver
+The default dependency resolver activates the type by using the default constructor. If your job as additional dependencies, you might need to register a dependency resolver that implements the `IServiceProvider`-Interface.
 
+**Example**
 ```c#
-// Use your own DI to activate jobs
-var runtime = new JobbrRuntime(jobAssemblyToQueryJobs, new CustomDependencyResolver());
+// Define the assembly which contains the job
+var serviceProvider = new MyDiContainerServiceProviderWrapper(new DIContainer());
+
+var config = new RuntimeConfiguration() { ServiceProvider = serviceProvider };
 ```
+
+#### Access to the RuntimeContext
+The runtime context contains properties for the current userId and DisplayName that has triggered the jobrun. If you need access to this information, you need to implement the `IServiceProviderConfigurator` interface on your DiWrapper so that the runtime is able to register an instance of the RuntimeContext on your DI, which then can be injected to your job afterwards
 
 # License
 This software is licenced under GPLv3. See [LICENSE](LICENSE) and the related licences of 3rd party libraries below.
