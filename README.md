@@ -97,7 +97,7 @@ Since the Job is registered by its CLR-Name, the runtime needs to find the relat
 // Define the assembly which contains the job
 var jobAssemblyToQueryJobs = typeof(ProgressJob).Assembly;
 
-var config = new RuntimeConfiguration() { JobTypeSearchAssembly = jobAssemblyToQueryJobs };
+var config = new RuntimeConfiguration { JobTypeSearchAssembly = jobAssemblyToQueryJobs };
 
 var runtime = new ForkedRuntime(config);
 ```
@@ -110,7 +110,7 @@ The default dependency resolver activates the type by using the default construc
 // Create a wrapper that implements the IServiceProvider interface and delegates the calls to the used DI
 var serviceProvider = new MyDiContainerServiceProviderWrapper(new DIContainer());
 
-var config = new RuntimeConfiguration() { ServiceProvider = serviceProvider };
+var config = new RuntimeConfiguration { ServiceProvider = serviceProvider };
 ```
 
 #### Access to the RuntimeContext
