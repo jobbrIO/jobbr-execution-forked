@@ -3,10 +3,9 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
-using Jobbr.Runtime.Core;
 using Newtonsoft.Json;
 
-namespace Jobbr.Runtime.Console.RestClient
+namespace Jobbr.Runtime.ForkedExecution.RestClient
 {
     /// <summary>
     /// The jobbr run time client.

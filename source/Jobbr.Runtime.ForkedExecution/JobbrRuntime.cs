@@ -5,11 +5,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Jobbr.ConsoleApp.Runtime.Logging;
-using Jobbr.Runtime.Console.RestClient;
 using Jobbr.Runtime.Core;
+using Jobbr.Runtime.ForkedExecution.Logging;
+using Jobbr.Runtime.ForkedExecution.RestClient;
 
-namespace Jobbr.Runtime.Console
+namespace Jobbr.Runtime.ForkedExecution
 {
     public class JobbrRuntime
     {

@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace Jobbr.Runtime.Console
+namespace Jobbr.Runtime.ForkedExecution
 {
     /// <summary>
     /// The options.
