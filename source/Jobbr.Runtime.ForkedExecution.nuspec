@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Jobbr.Runtime.Console</id>
+    <id>Jobbr.Runtime.ForkedExecution</id>
     <version>$version$</version>
     <authors>Jobbr</authors>
     <owners>Jobbr</owners>
@@ -12,7 +12,7 @@
     <copyright>Copyright 2017</copyright>
   </metadata>
   <files>
-    <file src="..\ilmerged\Jobbr.Runtime.Console.dll" target="lib\net45"/>
-    <file src="..\ilmerged\Jobbr.Runtime.Console.pdb" target="lib\net45"/>
+    <file src="..\ilmerged\Jobbr.Runtime.ForkedExecution.dll" target="lib\net45"/>
+    <file src="..\ilmerged\Jobbr.Runtime.ForkedExecution.pdb" target="lib\net45"/>
   </files>
 </package>
