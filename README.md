@@ -21,7 +21,7 @@ Install the NuGet `Jobbr.Execution.Forked` to the project where you host your Jo
 
 ### Registration
 ```c#
-using Jobbr.Exeuction.Forked;
+using Jobbr.Execution.Forked;
 
 // ....
 
