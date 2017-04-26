@@ -14,7 +14,7 @@ Jobbr supports multiple execution models as described **[here]**. The forked exe
 It's assumed that the Jobbr-Server is already installed. The following sample shows the registration of the forked execution mode.
 
 ### NuGet
-Install the NuGet `Jobbr.Execution.Forked` to the project where you host you Jobbr-Server. The extension contains everything that is needed to offload jobs to a forked process.
+Install the NuGet `Jobbr.Execution.Forked` to the project where you host your Jobbr-Server. The extension contains everything that is needed to offload jobs to a forked process.
 
 	Install-Package Jobbr.Execution.Forked
 
