@@ -64,7 +64,7 @@ In your Main() method, make sure you instantiate a new JobbrRuntime and pass all
 
 ```c#
 using Demo.MyJobs;
-using Jobbr.Runtime.ForkedExecution.Logging;
+using Jobbr.Runtime.Logging;
 using Jobbr.Runtime.ForkedExecution;
 
 // ...
