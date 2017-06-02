@@ -62,11 +62,13 @@ namespace Jobbr.Runtime.Core
 
                 // Register additional dependencies in the DI if available and activate
                 Logger.Debug($"Trying to register additional dependencies if supported.");
-                this.jobActivator.AddDependencies(new RuntimeContext
+                var runtimeContext = new RuntimeContext
                 {
                     UserId = executionMetadata.UserId,
                     UserDisplayName = executionMetadata.UserDisplayName
-                });
+                };
+
+                this.jobActivator.AddDependencies(runtimeContext);
 
                 // Create instance
                 Logger.Debug($"Create instance of job based on the typename '{jobTypeName}'");
