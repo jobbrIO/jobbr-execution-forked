@@ -9,7 +9,6 @@ namespace Jobbr.Runtime.Core.Tests
     {
         public class JobInExecutingAssembly
         {
-            public void Run() { }
         }
 
         [TestMethod]
