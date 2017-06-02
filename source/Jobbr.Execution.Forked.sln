@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26403.3
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Server.ForkedExecution", "Jobbr.Server.ForkedExecution\Jobbr.Server.ForkedExecution.csproj", "{9B30197B-7ABF-4C74-9733-6F4594683761}"
 EndProject
@@ -28,6 +28,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Runtime.Core", "Jobbr.Runtime.Core\Jobbr.Runtime.Core.csproj", "{49F0F696-79A5-4DCB-A243-6E02DDB973DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Runtime.ForkedExecution", "Jobbr.Runtime.ForkedExecution\Jobbr.Runtime.ForkedExecution.csproj", "{446271F7-7880-4C71-8871-2082FB90CE86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Runtime.Core.Tests", "Jobbr.Runtime.Core.Tests\Jobbr.Runtime.Core.Tests.csproj", "{76C57A7D-8FAC-4C45-A49C-F8B5AB8EF4D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,10 @@ Global
 		{446271F7-7880-4C71-8871-2082FB90CE86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{446271F7-7880-4C71-8871-2082FB90CE86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{446271F7-7880-4C71-8871-2082FB90CE86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76C57A7D-8FAC-4C45-A49C-F8B5AB8EF4D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76C57A7D-8FAC-4C45-A49C-F8B5AB8EF4D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76C57A7D-8FAC-4C45-A49C-F8B5AB8EF4D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76C57A7D-8FAC-4C45-A49C-F8B5AB8EF4D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
