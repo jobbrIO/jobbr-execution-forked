@@ -154,7 +154,7 @@ namespace Jobbr.Runtime.Core.Tests
 
             RunCallBackTestJob.Reset();
 
-            Assert.AreEqual(executingThreadPrincipal, Thread.CurrentPrincipal);
+            Assert.AreEqual(executingThreadPrincipal.Identity, Thread.CurrentPrincipal.Identity);
         }
 
         [TestMethod]
