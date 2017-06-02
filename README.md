@@ -1,5 +1,5 @@
 # Jobbr Forked Process Execution [![Develop build status][execution-forked-badge-build-develop]][execution-forked-link-build]
-An altertative execution model that starts new processes and executes jobs in these different processes to increase stability.
+An alternative execution model that starts new processes and executes jobs in these different processes to increase stability.
 
 [![Master build status][execution-forked-badge-build-master]][execution-forked-link-build] 
 [![NuGet-Stable (Server)][execution-forked-server-badge-nuget]][execution-forked-server-link-nuget]
@@ -64,7 +64,7 @@ In your Main() method, make sure you instantiate a new JobbrRuntime and pass all
 
 ```c#
 using Demo.MyJobs;
-using Jobbr.Runtime.ForkedExecution.Logging;
+using Jobbr.Runtime.Logging;
 using Jobbr.Runtime.ForkedExecution;
 
 // ...
