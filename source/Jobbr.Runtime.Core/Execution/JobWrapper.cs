@@ -1,6 +1,6 @@
 using System;
+using System.Security.Principal;
 using System.Threading;
-using System.Threading.Tasks;
 using Jobbr.Runtime.Logging;
 
 namespace Jobbr.Runtime.Core.Execution
@@ -9,32 +9,46 @@ namespace Jobbr.Runtime.Core.Execution
     {
         private static readonly ILog Logger = LogProvider.For<JobWrapper>();
 
-        private readonly Task task;
+        private readonly Thread thread;
 
-        internal JobWrapper(Action action)
+        internal JobWrapper(Action action, UserContext runtimeContext)
         {
-            this.task = new Task(action);
+            this.thread = new Thread(() =>
+            {
+                var previousPrincipal = Thread.CurrentPrincipal;
+
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(runtimeContext.UserId))
+                    {
+                        Thread.CurrentPrincipal = new GenericPrincipal(new GenericIdentity(runtimeContext.UserId, "JobbrIdentity"), new string[0]);
+                    }
+
+                    action();
+                }
+                catch (Exception e)
+                {
+                    this.Exception = e;
+                }
+                finally
+                {
+                    Thread.CurrentPrincipal = previousPrincipal;
+                }
+            });
         }
 
         internal void Start()
         {
-            this.task.Start();
-        }
-
-        internal void Wait(CancellationToken token)
-        {
-            this.task.Wait(token);
+            this.thread.Start();
         }
 
         public Exception Exception { get; private set; }
 
         internal bool WaitForCompletion()
         {
-            var cancellationTokenSource = new CancellationTokenSource();
-
             try
             {
-                this.Wait(cancellationTokenSource.Token);
+                this.thread.Join();
             }
             catch (Exception e)
             {
@@ -43,10 +57,9 @@ namespace Jobbr.Runtime.Core.Execution
                 return false;
             }
 
-            if (this.task.IsFaulted)
+            if (this.Exception != null)
             {
-                this.Exception = this.task.Exception;
-                Logger.ErrorException("The execution of the job has faulted. See Exception for details.", this.task.Exception);
+                Logger.ErrorException("The execution of the job has faulted. See Exception for details.", this.Exception);
                 return false;
             }
 

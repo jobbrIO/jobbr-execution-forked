@@ -46,7 +46,7 @@ namespace Jobbr.Runtime.Core.Execution
             return castedValue;
         }
 
-        internal JobWrapper CreateWrapper(object jobClassInstance)
+        internal JobWrapper CreateWrapper(object jobClassInstance, UserContext runtimeContext)
         {
             var runMethods = this.jobType.GetMethods().Where(m => string.Equals(m.Name, "Run", StringComparison.Ordinal) && m.IsPublic).ToList();
 
@@ -103,7 +103,7 @@ namespace Jobbr.Runtime.Core.Execution
 
             Logger.Debug("Initializing task for JobRun");
 
-            return new JobWrapper(runMethodWrapper);
+            return new JobWrapper(runMethodWrapper, runtimeContext);
         }
     }
 }

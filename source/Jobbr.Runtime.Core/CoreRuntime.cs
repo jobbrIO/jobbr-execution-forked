@@ -60,13 +60,22 @@ namespace Jobbr.Runtime.Core
 
                 var jobTypeName = executionMetadata.JobType;
 
-                // Register additional dependencies in the DI if available and activate
-                Logger.Debug($"Trying to register additional dependencies if supported.");
-                var runtimeContext = new RuntimeContext
+                var userContext = new UserContext()
                 {
                     UserId = executionMetadata.UserId,
                     UserDisplayName = executionMetadata.UserDisplayName
                 };
+
+                // Register userContext as RuntimeContext in the DI if available
+                Logger.Debug($"Trying to register additional dependencies if supported.");
+                
+                #pragma warning disable 618
+                var runtimeContext = new RuntimeContext
+                {
+                    UserId = userContext.UserId,
+                    UserDisplayName = userContext.UserDisplayName
+                };
+                #pragma warning restore 618
 
                 this.jobActivator.AddDependencies(runtimeContext);
 
@@ -87,7 +96,7 @@ namespace Jobbr.Runtime.Core
                 this.OnWiringMethod();
 
                 var runWrapperFactory = new RunWrapperFactory(jobClassInstance.GetType(), executionMetadata.JobParameter, executionMetadata.InstanceParameter);
-                var wrapper = runWrapperFactory.CreateWrapper(jobClassInstance);
+                var wrapper = runWrapperFactory.CreateWrapper(jobClassInstance, userContext);
 
                 if (wrapper == null)
                 {

@@ -57,6 +57,7 @@
     <Compile Include="RuntimeContext.cs" />
     <Compile Include="Activation\JobTypeResolver.cs" />
     <Compile Include="Execution\RunWrapperFactory.cs" />
+    <Compile Include="UserContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
