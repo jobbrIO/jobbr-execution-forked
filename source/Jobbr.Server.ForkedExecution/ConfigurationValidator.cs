@@ -47,14 +47,12 @@ namespace Jobbr.Server.ForkedExecution
                 throw new ArgumentException("You should set a runner-Executable which runs your jobs later!");
             }
 
-            // TODO: Move this check to forked executor
-            // TODO: Discuss why this check was commented out.
-            ////var executableFullPath = Path.GetFullPath(this.configuration.JobRunnerExeResolver());
+            var executableFullPath = Path.GetFullPath(config.JobRunnerExecutable);
 
-            ////if (!File.Exists(executableFullPath))
-            ////{
-            ////    throw new ArgumentException(string.Format("The RunnerExecutable '{0}' cannot be found!", executableFullPath));
-            ////}
+            if (!File.Exists(executableFullPath))
+            {
+                throw new ArgumentException($"The RunnerExecutable '{executableFullPath}' cannot be found!");
+            }
 
             return true;
         }
