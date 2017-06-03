@@ -24,8 +24,6 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             this.configuration = configuration;
         }
 
-        public string BackendAddress { get; private set; }
-
         public void Dispose()
         {
             this.Dispose(true);
@@ -54,7 +52,6 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             this.webHost = hostingStarter.Start(options);
 
             Logger.Info($"Started OWIN-Host for Backchannel at '{this.configuration.BackendAddress}'.");
-            this.BackendAddress = this.configuration.BackendAddress;
         }
 
         public void Stop()
