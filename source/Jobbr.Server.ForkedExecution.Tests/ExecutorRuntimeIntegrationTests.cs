@@ -64,6 +64,32 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
+        public void PlannedJob_AfterStart_PidIsSet()
+        {
+            var config = GivenAMinimalConfiguration();
+            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+
+            this.GivenAStartedBackChannelHost(config);
+            var executor = this.GivenAStartedExecutor(config);
+
+            var fakeRun = this.jobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
+
+            // Act
+            this.manualTimeProvider.AddSecond();
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
+
+            var hasConnected = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Connected), 3000);
+
+            Assert.IsTrue(hasConnected, "The runner executable should connect within 1s");
+
+            var hasPid = this.storedProgressUpdates.AllPids.ContainsKey(fakeRun.Id);
+
+            Assert.IsTrue(hasPid, "There should be a Pid stored for this jobRun");
+            Assert.IsTrue(this.storedProgressUpdates.AllPids[fakeRun.Id].First().Item2 > 0);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(this.storedProgressUpdates.AllPids[fakeRun.Id].First().Item1));
+        }
+
+        [TestMethod]
         public void PlannedJob_AfterStarting_FoldersExist()
         {
             // Setup

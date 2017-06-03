@@ -18,6 +18,8 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         private readonly Dictionary<long, List<string>> jobRunArtefactUploads = new Dictionary<long, List<string>>();
 
+        private readonly Dictionary<long, List<Tuple<string, long>>> jobRunPids = new Dictionary<long, List<Tuple<string, long>>>();
+
         private readonly Dictionary<Func<Dictionary<long, List<JobRunStates>>, bool>, AutoResetEvent> statusUpdateWaitCallBacks = new Dictionary<Func<Dictionary<long, List<JobRunStates>>, bool>, AutoResetEvent>();
 
         private readonly Dictionary<Func<Dictionary<long, List<double>>, bool>, AutoResetEvent> progressUpdateWaitCallBacks = new Dictionary<Func<Dictionary<long, List<double>>, bool>, AutoResetEvent>();
@@ -27,6 +29,8 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         public Dictionary<long, List<double>> AllProgressUpdates => this.jobRunProgressUpdates;
 
         public Dictionary<long, List<string>> AllUploadedArtefacts => this.jobRunArtefactUploads;
+
+        public Dictionary<long, List<Tuple<string, long>>> AllPids => this.jobRunPids;
 
         public void PublishStatusUpdate(long jobRunId, JobRunStates state)
         {
@@ -67,7 +71,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
                     return true;
                 }
             }
-            catch { }
+            catch
+            {
+            }
 
             var are = new AutoResetEvent(false);
 
@@ -89,7 +95,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
                     return true;
                 }
             }
-            catch { }
+            catch
+            {
+            }
 
             var are = new AutoResetEvent(false);
 
@@ -123,6 +131,12 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public void PublishPid(long jobRunId, int pid, string host)
         {
+            if (!this.jobRunPids.ContainsKey(jobRunId))
+            {
+                this.jobRunPids.Add(jobRunId, new List<Tuple<string, long>>());
+            }
+
+            this.jobRunPids[jobRunId].Add(new Tuple<string, long>(host, pid));
         }
     }
 }
