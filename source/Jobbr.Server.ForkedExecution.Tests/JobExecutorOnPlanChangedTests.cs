@@ -24,10 +24,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeJobRun.PlannedJobRun, }));
 
             // Wait
-            this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun.Id].Contains(JobRunStates.Starting), 3000);
+            this.ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun.Id].Contains(JobRunStates.Starting), 3000);
 
             // Test
-            var allStatesForJob = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun.Id];
+            var allStatesForJob = this.ProgressChannelStore.AllStatusUpdates[fakeJobRun.Id];
 
             Assert.AreEqual(1, allStatesForJob.Count, "There should be two transitions instead of a timeout");
             Assert.AreEqual(JobRunStates.Starting, allStatesForJob[0], "The Mock should have issued the state 'Starting'");
@@ -49,12 +49,12 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Wait for 3 Jobs with at least 2 updates each
-            this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 3 && updatesFromAllJobs.All(kvp => kvp.Value.Contains(JobRunStates.Starting)), 3000);
+            this.ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 3 && updatesFromAllJobs.All(kvp => kvp.Value.Contains(JobRunStates.Starting)), 3000);
 
             // Test
-            var allStatesForJob1 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun1.Id];
-            var allStatesForJob2 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun2.Id];
-            var allStatesForJob3 = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun3.Id];
+            var allStatesForJob1 = this.ProgressChannelStore.AllStatusUpdates[fakeJobRun1.Id];
+            var allStatesForJob2 = this.ProgressChannelStore.AllStatusUpdates[fakeJobRun2.Id];
+            var allStatesForJob3 = this.ProgressChannelStore.AllStatusUpdates[fakeJobRun3.Id];
 
             Assert.AreEqual(3, this.jobRunContextMockFactory.Count, "The factory should have created only the requested amount of contexts");
             Assert.AreEqual(JobRunStates.Starting, allStatesForJob1[0], "The first state of job1 should be 'Starting'");
@@ -81,10 +81,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun }));
 
             // Wait
-            var didStart2Jobs = this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 2 && updatesFromAllJobs.All(kvp => kvp.Value.Contains(JobRunStates.Starting)), 5000);
+            var didStart2Jobs = this.ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 2 && updatesFromAllJobs.All(kvp => kvp.Value.Contains(JobRunStates.Starting)), 5000);
 
             // Test
-            var statesPerJobRun = string.Join("\n", this.storedProgressUpdates.AllStatusUpdates.Select(u => $"- JobRun #{u.Key}, States: {string.Join(",", u.Value)}"));
+            var statesPerJobRun = string.Join("\n", this.ProgressChannelStore.AllStatusUpdates.Select(u => $"- JobRun #{u.Key}, States: {string.Join(",", u.Value)}"));
             Assert.IsTrue(didStart2Jobs, "There should be two jobs that have been started after 3s instead the following states:\n\n" + statesPerJobRun);
         }
 
@@ -110,7 +110,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { updatedJobRun1 }));
 
             // Wait
-            var didStartJob = this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun1.Id].Contains(JobRunStates.Starting), 3000);
+            var didStartJob = this.ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun1.Id].Contains(JobRunStates.Starting), 3000);
 
             // Test
             Assert.IsTrue(didStartJob, "A job should have been starting.");
@@ -137,7 +137,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.periodicTimerMock.CallbackOnce();
 
             // Wait
-            var didStartJob = this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun1.Id].Contains(JobRunStates.Starting), 3000);
+            var didStartJob = this.ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun1.Id].Contains(JobRunStates.Starting), 3000);
 
             // Test
             Assert.IsTrue(didStartJob, "A job should have been starting.");
@@ -166,10 +166,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Wait
-            this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun1.Id].Count + updatesFromAllJobs[fakeJobRun2.Id].Count == 2, 3000);
+            this.ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun1.Id].Count + updatesFromAllJobs[fakeJobRun2.Id].Count == 2, 3000);
 
             // Test
-            Assert.IsFalse(this.storedProgressUpdates.AllStatusUpdates.ContainsKey(fakeJobRun3.Id), "There should be no updates for the third job");
+            Assert.IsFalse(this.ProgressChannelStore.AllStatusUpdates.ContainsKey(fakeJobRun3.Id), "There should be no updates for the third job");
         }
 
         [TestMethod]
@@ -201,7 +201,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.periodicTimerMock.CallbackOnce();
 
             // Wait (optional)
-            this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 3, 3000);
+            this.ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 3, 3000);
 
             // Test
             Assert.AreEqual(3, this.jobRunContextMockFactory.Count, "The third job should have been started after the first one has ended");

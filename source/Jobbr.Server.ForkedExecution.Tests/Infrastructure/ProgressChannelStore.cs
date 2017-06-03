@@ -10,7 +10,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
     /// <summary>
     /// Acts as a IJobRunProgressChannel but stores all updates internally, with the option to wait for Given conditions to happen.
     /// </summary>
-    public class JobRunProgressUpdateStore : IJobRunProgressChannel
+    public class ProgressChannelStore : IJobRunProgressChannel
     {
         private readonly Dictionary<long, List<JobRunStates>> jobRunStatusUpdates = new Dictionary<long, List<JobRunStates>>();
 

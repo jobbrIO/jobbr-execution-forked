@@ -5,8 +5,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 {
     public class TestBase
     {
+        protected ProgressChannelStore ProgressChannelStore;
+
         protected FakeGeneratedJobRunsStore jobRunFakeTuples;
-        protected JobRunProgressUpdateStore storedProgressUpdates;
         protected JobRunInfoServiceMock jobRunInformationService;
         protected PeriodicTimerMock periodicTimerMock;
         protected ManualTimeProvider manualTimeProvider;
@@ -15,7 +16,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         public TestBase()
         {
             this.jobRunFakeTuples = new FakeGeneratedJobRunsStore();
-            this.storedProgressUpdates = new JobRunProgressUpdateStore();
+            this.ProgressChannelStore = new ProgressChannelStore();
             this.jobRunInformationService = new JobRunInfoServiceMock(this.jobRunFakeTuples);
         }
 
@@ -34,12 +35,12 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         protected ForkedJobExecutor GivenAMockedExecutor(ForkedExecutionConfiguration forkedExecutionConfiguration)
         {
-            this.jobRunContextMockFactory = new JobRunContextMockFactory(this.storedProgressUpdates);
+            this.jobRunContextMockFactory = new JobRunContextMockFactory(this.ProgressChannelStore);
 
             this.periodicTimerMock = new PeriodicTimerMock();
             this.manualTimeProvider = new ManualTimeProvider();
 
-            var executor = new ForkedJobExecutor(this.jobRunContextMockFactory, this.jobRunInformationService, this.storedProgressUpdates, this.periodicTimerMock, this.manualTimeProvider, forkedExecutionConfiguration);
+            var executor = new ForkedJobExecutor(this.jobRunContextMockFactory, this.jobRunInformationService, this.ProgressChannelStore, this.periodicTimerMock, this.manualTimeProvider, forkedExecutionConfiguration);
 
             return executor;
         }
@@ -49,9 +50,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             this.periodicTimerMock = new PeriodicTimerMock();
             this.manualTimeProvider = new ManualTimeProvider();
 
-            var jobRunContextFactory = new JobRunContextFactory(forkedExecutionConfiguration, this.storedProgressUpdates);
+            var jobRunContextFactory = new JobRunContextFactory(forkedExecutionConfiguration, this.ProgressChannelStore);
 
-            var executor = new ForkedJobExecutor(jobRunContextFactory,  this.jobRunInformationService, this.storedProgressUpdates, this.periodicTimerMock, this.manualTimeProvider, forkedExecutionConfiguration);
+            var executor = new ForkedJobExecutor(jobRunContextFactory,  this.jobRunInformationService, this.ProgressChannelStore, this.periodicTimerMock, this.manualTimeProvider, forkedExecutionConfiguration);
 
             executor.Start();
 

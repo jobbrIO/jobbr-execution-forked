@@ -8,19 +8,19 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
     public class JobbrServiceProviderMock : IJobbrServiceProvider
     {
         private readonly JobRunInfoServiceMock jobRunInformationService;
-        private readonly JobRunProgressUpdateStore storedProgressUpdates;
+        private readonly ProgressChannelStore progressChannelStore;
 
-        public JobbrServiceProviderMock(JobRunInfoServiceMock jobRunInformationService, JobRunProgressUpdateStore storedProgressUpdates)
+        public JobbrServiceProviderMock(JobRunInfoServiceMock jobRunInformationService, ProgressChannelStore progressChannelStore)
         {
             this.jobRunInformationService = jobRunInformationService;
-            this.storedProgressUpdates = storedProgressUpdates;
+            this.progressChannelStore = progressChannelStore;
         }
 
         public object GetService(Type serviceType)
         {
             if (serviceType == typeof(ForkedExecutionController))
             {
-                return new ForkedExecutionController(this.jobRunInformationService, this.storedProgressUpdates);
+                return new ForkedExecutionController(this.jobRunInformationService, this.progressChannelStore);
             }
 
             return null;

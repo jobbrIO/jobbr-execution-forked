@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Jobbr.Server.Builder;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,7 +15,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
     {
         private readonly string configBackendAddress;
         private FakeGeneratedJobRunsStore fakeStore = new FakeGeneratedJobRunsStore();
-        private JobRunProgressUpdateStore updateFakeStore = new JobRunProgressUpdateStore();
+        private ProgressChannelStore channelFakeStore = new ProgressChannelStore();
 
         public EndpointTests()
         {
@@ -53,7 +52,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var statusResponse = this.Put("/fex/jobrun/" + createdJobRun.Id, new { State = "Started" });
 
             Assert.AreEqual(HttpStatusCode.Accepted, statusResponse.StatusCode);
-            Assert.AreEqual(1, this.updateFakeStore.AllStatusUpdates.SelectMany(u => u.Value).Count(), "There should be one single update");
+            Assert.AreEqual(1, this.channelFakeStore.AllStatusUpdates.SelectMany(u => u.Value).Count(), "There should be one single update");
         }
 
         [TestMethod]
@@ -85,7 +84,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var statusResponse = this.SendImage("/fex/jobrun/" + createdJobRun.Id + "/artefacts", new MemoryStream());
 
             Assert.AreEqual(HttpStatusCode.Accepted, statusResponse.StatusCode);
-            Assert.AreEqual(1, this.updateFakeStore.AllUploadedArtefacts.SelectMany(a => a.Value).Count());
+            Assert.AreEqual(1, this.channelFakeStore.AllUploadedArtefacts.SelectMany(a => a.Value).Count());
         }
 
         [TestMethod]
@@ -127,7 +126,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 BackendAddress = this.configBackendAddress
             };
 
-            var webHost = new BackChannelWebHost(new JobbrServiceProviderMock(new JobRunInfoServiceMock(this.fakeStore), this.updateFakeStore), config);
+            var webHost = new BackChannelWebHost(new JobbrServiceProviderMock(new JobRunInfoServiceMock(this.fakeStore), this.channelFakeStore), config);
 
             webHost.Start();
         }

@@ -22,7 +22,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             new ConfigurationValidator().Validate(config);
 
-            var backChannelHost = new BackChannelWebHost(new JobbrServiceProviderMock(this.jobRunInformationService, this.storedProgressUpdates), config);
+            var backChannelHost = new BackChannelWebHost(new JobbrServiceProviderMock(this.jobRunInformationService, this.ProgressChannelStore), config);
             backChannelHost.Start();
         }
 
@@ -55,12 +55,12 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasConnected = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Connected), 3000);
+            var hasConnected = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Connected), 3000);
 
             Assert.IsTrue(hasConnected, "The runner executable should connect within 1s");
 
             // Tearddown: Wait for Failing or Completed state to that the executable is able to exit
-            this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed) || allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 10000);
+            this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed) || allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 10000);
         }
 
         [TestMethod]
@@ -78,15 +78,15 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            var hasConnected = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Connected), 3000);
+            var hasConnected = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Connected), 3000);
 
             Assert.IsTrue(hasConnected, "The runner executable should connect within 1s");
 
-            var hasPid = this.storedProgressUpdates.AllPids.ContainsKey(fakeRun.Id);
+            var hasPid = this.ProgressChannelStore.AllPids.ContainsKey(fakeRun.Id);
 
             Assert.IsTrue(hasPid, "There should be a Pid stored for this jobRun");
-            Assert.IsTrue(this.storedProgressUpdates.AllPids[fakeRun.Id].First().Item2 > 0);
-            Assert.IsFalse(string.IsNullOrWhiteSpace(this.storedProgressUpdates.AllPids[fakeRun.Id].First().Item1));
+            Assert.IsTrue(this.ProgressChannelStore.AllPids[fakeRun.Id].First().Item2 > 0);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(this.ProgressChannelStore.AllPids[fakeRun.Id].First().Item1));
         }
 
         [TestMethod]
@@ -108,7 +108,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Wait
-            var hasStarted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Starting), 3000);
+            var hasStarted = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Starting), 3000);
 
             Assert.IsTrue(hasStarted, "The runner executable should have started, but did not within 3s");
 
@@ -135,10 +135,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 3000);
+            var hasCompleted = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should fail, but did not within 3s");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Failed), "There should be a failed state for this jobRun");
+            Assert.IsTrue(this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Failed), "There should be a failed state for this jobRun");
         }
 
         [TestMethod]
@@ -159,10 +159,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+            var hasCompleted = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "There should be a completed state for this jobRun");
+            Assert.IsTrue(this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "There should be a completed state for this jobRun");
         }
 
         [TestMethod]
@@ -183,10 +183,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+            var hasCompleted = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should complete, but did not within 3s");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "There should be a completed state for this jobRun");
+            Assert.IsTrue(this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "There should be a completed state for this jobRun");
         }
 
         [TestMethod]
@@ -207,10 +207,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+            var hasCompleted = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
-            Assert.IsTrue(this.storedProgressUpdates.AllUploadedArtefacts[fakeRun.Id].Any(), "It should contain at least one file!");
+            Assert.IsTrue(this.ProgressChannelStore.AllUploadedArtefacts[fakeRun.Id].Any(), "It should contain at least one file!");
         }
 
         [TestMethod]
@@ -230,14 +230,14 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            this.storedProgressUpdates.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+            this.ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Connected), "It should contain the Connected state");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Initializing), "It should contain the Initializing state");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Processing), "It should contain the Processing state");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Finishing), "It should contain the Finishing state");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Collecting), "It should contain the Collecting state");
-            Assert.IsTrue(this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "It should contain the Completed state");
+            Assert.IsTrue(this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Connected), "It should contain the Connected state");
+            Assert.IsTrue(this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Initializing), "It should contain the Initializing state");
+            Assert.IsTrue(this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Processing), "It should contain the Processing state");
+            Assert.IsTrue(this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Finishing), "It should contain the Finishing state");
+            Assert.IsTrue(this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Collecting), "It should contain the Collecting state");
+            Assert.IsTrue(this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Completed), "It should contain the Completed state");
         }
 
         [TestMethod]
@@ -257,9 +257,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.manualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            this.storedProgressUpdates.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), 3000);
+            this.ProgressChannelStore.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), 3000);
 
-            Assert.IsTrue(this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), "The runner executable should have send one progress update");
+            Assert.IsTrue(this.ProgressChannelStore.AllProgressUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), "The runner executable should have send one progress update");
         }
 
         [TestMethod]
@@ -280,14 +280,14 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+            var hasCompleted = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
-            this.storedProgressUpdates.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Count == 2, 3000);
+            this.ProgressChannelStore.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Count == 2, 3000);
 
-            Assert.AreEqual(2, this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id].Count, "Got: [" + string.Join(", ", this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id]) + "]");
-            Assert.AreEqual(JobRunStates.Completed, this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Last(), "The job did not complete");
-            Assert.AreEqual(100, this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id][1], "It should have announced 100% completion after successful exit");
+            Assert.AreEqual(2, this.ProgressChannelStore.AllProgressUpdates[fakeRun.Id].Count, "Got: [" + string.Join(", ", this.ProgressChannelStore.AllProgressUpdates[fakeRun.Id]) + "]");
+            Assert.AreEqual(JobRunStates.Completed, this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Last(), "The job did not complete");
+            Assert.AreEqual(100, this.ProgressChannelStore.AllProgressUpdates[fakeRun.Id][1], "It should have announced 100% completion after successful exit");
         }
 
         [TestMethod]
@@ -309,15 +309,15 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Test
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 3000);
+            var hasCompleted = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should have failed in the meantime, but did not within 3s");
 
-            this.storedProgressUpdates.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), 3000);
+            this.ProgressChannelStore.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), 3000);
 
-            Assert.IsTrue(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeRun.Id), "There should be any progress update");
-            Assert.AreEqual(1, this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id].Count, "Got: [" + string.Join(", ", this.storedProgressUpdates.AllProgressUpdates[fakeRun.Id]) + "]");
-            Assert.AreEqual(JobRunStates.Failed, this.storedProgressUpdates.AllStatusUpdates[fakeRun.Id].Last(), "The job did not complete");
+            Assert.IsTrue(this.ProgressChannelStore.AllProgressUpdates.ContainsKey(fakeRun.Id), "There should be any progress update");
+            Assert.AreEqual(1, this.ProgressChannelStore.AllProgressUpdates[fakeRun.Id].Count, "Got: [" + string.Join(", ", this.ProgressChannelStore.AllProgressUpdates[fakeRun.Id]) + "]");
+            Assert.AreEqual(JobRunStates.Failed, this.ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Last(), "The job did not complete");
         }
 
         [TestMethod]
@@ -342,7 +342,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Wait until process has exited
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+            var hasCompleted = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The Echo Executable did not complete withing the timeout");
             Assert.IsTrue(Directory.Exists(expectedWorkdir), "The run\\work directory should exist");
@@ -375,7 +375,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Wait until process has exited
-            var hasCompleted = this.storedProgressUpdates.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
+            var hasCompleted = this.ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The Echo Executable did not complete withing the timeout");
             Assert.IsTrue(Directory.Exists(expectedWorkdir), "The run\\work directory should exist");

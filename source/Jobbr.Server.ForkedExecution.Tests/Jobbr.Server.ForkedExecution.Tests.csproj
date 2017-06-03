@@ -106,7 +106,7 @@
     <Compile Include="Infrastructure\PeriodicTimerMock.cs" />
     <Compile Include="JobExecutorOnPlanChangedTests.cs" />
     <Compile Include="Infrastructure\JobRunInfoServiceMock.cs" />
-    <Compile Include="Infrastructure\JobRunProgressUpdateStore.cs" />
+    <Compile Include="Infrastructure\ProgressChannelStore.cs" />
     <Compile Include="JobRunCompletedTests.cs" />
     <Compile Include="ServerRegistrationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

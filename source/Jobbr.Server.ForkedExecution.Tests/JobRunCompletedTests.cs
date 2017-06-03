@@ -25,7 +25,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.jobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(-3683737);
 
             // Test
-            var allStatesForJob = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun.Id];
+            var allStatesForJob = this.ProgressChannelStore.AllStatusUpdates[fakeJobRun.Id];
 
             Assert.AreEqual(2, allStatesForJob.Count, "There should be two transitions instead of a timeout");
             Assert.AreEqual(JobRunStates.Failed, allStatesForJob[1], "The Mock should have issued the state 'Starting'");
@@ -47,7 +47,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.jobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(0);
 
             // Test
-            var allStatesForJob = this.storedProgressUpdates.AllStatusUpdates[fakeJobRun.Id];
+            var allStatesForJob = this.ProgressChannelStore.AllStatusUpdates[fakeJobRun.Id];
 
             Assert.AreEqual(2, allStatesForJob.Count, "There should be two transitions instead of a timeout");
             Assert.AreEqual(JobRunStates.Completed, allStatesForJob[1], "The Mock should have issued the state 'Starting'");
@@ -71,8 +71,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.jobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(0);
 
             // Test
-            Assert.AreEqual(2, this.storedProgressUpdates.AllProgressUpdates[fakeJobRun.Id].Count, "There should be the explicit progress update and the one at the end.");
-            Assert.AreEqual(100, this.storedProgressUpdates.AllProgressUpdates[fakeJobRun.Id][1], "There should be a 100% message if the job has ended without error code");
+            Assert.AreEqual(2, this.ProgressChannelStore.AllProgressUpdates[fakeJobRun.Id].Count, "There should be the explicit progress update and the one at the end.");
+            Assert.AreEqual(100, this.ProgressChannelStore.AllProgressUpdates[fakeJobRun.Id][1], "There should be a 100% message if the job has ended without error code");
         }
 
         [TestMethod]
@@ -92,8 +92,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.jobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(-2564);
 
             // Test
-            Assert.AreEqual(1, this.storedProgressUpdates.AllProgressUpdates[fakeJobRun.Id].Count, "There should be only one progress change");
-            Assert.AreEqual(54, this.storedProgressUpdates.AllProgressUpdates[fakeJobRun.Id][0], "There should be a 100% message if the job has ended without error code");
+            Assert.AreEqual(1, this.ProgressChannelStore.AllProgressUpdates[fakeJobRun.Id].Count, "There should be only one progress change");
+            Assert.AreEqual(54, this.ProgressChannelStore.AllProgressUpdates[fakeJobRun.Id][0], "There should be a 100% message if the job has ended without error code");
         }
 
         [TestMethod]
@@ -112,7 +112,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.jobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(0);
 
             // Test
-            Assert.IsFalse(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeJobRun.Id), "Not expecting any progress updates for this job");
+            Assert.IsFalse(this.ProgressChannelStore.AllProgressUpdates.ContainsKey(fakeJobRun.Id), "Not expecting any progress updates for this job");
         }
 
         [TestMethod]
@@ -131,7 +131,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             this.jobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(-2564);
 
             // Test
-            Assert.IsFalse(this.storedProgressUpdates.AllProgressUpdates.ContainsKey(fakeJobRun.Id), "Not expecting any progress updates for this job");
+            Assert.IsFalse(this.ProgressChannelStore.AllProgressUpdates.ContainsKey(fakeJobRun.Id), "Not expecting any progress updates for this job");
         }
     }
 }
