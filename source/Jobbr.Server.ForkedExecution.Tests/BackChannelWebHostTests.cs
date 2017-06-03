@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
+using System.Reflection;
 using System.Threading.Tasks;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
@@ -93,5 +95,26 @@ namespace Jobbr.Server.ForkedExecution.Tests
             host.Start();
             host.Start();
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(HttpListenerException))]
+        public void BackChannel_PortInUse_RaisesException()
+        {
+            var nextFreeTcpPort = TcpPortHelper.NextFreeTcpPort();
+
+            // intentionally block port
+            new TcpListener(IPAddress.Any, nextFreeTcpPort).Start();
+
+
+            var forkedExecutionConfiguration = new ForkedExecutionConfiguration
+            {
+                BackendAddress = "http://localhost:" + nextFreeTcpPort
+            };
+
+            var host = new BackChannelWebHost(new JobbrServiceProviderMock(null, null), forkedExecutionConfiguration);
+
+            host.Start();
+        }
+
     }
 }
