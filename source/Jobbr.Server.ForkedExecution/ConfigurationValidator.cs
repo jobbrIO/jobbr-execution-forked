@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using Jobbr.ComponentModel.Registration;
@@ -33,6 +34,12 @@ namespace Jobbr.Server.ForkedExecution
             if (string.IsNullOrEmpty(config.JobRunDirectory))
             {
                 throw new ArgumentException("Please provide a JobRunDirectory!");
+            }
+
+            var jobRunDirectoryPath = Path.GetFullPath(config.JobRunDirectory);
+            if (!Directory.Exists(jobRunDirectoryPath))
+            {
+                throw new ArgumentException($"The Directory '{jobRunDirectoryPath}' cannot be found!");
             }
 
             if (string.IsNullOrWhiteSpace(config.JobRunnerExecutable))
