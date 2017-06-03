@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Reflection;
 using Jobbr.ComponentModel.Registration;
 using Jobbr.Server.ForkedExecution.Logging;
 using Microsoft.Owin.Hosting;
@@ -49,7 +51,20 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             services.Add(typeof(IJobbrServiceProvider), () => this.jobbrServiceProvider);
 
             var hostingStarter = services.GetService<IHostingStarter>();
-            this.webHost = hostingStarter.Start(options);
+
+            try
+            {
+                this.webHost = hostingStarter.Start(options);
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException is HttpListenerException)
+                {
+                    throw e.InnerException;
+                }
+
+                throw;
+            }
 
             Logger.Info($"Started OWIN-Host for Backchannel at '{this.configuration.BackendAddress}'.");
         }
