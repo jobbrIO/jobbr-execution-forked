@@ -39,7 +39,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var nextFreeTcpPort = TcpPortHelper.NextFreeTcpPort();
 
             // intentionally block port
-            new TcpListener(IPAddress.Any, nextFreeTcpPort).Start();
+            var listener = new TcpListener(IPAddress.Any, nextFreeTcpPort);
+            listener.Start();
 
             var backendAddress = "http://localhost:" + nextFreeTcpPort;
 
@@ -52,11 +53,16 @@ namespace Jobbr.Server.ForkedExecution.Tests
             });
 
             var server = builder.Create();
+            try
+            {
+                server.Start();
+            }
+            catch
+            {
+                // ignored
+            }
 
-            var isStarted = server.Start();
-            var state = server.State;
-
-            Assert.IsFalse(isStarted);
+            Assert.AreEqual(JobbrState.Error, server.State, "The server should be in error state if a component didn't start");
         }
     }
 }
