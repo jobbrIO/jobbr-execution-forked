@@ -325,6 +325,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+            Directory.CreateDirectory(tempDir);
 
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
@@ -358,6 +359,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+            Directory.CreateDirectory(tempDir);
 
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
