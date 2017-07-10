@@ -7,65 +7,39 @@ namespace Jobbr.Server.ForkedExecution.Tests
     [TestClass]
     public class PackagingTests
     {
-        private readonly Asserter featureAsserter = new Asserter(Asserter.ResolvePackagesConfig("Jobbr.Server.ForkedExecution"), Asserter.ResolveRootFile("Jobbr.Execution.Forked.nuspec"));
-        private readonly Asserter runtimeAssetrer = new Asserter(Asserter.ResolvePackagesConfig("Jobbr.Runtime.ForkedExecution"), Asserter.ResolveRootFile("Jobbr.Runtime.ForkedExecution.nuspec"));
-
         private readonly bool isPre = Assembly.GetExecutingAssembly().GetInformalVersion().Contains("-");
 
         [TestMethod]
-        public void ExecutionFeature_KnownReferences_AreDeclared()
+        public void Feature_NuSpec_IsCompilant()
         {
-            this.featureAsserter.Add(new PackageExistsInBothRule("Jobbr.ComponentModel.Registration"));
-            this.featureAsserter.Add(new PackageExistsInBothRule("Jobbr.ComponentModel.Execution"));
+            var asserter = new Asserter(Asserter.ResolvePackagesConfig("Jobbr.Server.ForkedExecution"), Asserter.ResolveRootFile("Jobbr.Execution.Forked.nuspec"));
 
-            var result = this.featureAsserter.Validate();
+            asserter.Add(new PackageExistsInBothRule("Jobbr.ComponentModel.Registration"));
+            asserter.Add(new PackageExistsInBothRule("Jobbr.ComponentModel.Execution"));
 
-            Assert.IsTrue(result.IsSuccessful, result.Message);
-        }
-
-        [TestMethod]
-        public void ExecutionFeature_PreComponentModelsPre_ExactSameVersions()
-        {
-            if (!this.isPre)
+            if (this.isPre)
             {
                 // This rule is only valid for Pre-Release versions because we only need exact match on PreRelease Versions
-                return;
+                asserter.Add(new ExactVersionMatchRule("Jobbr.ComponentModel.*"));
             }
 
-            this.featureAsserter.Add(new ExactVersionMatchRule("Jobbr.ComponentModel.*"));
+            asserter.Add(new VersionIsIncludedInRange("Jobbr.ComponentModel.*"));
 
-            var result = this.featureAsserter.Validate();
+            asserter.Add(new NoMajorChangesInNuSpec("Jobbr.*"));
+            asserter.Add(new NoMajorChangesInNuSpec("Microsoft.*"));
 
-            Assert.IsTrue(result.IsSuccessful, result.Message);
-        }
-
-        [TestMethod]
-        public void ExecutionFeature_ComponentModels_InRange()
-        {
-            this.featureAsserter.Add(new VersionIsIncludedInRange("Jobbr.ComponentModel.*"));
-
-            var result = this.featureAsserter.Validate();
+            var result = asserter.Validate();
 
             Assert.IsTrue(result.IsSuccessful, result.Message);
         }
 
         [TestMethod]
-        public void ExecutionFeature_AllDependencies_NoMajorVersionChangeAllowed()
+        public void Runtime_NuSpec_IsCompilant()
         {
-            this.featureAsserter.Add(new NoMajorChangesInNuSpec("Jobbr.*"));
-            this.featureAsserter.Add(new NoMajorChangesInNuSpec("Microsoft.*"));
+            var asserter = new Asserter(Asserter.ResolvePackagesConfig("Jobbr.Runtime.ForkedExecution"), Asserter.ResolveRootFile("Jobbr.Runtime.ForkedExecution.nuspec"));
+            asserter.Add(new NoExternalDependenciesRule());
 
-            var result = this.featureAsserter.Validate();
-
-            Assert.IsTrue(result.IsSuccessful, result.Message);
-        }
-
-        [TestMethod]
-        public void Runtime_KnownReferences_AreNone()
-        {
-            this.runtimeAssetrer.Add(new NoExternalDependenciesRule());
-
-            var result = this.featureAsserter.Validate();
+            var result = asserter.Validate();
 
             Assert.IsTrue(result.IsSuccessful, result.Message);
         }
