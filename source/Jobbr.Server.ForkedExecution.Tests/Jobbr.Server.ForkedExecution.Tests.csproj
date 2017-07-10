@@ -109,6 +109,7 @@
     <Compile Include="Infrastructure\JobRunInfoServiceMock.cs" />
     <Compile Include="Infrastructure\ProgressChannelStore.cs" />
     <Compile Include="JobRunCompletedTests.cs" />
+    <Compile Include="PackagingTests.cs" />
     <Compile Include="ServerRegistrationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceMessagesParserTests.cs" />
@@ -128,6 +129,10 @@
     <ProjectReference Include="..\Jobbr.Server.ForkedExecution\Jobbr.Server.ForkedExecution.csproj">
       <Project>{9B30197B-7ABF-4C74-9733-6F4594683761}</Project>
       <Name>Jobbr.Server.ForkedExecution</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\submodules\devsupport\src\Jobbr.DevSupport.ReferencedVersionAsserter\Jobbr.DevSupport.ReferencedVersionAsserter.csproj">
+      <Project>{D7C78DBD-D440-4D0C-B9A9-AD8B7473364A}</Project>
+      <Name>Jobbr.DevSupport.ReferencedVersionAsserter</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
