@@ -11,7 +11,9 @@
     <description>Jobbr is a .NET JobServer</description>
     <copyright>Copyright 2017</copyright>
     <dependencies>
-      <dependency id="Microsoft.Owin.Host.HttpListener" version="[3,4]"/>
+      <dependency id="Microsoft.Owin.Host.HttpListener" version="[3,4)"/>
+      <dependency id="Jobbr.ComponentModel.Registration" version="[1.0.0-rc1]"/>
+      <dependency id="Jobbr.ComponentModel.Execution" version="[1.0.0-unstable23]"/>
     </dependencies>
   </metadata>
   <files>
