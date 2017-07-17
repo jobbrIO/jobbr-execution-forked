@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.14
+VisualStudioVersion = 15.0.26711.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Server.ForkedExecution", "Jobbr.Server.ForkedExecution\Jobbr.Server.ForkedExecution.csproj", "{9B30197B-7ABF-4C74-9733-6F4594683761}"
 EndProject
@@ -81,5 +81,8 @@ Global
 		{D7C78DBD-D440-4D0C-B9A9-AD8B7473364A} = {0B9F61A4-FB57-4704-BCD6-836ADB0FE12C}
 		{237C7A31-A97F-4473-9B6A-6B5724DE35E3} = {0B9F61A4-FB57-4704-BCD6-836ADB0FE12C}
 		{B06CC3DA-0547-4319-86AB-EADB45D750E7} = {0B9F61A4-FB57-4704-BCD6-836ADB0FE12C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3023956E-2E5D-483D-8B53-BAB06261601F}
 	EndGlobalSection
 EndGlobal
