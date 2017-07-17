@@ -29,10 +29,10 @@ after_build:
   - cmd: mkdir ilmerged
   - cmd: ILMerge\tools\ILMerge.exe /out:ilmerged/Jobbr.Server.ForkedExecution.dll source/Jobbr.Server.ForkedExecution/bin/Release/Jobbr.Server.ForkedExecution.dll source/Jobbr.Server.ForkedExecution/bin/Release/Microsoft.*.dll source/Jobbr.Server.ForkedExecution/bin/Release/Newtonsoft.*.dll source/Jobbr.Server.ForkedExecution/bin/Release/System.*.dll source/Jobbr.Server.ForkedExecution/bin/Release/Owin.dll /target:library /targetplatform:v4,C:\Windows\Microsoft.NET\Framework64\v4.0.30319 /wildcards /internalize:internalize_exclude.txt /allowDup:HttpRequestMessageExtensions /allowDup:MediaTypeFormatterExtensions
   - cmd: ILMerge\tools\ILMerge.exe /out:ilmerged/Jobbr.Runtime.ForkedExecution.dll source/Jobbr.Runtime.ForkedExecution/bin/Release/Jobbr.Runtime.ForkedExecution.dll source/Jobbr.Runtime.ForkedExecution/bin/Release/Jobbr.Runtime.dll source/Jobbr.Runtime.ForkedExecution/bin/Release/CommandLine.dll source/Jobbr.Runtime.ForkedExecution/bin/Release/Newtonsoft.Json.dll /target:library /targetplatform:v4,C:\Windows\Microsoft.NET\Framework64\v4.0.30319 /wildcards /internalize:internalize_exclude.txt
-  - cmd: nuget pack source\Jobbr.Execution.Forked.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
-  - cmd: nuget pack source\Jobbr.Runtime.ForkedExecution.nuspec -version "%GitVersion_NuGetVersion%" -prop "target=%CONFIGURATION%"
-  - cmd: appveyor PushArtifact "Jobbr.Execution.Forked.%GitVersion_NuGetVersion%.nupkg"
-  - cmd: appveyor PushArtifact "Jobbr.Runtime.ForkedExecution.%GitVersion_NuGetVersion%.nupkg"
+  - cmd: nuget pack source\Jobbr.Execution.Forked.nuspec -version "%GitVersion_SemVer%" -prop "target=%CONFIGURATION%"
+  - cmd: nuget pack source\Jobbr.Runtime.ForkedExecution.nuspec -version "%GitVersion_SemVer%" -prop "target=%CONFIGURATION%"
+  - cmd: appveyor PushArtifact "Jobbr.Execution.Forked.%GitVersion_SemVer%.nupkg"
+  - cmd: appveyor PushArtifact "Jobbr.Runtime.ForkedExecution.%GitVersion_SemVer%.nupkg"
 
 deploy:
 - provider: NuGet
