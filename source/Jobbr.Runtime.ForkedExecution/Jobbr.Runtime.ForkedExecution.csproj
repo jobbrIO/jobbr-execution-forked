@@ -79,12 +79,11 @@
     <Analyzer Include="..\packages\System.Security.Cryptography.Hashing.Algorithms.Analyzers.1.1.0\analyzers\dotnet\cs\System.Security.Cryptography.Hashing.Algorithms.CSharp.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Jobbr.Runtime.Core\Jobbr.Runtime.Core.csproj">
-      <Project>{49F0F696-79A5-4DCB-A243-6E02DDB973DF}</Project>
-      <Name>Jobbr.Runtime.Core</Name>
+    <ProjectReference Include="..\submodules\jobbr-runtime\source\Jobbr.Runtime\Jobbr.Runtime.csproj">
+      <Project>{237c7a31-a97f-4473-9b6a-6b5724de35e3}</Project>
+      <Name>Jobbr.Runtime</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>

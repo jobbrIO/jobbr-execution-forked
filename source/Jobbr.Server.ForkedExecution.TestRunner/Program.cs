@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Jobbr.Runtime.Core;
+using Jobbr.Runtime;
 using Jobbr.Runtime.ForkedExecution;
 
 namespace Jobbr.Server.ForkedExecution.TestRunner
