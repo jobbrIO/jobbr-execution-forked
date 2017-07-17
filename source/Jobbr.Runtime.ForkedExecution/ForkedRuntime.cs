@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Jobbr.Runtime.Core;
+using Jobbr.Runtime;
 using Jobbr.Runtime.Logging;
 using Jobbr.Runtime.ForkedExecution.RestClient;
 
