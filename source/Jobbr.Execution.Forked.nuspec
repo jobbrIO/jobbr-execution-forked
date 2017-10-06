@@ -17,7 +17,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="..\ilmerged\Jobbr.Server.ForkedExecution.dll" target="lib\net45"/>
-    <file src="..\ilmerged\Jobbr.Server.ForkedExecution.pdb" target="lib\net45"/>
+    <file src="..\ilmerged\Jobbr.Server.ForkedExecution.dll" target="lib\net462"/>
+    <file src="..\ilmerged\Jobbr.Server.ForkedExecution.pdb" target="lib\net462"/>
   </files>
 </package>
