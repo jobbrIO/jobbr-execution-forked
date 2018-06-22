@@ -37,6 +37,8 @@ namespace Jobbr.Server.ForkedExecution.Execution
             this.serviceMessageParser = new ServiceMessageParser();
         }
 
+        public long JobRunId => this.jobRunInfo.Id;
+
         public event EventHandler<JobRunEndedEventArgs> Ended;
 
         public void Start()

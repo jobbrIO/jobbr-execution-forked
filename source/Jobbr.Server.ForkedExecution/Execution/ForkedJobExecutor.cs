@@ -106,7 +106,7 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 }
 
                 // Add only new
-                var toAdd = newPlan.Where(newItem => this.plannedJobRuns.All(existingItem => existingItem.Id != newItem.Id)).ToList();
+                var toAdd = newPlan.Where(newItem => this.plannedJobRuns.All(existingItem => existingItem.Id != newItem.Id) && this.activeContexts.All(c => c.JobRunId != newItem.Id)).ToList();
                 this.plannedJobRuns.AddRange(toAdd);
                 hadChanges += toAdd.Count;
 

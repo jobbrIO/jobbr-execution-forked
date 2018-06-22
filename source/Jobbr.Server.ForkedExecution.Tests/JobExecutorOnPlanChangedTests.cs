@@ -81,7 +81,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun }));
 
             // Wait
-            var didStart2Jobs = this.ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 2 && updatesFromAllJobs.All(kvp => kvp.Value.Contains(JobRunStates.Starting)), 5000);
+            var didStart2Jobs = this.ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs.Count == 2 && updatesFromAllJobs.All(kvp => kvp.Value.Contains(JobRunStates.Starting) && kvp.Value.Count == 1), 5000);
 
             // Test
             var statesPerJobRun = string.Join("\n", this.ProgressChannelStore.AllStatusUpdates.Select(u => $"- JobRun #{u.Key}, States: {string.Join(",", u.Value)}"));
