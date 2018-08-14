@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Runtime", "submodules
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Runtime.Tests", "submodules\jobbr-runtime\source\Jobbr.Runtime.Tests\Jobbr.Runtime.Tests.csproj", "{B06CC3DA-0547-4319-86AB-EADB45D750E7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.SampleTaskLibrary", "submodules\Jobbr.SampleTaskLibrary\Jobbr.SampleTaskLibrary.csproj", "{8504FF9B-E628-412B-B8FB-AF21C0D69F5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,10 @@ Global
 		{B06CC3DA-0547-4319-86AB-EADB45D750E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B06CC3DA-0547-4319-86AB-EADB45D750E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B06CC3DA-0547-4319-86AB-EADB45D750E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8504FF9B-E628-412B-B8FB-AF21C0D69F5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8504FF9B-E628-412B-B8FB-AF21C0D69F5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8504FF9B-E628-412B-B8FB-AF21C0D69F5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8504FF9B-E628-412B-B8FB-AF21C0D69F5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +87,7 @@ Global
 		{D7C78DBD-D440-4D0C-B9A9-AD8B7473364A} = {0B9F61A4-FB57-4704-BCD6-836ADB0FE12C}
 		{237C7A31-A97F-4473-9B6A-6B5724DE35E3} = {0B9F61A4-FB57-4704-BCD6-836ADB0FE12C}
 		{B06CC3DA-0547-4319-86AB-EADB45D750E7} = {0B9F61A4-FB57-4704-BCD6-836ADB0FE12C}
+		{8504FF9B-E628-412B-B8FB-AF21C0D69F5F} = {0B9F61A4-FB57-4704-BCD6-836ADB0FE12C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3023956E-2E5D-483D-8B53-BAB06261601F}

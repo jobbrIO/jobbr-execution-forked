@@ -8,7 +8,7 @@ namespace Jobbr.Server.ForkedExecution.TestRunner
     {
         static void Main(string[] args)
         {
-            var runtime = new ForkedRuntime(new RuntimeConfiguration() { JobTypeSearchAssembly = Assembly.GetEntryAssembly()});
+            var runtime = new ForkedRuntime(new RuntimeConfiguration() { JobTypeSearchAssemblies = new [] { Assembly.GetEntryAssembly() }});
 
             runtime.Run(args);
         }
