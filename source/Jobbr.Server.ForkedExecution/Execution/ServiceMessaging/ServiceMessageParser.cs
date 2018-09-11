@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -60,19 +61,26 @@ namespace Jobbr.Server.ForkedExecution.Execution.ServiceMessaging
 
                 if (prop != null)
                 {
+                    var value = parameters[key];
+
                     if (prop.PropertyType == typeof(double))
                     {
-                        prop.SetValue(instance, double.Parse(parameters[key]));
+                        if (string.IsNullOrEmpty(value) == false)
+                        {
+                            value = value.Replace(",", ".");
+                        }
+
+                        prop.SetValue(instance, value != null ? double.Parse(value, CultureInfo.InvariantCulture) : 0);
                     }
 
                     if (prop.PropertyType == typeof(int))
                     {
-                        prop.SetValue(instance, int.Parse(parameters[key]));
+                        prop.SetValue(instance, int.Parse(value));
                     }
 
                     if (prop.PropertyType == typeof(string))
                     {
-                        prop.SetValue(instance, parameters[key]);
+                        prop.SetValue(instance, value);
                     }
                 }
             }
