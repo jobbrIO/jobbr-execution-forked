@@ -10,9 +10,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
         private readonly bool isPre = Assembly.GetExecutingAssembly().GetInformalVersion().Contains("-");
 
         [TestMethod]
-        public void Feature_NuSpec_IsCompilant()
+        public void Feature_NuSpec_IsCompliant()
         {
-            var asserter = new Asserter(Asserter.ResolvePackagesConfig("Jobbr.Server.ForkedExecution"), Asserter.ResolveRootFile("Jobbr.Execution.Forked.nuspec"));
+            var asserter = new Asserter(Asserter.ResolveProjectFile("Jobbr.Server.ForkedExecution", "Jobbr.Server.ForkedExecution.csproj"), Asserter.ResolveRootFile("Jobbr.Execution.Forked.nuspec"));
 
             asserter.Add(new PackageExistsInBothRule("Jobbr.ComponentModel.Registration"));
             asserter.Add(new PackageExistsInBothRule("Jobbr.ComponentModel.Execution"));
@@ -26,9 +26,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
-        public void Runtime_NuSpec_IsCompilant()
+        public void Runtime_NuSpec_IsCompliant()
         {
-            var asserter = new Asserter(Asserter.ResolvePackagesConfig("Jobbr.Runtime.ForkedExecution"), Asserter.ResolveRootFile("Jobbr.Runtime.ForkedExecution.nuspec"));
+            var asserter = new Asserter(Asserter.ResolveProjectFile("Jobbr.Runtime.ForkedExecution", "Jobbr.Runtime.ForkedExecution.csproj"), Asserter.ResolveRootFile("Jobbr.Runtime.ForkedExecution.nuspec"));
             asserter.Add(new NoExternalDependenciesRule());
 
             var result = asserter.Validate();

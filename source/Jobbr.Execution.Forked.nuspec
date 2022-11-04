@@ -1,16 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+<package>
   <metadata>
     <id>Jobbr.Execution.Forked</id>
     <version>$version$</version>
     <authors>Jobbr</authors>
     <owners>Jobbr</owners>
     <projectUrl>http://github.com/jobbrIO/jobbr-execution-forked</projectUrl>
-    <licenseUrl>https://raw.githubusercontent.com/jobbrIO/jobbr-execution-forked/develop/LICENSE</licenseUrl>
+    <license type="expression">GPL-3.0-only</license>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Component to execute jobs in forked processes</description>
-    <iconUrl>https://github.com/jobbrIO/artwork/raw/master/build/icons/icon_detailed_256_dark.png</iconUrl>
-    <copyright>Copyright 2017</copyright>
+    <copyright>Copyright 2022</copyright>
+    <icon>images\icon.png</icon>
     <dependencies>
       <dependency id="Microsoft.Owin.Host.HttpListener" version="[3,4)"/>
       <dependency id="Jobbr.ComponentModel.Registration" version="[1,1.1)"/>
@@ -20,5 +20,6 @@
   <files>
     <file src="..\ilmerged\Jobbr.Server.ForkedExecution.dll" target="lib\net462"/>
     <file src="..\ilmerged\Jobbr.Server.ForkedExecution.pdb" target="lib\net462"/>
+    <file src="icon.png" target="images/"/>
   </files>
 </package>
