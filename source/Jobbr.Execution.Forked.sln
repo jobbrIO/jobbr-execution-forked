@@ -35,7 +35,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Runtime", "submodules
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.Runtime.Tests", "submodules\jobbr-runtime\source\Jobbr.Runtime.Tests\Jobbr.Runtime.Tests.csproj", "{B06CC3DA-0547-4319-86AB-EADB45D750E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.SampleTaskLibrary", "submodules\Jobbr.SampleTaskLibrary\Jobbr.SampleTaskLibrary.csproj", "{8504FF9B-E628-412B-B8FB-AF21C0D69F5F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobbr.SampleTaskLibrary", "submodules\jobbr-runtime\source\Jobbr.SampleTaskLibrary\Jobbr.SampleTaskLibrary.csproj", "{8504FF9B-E628-412B-B8FB-AF21C0D69F5F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
