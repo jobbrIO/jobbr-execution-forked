@@ -105,7 +105,6 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // intentionally block port
             new TcpListener(IPAddress.Any, nextFreeTcpPort).Start();
 
-
             var forkedExecutionConfiguration = new ForkedExecutionConfiguration
             {
                 BackendAddress = "http://localhost:" + nextFreeTcpPort
@@ -115,6 +114,5 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             host.Start();
         }
-
     }
 }
