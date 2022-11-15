@@ -8,9 +8,6 @@
     <CodeAnalysisRuleSet>..\JobbrRuleSet.ruleset</CodeAnalysisRuleSet>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <RunCodeAnalysis>false</RunCodeAnalysis>
-    <PreBuildEvent />
-    <PreBuildEvent />
-    <PreBuildEvent />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>

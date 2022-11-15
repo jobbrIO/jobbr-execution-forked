@@ -5,7 +5,7 @@
     <version>$version$</version>
     <authors>Jobbr</authors>
     <owners>Jobbr</owners>
-    <projectUrl>http://github.com/jobbrIO/jobbr-execution-forked</projectUrl>
+    <projectUrl>https://github.com/jobbrIO/jobbr-execution-forked</projectUrl>
     <license type="expression">GPL-3.0-only</license>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Component to execute jobs in forked processes</description>
