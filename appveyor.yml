@@ -29,6 +29,9 @@ configuration: Release
 build:
   parallel: true 
   project: source/Jobbr.Execution.Forked.sln
+  
+test_script:
+  - vstest.console /logger:Appveyor "C:\projects\jobbr-execution-forked\source\Jobbr.Server.ForkedExecution.Tests\bin\Release\net462\Jobbr.Server.ForkedExecution.Tests.dll" "C:\projects\jobbr-execution-forked\source\submodules\jobbr-runtime\source\Jobbr.Runtime.Tests\bin\Release\net462\Jobbr.Runtime.Tests.dll"
 
 after_build:
   - cmd: nuget install ILMerge -ExcludeVersion
