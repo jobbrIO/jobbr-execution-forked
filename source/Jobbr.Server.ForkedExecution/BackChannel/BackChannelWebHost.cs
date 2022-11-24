@@ -2,7 +2,7 @@
 using System.Net;
 using System.Reflection;
 using Jobbr.ComponentModel.Registration;
-using Jobbr.Server.ForkedExecution.Logging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Owin.Hosting;
 using Microsoft.Owin.Hosting.Services;
 using Microsoft.Owin.Hosting.Starter;
@@ -11,30 +11,31 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 {
     public class BackChannelWebHost : IJobbrComponent
     {
-        private static readonly ILog Logger = LogProvider.For<BackChannelWebHost>();
+        private readonly ILogger _logger;
 
-        private readonly IJobbrServiceProvider jobbrServiceProvider;
-        private readonly ForkedExecutionConfiguration configuration;
+        private readonly IJobbrServiceProvider _jobbrServiceProvider;
+        private readonly ForkedExecutionConfiguration _configuration;
 
-        private IDisposable webHost;
+        private IDisposable _webHost;
 
-        public BackChannelWebHost(IJobbrServiceProvider jobbrServiceProvider, ForkedExecutionConfiguration configuration)
+        public BackChannelWebHost(ILoggerFactory loggerFactory, IJobbrServiceProvider jobbrServiceProvider, ForkedExecutionConfiguration configuration)
         {
-            Logger.Debug("Constructing new BackChannelWebHost");
+            _logger = loggerFactory.CreateLogger<BackChannelWebHost>();
+            _logger.LogDebug("Constructing new BackChannelWebHost");
 
-            this.jobbrServiceProvider = jobbrServiceProvider;
-            this.configuration = configuration;
+            _jobbrServiceProvider = jobbrServiceProvider;
+            _configuration = configuration;
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         public void Start()
         {
-            if (this.webHost != null)
+            if (_webHost != null)
             {
                 throw new InvalidOperationException("The server has already been started.");
             }
@@ -42,19 +43,19 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             var services = (ServiceProvider)ServicesFactory.Create();
             var options = new StartOptions()
             {
-                Urls = { this.configuration.BackendAddress },
+                Urls = { _configuration.BackendAddress },
                 AppStartup = typeof(Startup).FullName
             };
 
             // Pass through the IJobbrServiceProvider to allow Startup-Classes to let them inject this dependency to owin components
             // See: http://servercoredump.com/question/27246240/inject-current-user-owin-host-web-api-service for details
-            services.Add(typeof(IJobbrServiceProvider), () => this.jobbrServiceProvider);
+            services.Add(typeof(IJobbrServiceProvider), () => _jobbrServiceProvider);
 
             var hostingStarter = services.GetService<IHostingStarter>();
 
             try
             {
-                this.webHost = hostingStarter.Start(options);
+                _webHost = hostingStarter.Start(options);
             }
             catch (TargetInvocationException e)
             {
@@ -66,12 +67,12 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 throw;
             }
 
-            Logger.Info($"Started OWIN-Host for Backchannel at '{this.configuration.BackendAddress}'.");
+            _logger.LogInformation("Started OWIN-Host for Backchannel at '{backendAddress}'.", _configuration.BackendAddress);
         }
 
         public void Stop()
         {
-            this.webHost.Dispose();
+            _webHost.Dispose();
         }
 
         protected virtual void Dispose(bool disposing)
@@ -79,9 +80,9 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             if (disposing)
             {
                 // free managed resources
-                if (this.webHost != null)
+                if (_webHost != null)
                 {
-                    this.webHost.Dispose();
+                    _webHost.Dispose();
                 }
             }
         }

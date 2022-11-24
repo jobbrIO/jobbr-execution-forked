@@ -1,22 +1,22 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.ExceptionHandling;
-using Jobbr.Server.ForkedExecution.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Jobbr.Server.ForkedExecution.BackChannel
 {
     public class TraceSourceExceptionLogger : IExceptionLogger
     {
-        private readonly ILog logger;
+        private readonly ILogger _logger;
 
-        public TraceSourceExceptionLogger(ILog logger)
+        public TraceSourceExceptionLogger(ILoggerFactory loggerFactory)
         {
-            this.logger = logger;
+            _logger = loggerFactory.CreateLogger<TraceSourceExceptionLogger>();
         }
 
         public Task LogAsync(ExceptionLoggerContext context, CancellationToken cancellationToken)
         {
-            var logAsync = new Task(() => this.logger.FatalException("Unhandled Exception while processing request '{0}'", context.Exception, context.Request));
+            var logAsync = new Task(() => _logger.LogError(context.Exception, "Unhandled Exception while processing request '{request}'", context.Request));
 
             logAsync.Start();
 

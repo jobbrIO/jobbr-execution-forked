@@ -1,5 +1,6 @@
 using System.IO;
 using Jobbr.Server.ForkedExecution.Execution;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 {
@@ -7,22 +8,22 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
     {
         protected ProgressChannelStore ProgressChannelStore;
 
-        protected FakeGeneratedJobRunsStore jobRunFakeTuples;
-        protected JobRunInfoServiceMock jobRunInformationService;
-        protected PeriodicTimerMock periodicTimerMock;
-        protected ManualTimeProvider manualTimeProvider;
-        internal JobRunContextMockFactory jobRunContextMockFactory;
+        protected FakeGeneratedJobRunsStore JobRunFakeTuples;
+        protected JobRunInfoServiceMock JobRunInformationService;
+        protected PeriodicTimerMock PeriodicTimerMock;
+        protected ManualTimeProvider ManualTimeProvider;
+        internal JobRunContextMockFactory JobRunContextMockFactory;
 
         public TestBase()
         {
-            this.jobRunFakeTuples = new FakeGeneratedJobRunsStore();
-            this.ProgressChannelStore = new ProgressChannelStore();
-            this.jobRunInformationService = new JobRunInfoServiceMock(this.jobRunFakeTuples);
+            JobRunFakeTuples = new FakeGeneratedJobRunsStore();
+            ProgressChannelStore = new ProgressChannelStore();
+            JobRunInformationService = new JobRunInfoServiceMock(JobRunFakeTuples);
         }
 
         protected static ForkedExecutionConfiguration GivenAMinimalConfiguration()
         {
-            var forkedExecutionConfiguration = new ForkedExecutionConfiguration()
+            var forkedExecutionConfiguration = new ForkedExecutionConfiguration
             {
                 BackendAddress = "notNeeded",
                 JobRunDirectory = Path.GetTempPath(),
@@ -35,24 +36,24 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         protected ForkedJobExecutor GivenAMockedExecutor(ForkedExecutionConfiguration forkedExecutionConfiguration)
         {
-            this.jobRunContextMockFactory = new JobRunContextMockFactory(this.ProgressChannelStore);
+            JobRunContextMockFactory = new JobRunContextMockFactory(ProgressChannelStore);
 
-            this.periodicTimerMock = new PeriodicTimerMock();
-            this.manualTimeProvider = new ManualTimeProvider();
+            PeriodicTimerMock = new PeriodicTimerMock();
+            ManualTimeProvider = new ManualTimeProvider();
 
-            var executor = new ForkedJobExecutor(this.jobRunContextMockFactory, this.jobRunInformationService, this.ProgressChannelStore, this.periodicTimerMock, this.manualTimeProvider, forkedExecutionConfiguration);
+            var executor = new ForkedJobExecutor(new NullLoggerFactory(), JobRunContextMockFactory, JobRunInformationService, ProgressChannelStore, PeriodicTimerMock, ManualTimeProvider, forkedExecutionConfiguration);
 
             return executor;
         }
 
         protected ForkedJobExecutor GivenAStartedExecutor(ForkedExecutionConfiguration forkedExecutionConfiguration)
         {
-            this.periodicTimerMock = new PeriodicTimerMock();
-            this.manualTimeProvider = new ManualTimeProvider();
+            PeriodicTimerMock = new PeriodicTimerMock();
+            ManualTimeProvider = new ManualTimeProvider();
 
-            var jobRunContextFactory = new JobRunContextFactory(forkedExecutionConfiguration, this.ProgressChannelStore);
+            var jobRunContextFactory = new JobRunContextFactory(new NullLoggerFactory(), forkedExecutionConfiguration, ProgressChannelStore);
 
-            var executor = new ForkedJobExecutor(jobRunContextFactory,  this.jobRunInformationService, this.ProgressChannelStore, this.periodicTimerMock, this.manualTimeProvider, forkedExecutionConfiguration);
+            var executor = new ForkedJobExecutor(new NullLoggerFactory(), jobRunContextFactory, JobRunInformationService, ProgressChannelStore, PeriodicTimerMock, ManualTimeProvider, forkedExecutionConfiguration);
 
             executor.Start();
 

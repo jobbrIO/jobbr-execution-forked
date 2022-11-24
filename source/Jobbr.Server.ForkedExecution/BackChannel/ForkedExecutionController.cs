@@ -1,41 +1,56 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
 using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.BackChannel.Model;
-using Jobbr.Server.ForkedExecution.Logging;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Jobbr.Server.ForkedExecution.BackChannel
 {
-    [RoutePrefix("fex")]
-    public class ForkedExecutionController : ApiController
+    /// <summary>
+    /// Controller for controlling the execution of jobs.
+    /// </summary>
+    [ApiController]
+    [Route("fex")]
+    public class ForkedExecutionController : ControllerBase
     {
-        private static readonly ILog Logger = LogProvider.For<ForkedExecutionController>();
+        private readonly ILogger _logger;
+        private readonly IJobRunInformationService _jobRunInformationService;
+        private readonly IJobRunProgressChannel _progressChannel;
 
-        private readonly IJobRunInformationService jobRunInformationService;
-        private readonly IJobRunProgressChannel progressChannel;
-
-        public ForkedExecutionController(IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForkedExecutionController"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="jobRunInformationService">Service for getting information about the job runs.</param>
+        /// <param name="progressChannel">Channel for job run progress information.</param>
+        public ForkedExecutionController(ILoggerFactory loggerFactory, IJobRunInformationService jobRunInformationService, IJobRunProgressChannel progressChannel)
         {
-            this.jobRunInformationService = jobRunInformationService;
-            this.progressChannel = progressChannel;
+            _logger = loggerFactory.CreateLogger<ForkedExecutionController>();
+            _jobRunInformationService = jobRunInformationService;
+            _progressChannel = progressChannel;
         }
 
+        /// <summary>
+        /// Get information on job run based on ID.
+        /// </summary>
+        /// <param name="jobRunId">The target job run ID.</param>
+        /// <returns>A result containing a <see cref="JobRunInfoDto"/> or 404 if not found.</returns>
         [HttpGet]
         [Route("jobrun/{jobRunId}")]
-        public IHttpActionResult GetJobRunInfos(long jobRunId)
+        public IActionResult GetJobRunInfos(long jobRunId)
         {
-            Logger.Debug($"ConsoleExecutor is requesting information about JobRun with id '{jobRunId}'");
+            _logger.LogDebug("ConsoleExecutor is requesting information about a job run with id '{jobRunId}'", jobRunId);
 
-            var jobRun = this.jobRunInformationService.GetByJobRunId(jobRunId);
+            var jobRun = _jobRunInformationService.GetByJobRunId(jobRunId);
 
             if (jobRun == null)
             {
-                Logger.Warn($"JobRun Information for JobRun with '{jobRunId}' cannot be found.");
-                return this.NotFound();
+                _logger.LogWarning("Job run information for job run with '{jobRunId}' cannot be found.", jobRunId);
+                return NotFound();
             }
 
             var infoDto = new JobRunInfoDto
@@ -51,50 +66,62 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 InstanceParameter = jobRun.InstanceParameters != null ? JsonConvert.DeserializeObject(jobRun.InstanceParameters) : null,
             };
 
-            Logger.Debug($"Returning JobRun information for JobRun '{jobRunId}'");
+            _logger.LogDebug("Returning job run information for job run '{jobRunId}'", jobRunId);
 
-            return this.Ok(infoDto);
+            return Ok(infoDto);
         }
 
+        /// <summary>
+        /// Updates job run state.
+        /// </summary>
+        /// <param name="jobRunId">The ID of the target job run.</param>
+        /// <param name="dto">The payload for updating a job run with.</param>
+        /// <returns>A result containg either 202(Accepted), 404(NotFound) or 400(BadRequest).</returns>
         [HttpPut]
         [Route("jobrun/{jobRunId}")]
-        public IHttpActionResult PutJobRunUpdate(long jobRunId, [FromBody] JobRunUpdateDto dto)
+        public IActionResult PutJobRunUpdate(long jobRunId, [FromBody] JobRunUpdateDto dto)
         {
-            Logger.Debug($"ConsoleExecutor is trying to update job with id '{jobRunId}'");
-            var jobRun = this.jobRunInformationService.GetByJobRunId(jobRunId);
+            _logger.LogDebug("ConsoleExecutor is trying to update job with ID '{jobRunId}'", jobRunId);
+            var jobRun = _jobRunInformationService.GetByJobRunId(jobRunId);
 
             if (jobRun == null)
             {
-                Logger.Warn($"JobRun with id '{jobRunId}' cannot be found.");
-                return this.NotFound();
+                _logger.LogWarning("Job run with ID '{jobRunId}' cannot be found.", jobRunId);
+                return NotFound();
             }
 
             if (dto.State == JobRunStates.Null)
             {
-                Logger.Warn($"JobRun with id '{jobRunId}' sent an invalid state which defaulted to 'None' but still cannot be accepted.");
-                return this.BadRequest("Invalid state");
+                _logger.LogWarning("Job run with ID '{jobRunId}' sent an invalid state which defaulted to 'None' but still cannot be accepted.", jobRunId);
+                return BadRequest("Invalid state");
             }
 
-            Logger.Info($"Publishing state update '{dto.State}' for JobRun Id '{jobRunId}'");
-            this.progressChannel.PublishStatusUpdate(jobRun.Id, dto.State);
+            _logger.LogInformation("Publishing state update '{state}' for job run ID '{jobRunId}'", dto.State, jobRunId);
+            _progressChannel.PublishStatusUpdate(jobRun.Id, dto.State);
 
-            return this.StatusCode(HttpStatusCode.Accepted);
+            return StatusCode((int)HttpStatusCode.Accepted);
         }
 
+        /// <summary>
+        /// Adds an artifact to the job run.
+        /// </summary>
+        /// <param name="jobRunId">The target job run ID.</param>
+        /// <returns>A result that contains NotFound(404) or Accepted(202).</returns>
         [HttpPost]
         [Route("jobrun/{jobRunId}/artefacts")]
-        public IHttpActionResult AddArtefacts(long jobRunId)
+        public IActionResult AddArtefacts(long jobRunId)
         {
-            Logger.Debug($"ConsoleExecutor is upload jobartefacts for job with id '{jobRunId}'");
-            var jobRun = this.jobRunInformationService.GetByJobRunId(jobRunId);
+            _logger.LogDebug("ConsoleExecutor is upload job artifacts for job with ID '{jobRunId}'", jobRunId);
+            var jobRun = _jobRunInformationService.GetByJobRunId(jobRunId);
 
             if (jobRun == null)
             {
-                Logger.Warn($"JobRun with id '{jobRunId}' cannot be found.");
-                return this.NotFound();
+                _logger.LogWarning("Job run with ID '{jobRunId}' cannot be found.", jobRunId);
+                return NotFound();
             }
 
-            IEnumerable<HttpContent> parts = this.Request.Content.ReadAsMultipartAsync().Result.Contents;
+            // IEnumerable<HttpContent> parts = Request.Content.ReadAsMultipartAsync().Result.Contents; // TODO: find replacement
+            IEnumerable<HttpContent> parts = new List<HttpContent>();
 
             foreach (var part in parts)
             {
@@ -102,11 +129,11 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 
                 var result = part.ReadAsStreamAsync().Result;
 
-                Logger.Info($"Publishing jobrun artefact '{contentDisposition.FileName}' for JobRun (Id '{jobRun.Id}') with '{result.Length}' bytes");
-                this.progressChannel.PublishArtefact(jobRun.Id, contentDisposition.FileName, result);
+                _logger.LogInformation("Publishing job run artifact '{filename}' for JobRun (ID '{jobRunId}') with '{resultLength}' bytes", contentDisposition.FileName, jobRun.Id, result.Length);
+                _progressChannel.PublishArtefact(jobRun.Id, contentDisposition.FileName, result);
             }
 
-            return this.StatusCode(HttpStatusCode.Accepted);
+            return StatusCode((int)HttpStatusCode.Accepted);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
 using Jobbr.ComponentModel.Registration;
-using Jobbr.Server.ForkedExecution.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Owin;
@@ -12,10 +12,8 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 {
     internal class Startup
     {
-        private static readonly ILog Logger = LogProvider.For<Startup>();
-
         /// <summary>
-        /// The dependency resolver from the JobbrServer which needs to be passed through the OWIN stack to WebAPI
+        /// The dependency resolver from the JobbrServer which needs to be passed through the OWIN stack to WebAPI.
         /// </summary>
         private readonly IJobbrServiceProvider dependencyResolver;
 
@@ -27,18 +25,19 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// </param>
         public Startup(IJobbrServiceProvider serviceProvider)
         {
-            this.dependencyResolver = serviceProvider;
+            dependencyResolver = serviceProvider;
         }
 
         public void Configuration(IAppBuilder app)
         {
-            var config = new HttpConfiguration();
-
-            // Set the resolved to the service provider that gets injected when constructing this component
-            config.DependencyResolver = new DependencyResolverAdapter(this.dependencyResolver);
+            var config = new HttpConfiguration
+            {
+                // Set the resolved to the service provider that gets injected when constructing this component
+                DependencyResolver = new DependencyResolverAdapter(dependencyResolver),
+            };
 
             // Add trace logger for exceptions
-            config.Services.Add(typeof(IExceptionLogger), new TraceSourceExceptionLogger(Logger));
+            config.Services.Add(typeof(IExceptionLogger), new TraceSourceExceptionLogger(new NullLoggerFactory()));
 
             // Controllers all have attributes
             config.MapHttpAttributeRoutes();

@@ -5,40 +5,40 @@ namespace Jobbr.Server.ForkedExecution.Execution
 {
     internal class FixedIntervalTimer : IPeriodicTimer, IDisposable
     {
-        private Action callback;
+        private Action _callback;
 
-        private Timer timer;
-        private TimeSpan interval;
+        private Timer _timer;
+        private TimeSpan _interval;
 
         public FixedIntervalTimer()
         {
-            this.timer = new Timer(state => this.callback());
+            _timer = new Timer(state => _callback());
         }
 
         ~FixedIntervalTimer()
         {
-            this.Dispose(false);
+            Dispose(false);
         }
 
         public void Setup(Action value, long intervalInSeconds)
         {
-            this.callback = value;
-            this.interval = TimeSpan.FromSeconds(intervalInSeconds);
+            _callback = value;
+            _interval = TimeSpan.FromSeconds(intervalInSeconds);
         }
 
         public void Start()
         {
-            this.timer.Change(this.interval, this.interval);
+            _timer.Change(_interval, _interval);
         }
 
         public void Stop()
         {
-            this.timer.Change(int.MaxValue, int.MaxValue);
+            _timer.Change(int.MaxValue, int.MaxValue);
         }
 
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -46,10 +46,10 @@ namespace Jobbr.Server.ForkedExecution.Execution
         {
             if (disposing)
             {
-                if (this.timer != null)
+                if (_timer != null)
                 {
-                    this.timer.Dispose();
-                    this.timer = null;
+                    _timer.Dispose();
+                    _timer = null;
                 }
             }
         }

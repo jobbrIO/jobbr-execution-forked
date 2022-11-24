@@ -5,11 +5,11 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 {
     public class PeriodicTimerMock : IPeriodicTimer
     {
-        private Action callback;
+        private Action _callback;
 
         public void Setup(Action value, long intervalInSeconds)
         {
-            this.callback = value;
+            _callback = value;
         }
 
         public void Start()
@@ -22,7 +22,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public void CallbackOnce()
         {
-            this.callback();
+            _callback();
         }
     }
 }

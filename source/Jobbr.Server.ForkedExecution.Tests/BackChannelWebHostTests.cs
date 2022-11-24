@@ -2,10 +2,10 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Threading.Tasks;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
@@ -13,6 +13,14 @@ namespace Jobbr.Server.ForkedExecution.Tests
     [TestClass]
     public class BackChannelWebHostTests
     {
+        private LoggerFactory _loggerFactory;
+
+        [TestInitialize()]
+        public void Startup()
+        {
+            _loggerFactory = new LoggerFactory();
+        }
+
         [TestMethod]
         public void BackChannel_StartWebHost_StatusUrlIsAvailable()
         {
@@ -21,7 +29,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
 
-            var host = new BackChannelWebHost(new JobbrServiceProviderMock(null, null), forkedExecutionConfiguration);
+            var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
 
             host.Start();
 
@@ -38,7 +46,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
 
-            var host = new BackChannelWebHost(new JobbrServiceProviderMock(null, null), forkedExecutionConfiguration);
+            var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
 
             host.Start();
             host.Stop();
@@ -64,7 +72,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
 
-            var host = new BackChannelWebHost(new JobbrServiceProviderMock(null, null), forkedExecutionConfiguration);
+            var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
 
             host.Start();
             host.Dispose();
@@ -90,7 +98,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
 
-            var host = new BackChannelWebHost(new JobbrServiceProviderMock(null, null), forkedExecutionConfiguration);
+            var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
 
             host.Start();
             host.Start();
@@ -110,7 +118,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 BackendAddress = "http://localhost:" + nextFreeTcpPort
             };
 
-            var host = new BackChannelWebHost(new JobbrServiceProviderMock(null, null), forkedExecutionConfiguration);
+            var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
 
             host.Start();
         }

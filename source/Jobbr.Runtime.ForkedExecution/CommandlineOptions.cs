@@ -22,7 +22,7 @@ namespace Jobbr.Runtime.ForkedExecution
         /// <summary>
         /// Gets or sets a value indicating whether is debug.
         /// </summary>
-        [Option('d', "debug", DefaultValue = false)]
-        public bool IsDebug { get; set; }
+        [Option('d', "debug")]
+        public bool IsDebug { get; set; } = false;
     }
 }

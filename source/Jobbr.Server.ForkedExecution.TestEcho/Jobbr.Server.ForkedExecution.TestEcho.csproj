@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ProjectGuid>{ADFEEB77-10B0-4028-AD62-2D505FD29757}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AssemblyTitle>Jobbr.Server.ForkedExecution.TestEcho</AssemblyTitle>
     <Product>Jobbr.Server.ForkedExecution.TestEcho</Product>
@@ -19,5 +19,10 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.355802">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

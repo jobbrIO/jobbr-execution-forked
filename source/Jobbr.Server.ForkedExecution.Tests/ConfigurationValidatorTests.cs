@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
@@ -7,16 +8,17 @@ namespace Jobbr.Server.ForkedExecution.Tests
     [TestClass]
     public class ConfigurationValidatorTests
     {
-        private readonly ConfigurationValidator sut;
+        private readonly ConfigurationValidator _configurationValidator;
 
         public ConfigurationValidatorTests()
         {
-            this.sut = new ConfigurationValidator();
+            var loggerFactory = new LoggerFactory();
+            _configurationValidator = new ConfigurationValidator(loggerFactory);
         }
 
-        private ForkedExecutionConfiguration GetWorkingConfiguration()
+        private static ForkedExecutionConfiguration GetWorkingConfiguration()
         {
-            return new ForkedExecutionConfiguration()
+            return new ForkedExecutionConfiguration
             {
                 JobRunnerExecutable = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"),
                 BackendAddress = "http://localhost:1234",
@@ -28,9 +30,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void WorkingConfiguration_Validated_IsFine()
         {
-            var config = this.GetWorkingConfiguration();
+            var config = GetWorkingConfiguration();
 
-            var validationResult = this.sut.Validate(config);
+            var validationResult = _configurationValidator.Validate(config);
 
             Assert.IsTrue(validationResult);
         }
@@ -39,66 +41,66 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void RunnerExecutable_IsNull_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            var config = GetWorkingConfiguration();
 
             config.JobRunnerExecutable = null;
 
-            this.sut.Validate(config);
+            _configurationValidator.Validate(config);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void RunnerExecutable_Empty_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            var config = GetWorkingConfiguration();
 
             config.JobRunnerExecutable = string.Empty;
 
-            this.sut.Validate(config);
+            _configurationValidator.Validate(config);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void RunnerExecutable_IsInvalidPath_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            var config = GetWorkingConfiguration();
 
             config.JobRunnerExecutable = "C:\\bla\\blupp.exe";
 
-            this.sut.Validate(config);
+            _configurationValidator.Validate(config);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void JobRunDirectory_IsNull_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            var config = GetWorkingConfiguration();
 
             config.JobRunDirectory = null;
 
-            this.sut.Validate(config);
+            _configurationValidator.Validate(config);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void JobRunDirectory_Empty_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            var config = GetWorkingConfiguration();
 
             config.JobRunDirectory = string.Empty;
 
-            this.sut.Validate(config);
+            _configurationValidator.Validate(config);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void JobRunDirectory_IsInvalidPath_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            var config = GetWorkingConfiguration();
 
             config.JobRunDirectory = "C:\\bla\\";
 
-            this.sut.Validate(config);
+            _configurationValidator.Validate(config);
         }
     }
 }

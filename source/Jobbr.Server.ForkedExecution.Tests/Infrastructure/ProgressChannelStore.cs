@@ -12,42 +12,35 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
     /// </summary>
     public class ProgressChannelStore : IJobRunProgressChannel
     {
-        private readonly Dictionary<long, List<JobRunStates>> jobRunStatusUpdates = new Dictionary<long, List<JobRunStates>>();
+        private readonly Dictionary<long, List<string>> _jobRunArtefactUploads = new();
+        private readonly Dictionary<long, List<Tuple<string, long>>> _jobRunPids = new();
+        private readonly Dictionary<Func<Dictionary<long, List<JobRunStates>>, bool>, AutoResetEvent> _statusUpdateWaitCallBacks = new ();
+        private readonly Dictionary<Func<Dictionary<long, List<double>>, bool>, AutoResetEvent> _progressUpdateWaitCallBacks = new();
 
-        private readonly Dictionary<long, List<double>> jobRunProgressUpdates = new Dictionary<long, List<double>>();
+        public Dictionary<long, List<JobRunStates>> AllStatusUpdates { get; } = new();
 
-        private readonly Dictionary<long, List<string>> jobRunArtefactUploads = new Dictionary<long, List<string>>();
+        public Dictionary<long, List<double>> AllProgressUpdates { get; } = new();
 
-        private readonly Dictionary<long, List<Tuple<string, long>>> jobRunPids = new Dictionary<long, List<Tuple<string, long>>>();
+        public Dictionary<long, List<string>> AllUploadedArtefacts => _jobRunArtefactUploads;
 
-        private readonly Dictionary<Func<Dictionary<long, List<JobRunStates>>, bool>, AutoResetEvent> statusUpdateWaitCallBacks = new Dictionary<Func<Dictionary<long, List<JobRunStates>>, bool>, AutoResetEvent>();
-
-        private readonly Dictionary<Func<Dictionary<long, List<double>>, bool>, AutoResetEvent> progressUpdateWaitCallBacks = new Dictionary<Func<Dictionary<long, List<double>>, bool>, AutoResetEvent>();
-
-        public Dictionary<long, List<JobRunStates>> AllStatusUpdates => this.jobRunStatusUpdates;
-
-        public Dictionary<long, List<double>> AllProgressUpdates => this.jobRunProgressUpdates;
-
-        public Dictionary<long, List<string>> AllUploadedArtefacts => this.jobRunArtefactUploads;
-
-        public Dictionary<long, List<Tuple<string, long>>> AllPids => this.jobRunPids;
+        public Dictionary<long, List<Tuple<string, long>>> AllPids => _jobRunPids;
 
         public void PublishStatusUpdate(long jobRunId, JobRunStates state)
         {
-            if (!this.jobRunStatusUpdates.ContainsKey(jobRunId))
+            if (!AllStatusUpdates.ContainsKey(jobRunId))
             {
-                this.jobRunStatusUpdates.Add(jobRunId, new List<JobRunStates>());
+                AllStatusUpdates.Add(jobRunId, new List<JobRunStates>());
             }
 
-            this.jobRunStatusUpdates[jobRunId].Add(state);
+            AllStatusUpdates[jobRunId].Add(state);
 
-            foreach (var kvp in this.statusUpdateWaitCallBacks)
+            foreach (var kvp in _statusUpdateWaitCallBacks)
             {
                 try
                 {
                     var callback = kvp.Key;
 
-                    var callbackHasPermitted = callback(this.jobRunStatusUpdates);
+                    var callbackHasPermitted = callback(AllStatusUpdates);
 
                     if (callbackHasPermitted)
                     {
@@ -65,22 +58,23 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         {
             try
             {
-                var alreadyTrue = updatesFromAllJobs(this.jobRunStatusUpdates);
+                var alreadyTrue = updatesFromAllJobs(AllStatusUpdates);
                 if (alreadyTrue)
                 {
                     return true;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                Console.WriteLine(e);
             }
 
             var are = new AutoResetEvent(false);
 
-            this.statusUpdateWaitCallBacks.Add(updatesFromAllJobs, are);
+            _statusUpdateWaitCallBacks.Add(updatesFromAllJobs, are);
 
             var successful = are.WaitOne(millisecondsTimeout, false);
-            this.statusUpdateWaitCallBacks.Remove(updatesFromAllJobs);
+            _statusUpdateWaitCallBacks.Remove(updatesFromAllJobs);
 
             return successful;
         }
@@ -89,54 +83,55 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         {
             try
             {
-                var alreadyTrue = updatesFromAllJobs(this.jobRunProgressUpdates);
+                var alreadyTrue = updatesFromAllJobs(AllProgressUpdates);
                 if (alreadyTrue)
                 {
                     return true;
                 }
             }
-            catch
+            catch (Exception e)
             {
+                Console.WriteLine(e);
             }
 
             var are = new AutoResetEvent(false);
 
-            this.progressUpdateWaitCallBacks.Add(updatesFromAllJobs, are);
+            _progressUpdateWaitCallBacks.Add(updatesFromAllJobs, are);
 
             var successful = are.WaitOne(millisecondsTimeout, false);
-            this.progressUpdateWaitCallBacks.Remove(updatesFromAllJobs);
+            _progressUpdateWaitCallBacks.Remove(updatesFromAllJobs);
 
             return successful;
         }
 
         public void PublishProgressUpdate(long jobRunId, double progress)
         {
-            if (!this.jobRunProgressUpdates.ContainsKey(jobRunId))
+            if (!AllProgressUpdates.ContainsKey(jobRunId))
             {
-                this.jobRunProgressUpdates.Add(jobRunId, new List<double>());
+                AllProgressUpdates.Add(jobRunId, new List<double>());
             }
 
-            this.jobRunProgressUpdates[jobRunId].Add(progress);
+            AllProgressUpdates[jobRunId].Add(progress);
         }
 
         public void PublishArtefact(long uniqueId, string fileName, Stream result)
         {
-            if (!this.jobRunArtefactUploads.ContainsKey(uniqueId))
+            if (!_jobRunArtefactUploads.ContainsKey(uniqueId))
             {
-                this.jobRunArtefactUploads.Add(uniqueId, new List<string>());
+                _jobRunArtefactUploads.Add(uniqueId, new List<string>());
             }
 
-            this.jobRunArtefactUploads[uniqueId].Add(fileName);
+            _jobRunArtefactUploads[uniqueId].Add(fileName);
         }
 
         public void PublishPid(long jobRunId, int pid, string host)
         {
-            if (!this.jobRunPids.ContainsKey(jobRunId))
+            if (!_jobRunPids.ContainsKey(jobRunId))
             {
-                this.jobRunPids.Add(jobRunId, new List<Tuple<string, long>>());
+                _jobRunPids.Add(jobRunId, new List<Tuple<string, long>>());
             }
 
-            this.jobRunPids[jobRunId].Add(new Tuple<string, long>(host, pid));
+            _jobRunPids[jobRunId].Add(new Tuple<string, long>(host, pid));
         }
     }
 }

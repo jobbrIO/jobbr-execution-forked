@@ -7,21 +7,20 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 {
     public class FakeGeneratedJobRunsStore
     {
-        private readonly List<FakeJobRunStoreTuple> store = new List<FakeJobRunStoreTuple>();
-
-        private readonly object syncRoot = new object();
+        private readonly List<FakeJobRunStoreTuple> _store = new();
+        private readonly object _syncRoot = new();
 
         internal FakeJobRunStoreTuple CreateFakeJobRun()
         {
-            return this.CreateFakeJobRun(DateTime.UtcNow);
+            return CreateFakeJobRun(DateTime.UtcNow);
         }
 
         public FakeJobRunStoreTuple CreateFakeJobRun(DateTime plannedStartDateTimeUtc)
         {
             long id;
-            lock (this.syncRoot)
+            lock (_syncRoot)
             {
-                id = this.store.Any() ? this.store.Max(e => e.Id) + 1 : 1;
+                id = _store.Any() ? _store.Max(e => e.Id) + 1 : 1;
             }
 
             var fakeJobRun = new FakeJobRunStoreTuple
@@ -36,14 +35,14 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
                 JobRunInfo = new JobRunInfo
                 {
                     Id = id,
-                    JobId = new Random().Next(1, Int32.MaxValue),
-                    TriggerId = new Random().Next(1, Int32.MaxValue),
+                    JobId = new Random().Next(1, int.MaxValue),
+                    TriggerId = new Random().Next(1, int.MaxValue),
                 }
             };
 
-            lock (this.syncRoot)
+            lock (_syncRoot)
             {
-                this.store.Add(fakeJobRun);
+                _store.Add(fakeJobRun);
             }
 
             return fakeJobRun;
@@ -51,9 +50,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public FakeJobRunStoreTuple GetByJobRunId(long id)
         {
-            lock (this.syncRoot)
+            lock (_syncRoot)
             {
-                return this.store.SingleOrDefault(e => e.Id == id);
+                return _store.SingleOrDefault(e => e.Id == id);
             }
         }
     }
