@@ -16,15 +16,11 @@
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Desktop.Analyzers" Version="1.1.0" />
-    <PackageReference Include="Microsoft.AnalyzerPowerPack" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Owin" Version="5.2.9" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="1.1.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Owin.Host.HttpListener" Version="4.2.2" />
     <PackageReference Include="Microsoft.Owin.Hosting" Version="4.2.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -36,5 +32,6 @@
     </PackageReference>
     <PackageReference Include="Jobbr.ComponentModel.Execution" Version="1.1.1" />
     <PackageReference Include="Jobbr.ComponentModel.Registration" Version="1.0.3" />
+    <PackageReference Include="System.Text.Json" Version="7.0.0" />
   </ItemGroup>
 </Project>

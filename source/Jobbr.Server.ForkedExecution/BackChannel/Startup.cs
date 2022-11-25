@@ -4,8 +4,6 @@ using System.Web.Http;
 using System.Web.Http.ExceptionHandling;
 using Jobbr.ComponentModel.Registration;
 using Microsoft.Extensions.Logging.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Owin;
 
 namespace Jobbr.Server.ForkedExecution.BackChannel
@@ -41,10 +39,6 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 
             // Controllers all have attributes
             config.MapHttpAttributeRoutes();
-
-            // Serialization
-            var jsonSerializerSettings = new JsonSerializerSettings() { ContractResolver = new CamelCasePropertyNamesContractResolver(), NullValueHandling = NullValueHandling.Ignore };
-            config.Formatters.JsonFormatter.SerializerSettings = jsonSerializerSettings;
 
             // Remove XML response format
             var appXmlType = config.Formatters.XmlFormatter.SupportedMediaTypes.FirstOrDefault(t => string.Equals(t.MediaType, "application/xml", StringComparison.Ordinal));

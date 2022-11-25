@@ -4,13 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.TestRunner.TestJobs;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 
 namespace Jobbr.Server.ForkedExecution.Tests
 {
@@ -60,7 +60,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             Assert.IsTrue(hasConnected, "The runner executable should connect within 1s");
 
-            // Tearddown: Wait for Failing or Completed state to that the executable is able to exit
+            // Teardown: Wait for Failing or Completed state to that the executable is able to exit
             ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed) || allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 10000);
         }
 
@@ -303,7 +303,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var fakeRun = JobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "JobWithOneProgress";
-            fakeRun.JobRunInfo.InstanceParameters = JsonConvert.SerializeObject(new { ShouldFail = true });
+            fakeRun.JobRunInfo.InstanceParameters = JsonSerializer.Serialize(new { ShouldFail = true });
 
             // Act
             ManualTimeProvider.AddSecond();

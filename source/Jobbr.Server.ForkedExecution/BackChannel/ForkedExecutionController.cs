@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.BackChannel.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Jobbr.Server.ForkedExecution.BackChannel
 {
@@ -62,8 +62,8 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 JobRunId = jobRunId,
                 JobName = jobRun.UniqueName,
                 JobType = jobRun.Type,
-                JobParameter = jobRun.JobParameters != null ? JsonConvert.DeserializeObject(jobRun.JobParameters) : null,
-                InstanceParameter = jobRun.InstanceParameters != null ? JsonConvert.DeserializeObject(jobRun.InstanceParameters) : null,
+                JobParameter = jobRun.JobParameters != null ? JsonSerializer.Deserialize<JobRunInfoDto>(jobRun.JobParameters) : null,
+                InstanceParameter = jobRun.InstanceParameters != null ? JsonSerializer.Deserialize<JobRunInfoDto>(jobRun.InstanceParameters) : null,
             };
 
             _logger.LogDebug("Returning job run information for job run '{jobRunId}'", jobRunId);
@@ -76,7 +76,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// </summary>
         /// <param name="jobRunId">The ID of the target job run.</param>
         /// <param name="dto">The payload for updating a job run with.</param>
-        /// <returns>A result containg either 202(Accepted), 404(NotFound) or 400(BadRequest).</returns>
+        /// <returns>A result containing either 202(Accepted), 404(NotFound) or 400(BadRequest).</returns>
         [HttpPut]
         [Route("jobrun/{jobRunId}")]
         public IActionResult PutJobRunUpdate(long jobRunId, [FromBody] JobRunUpdateDto dto)
