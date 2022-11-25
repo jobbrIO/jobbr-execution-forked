@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Jobbr.ComponentModel.Registration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// <inheritdoc/>
         public void Dispose()
         {
+            Task.FromResult(_webHost.StopAsync());
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -50,14 +52,16 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             }
 
             _webHost = new WebHostBuilder()
-                .UseWebRoot(_configuration.BackendAddress)
+                .UseKestrel()
+                .UseUrls(_configuration.BackendAddress)
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton(_jobbrServiceProvider);
                 })
+                .UseStartup<Startup>()
                 .Build();
 
-            _webHost.Run();
+            _webHost.Start();
 
             _logger.LogInformation("Started web host for Backchannel at '{backendAddress}'.", _configuration.BackendAddress);
         }
@@ -67,7 +71,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// </summary>
         public void Stop()
         {
-            _webHost.Dispose();
+            Task.FromResult(_webHost.StopAsync());
         }
 
         /// <summary>
@@ -78,6 +82,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         {
             if (disposing)
             {
+                Task.FromResult(_webHost.StopAsync());
                 _webHost?.Dispose();
             }
         }

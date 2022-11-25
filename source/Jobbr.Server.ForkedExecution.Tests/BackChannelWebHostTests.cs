@@ -73,7 +73,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             };
 
             var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
-
+            
             host.Start();
             host.Dispose();
             try
