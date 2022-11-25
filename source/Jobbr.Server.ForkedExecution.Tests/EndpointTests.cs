@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;

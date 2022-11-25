@@ -1,23 +1,27 @@
 ﻿using System;
-using System.Net;
-using System.Reflection;
 using Jobbr.ComponentModel.Registration;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Owin.Hosting;
-using Microsoft.Owin.Hosting.Services;
-using Microsoft.Owin.Hosting.Starter;
 
 namespace Jobbr.Server.ForkedExecution.BackChannel
 {
+    /// <summary>
+    /// Creates and starts BackChannel web host.
+    /// </summary>
     public class BackChannelWebHost : IJobbrComponent
     {
         private readonly ILogger _logger;
-
         private readonly IJobbrServiceProvider _jobbrServiceProvider;
         private readonly ForkedExecutionConfiguration _configuration;
+        private IWebHost _webHost;
 
-        private IDisposable _webHost;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BackChannelWebHost"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="jobbrServiceProvider">Service provider.</param>
+        /// <param name="configuration">Forked execution configuration.</param>
         public BackChannelWebHost(ILoggerFactory loggerFactory, IJobbrServiceProvider jobbrServiceProvider, ForkedExecutionConfiguration configuration)
         {
             _logger = loggerFactory.CreateLogger<BackChannelWebHost>();
@@ -27,12 +31,17 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             _configuration = configuration;
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Start the web host.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The host is already running.</exception>
         public void Start()
         {
             if (_webHost != null)
@@ -40,50 +49,36 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 throw new InvalidOperationException("The server has already been started.");
             }
 
-            var services = (ServiceProvider)ServicesFactory.Create();
-            var options = new StartOptions()
-            {
-                Urls = { _configuration.BackendAddress },
-                AppStartup = typeof(Startup).FullName
-            };
-
-            // Pass through the IJobbrServiceProvider to allow Startup-Classes to let them inject this dependency to owin components
-            // See: http://servercoredump.com/question/27246240/inject-current-user-owin-host-web-api-service for details
-            services.Add(typeof(IJobbrServiceProvider), () => _jobbrServiceProvider);
-
-            var hostingStarter = services.GetService<IHostingStarter>();
-
-            try
-            {
-                _webHost = hostingStarter.Start(options);
-            }
-            catch (TargetInvocationException e)
-            {
-                if (e.InnerException is HttpListenerException)
+            _webHost = new WebHostBuilder()
+                .UseWebRoot(_configuration.BackendAddress)
+                .ConfigureServices(services =>
                 {
-                    throw e.InnerException;
-                }
+                    services.AddSingleton(_jobbrServiceProvider);
+                })
+                .Build();
 
-                throw;
-            }
+            _webHost.Run();
 
-            _logger.LogInformation("Started OWIN-Host for Backchannel at '{backendAddress}'.", _configuration.BackendAddress);
+            _logger.LogInformation("Started web host for Backchannel at '{backendAddress}'.", _configuration.BackendAddress);
         }
 
+        /// <summary>
+        /// Stop the hosting by disposing the host object.
+        /// </summary>
         public void Stop()
         {
             _webHost.Dispose();
         }
 
+        /// <summary>
+        /// Conditional web host dispose.
+        /// </summary>
+        /// <param name="disposing">If true, dispose.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
-                // free managed resources
-                if (_webHost != null)
-                {
-                    _webHost.Dispose();
-                }
+                _webHost?.Dispose();
             }
         }
     }
