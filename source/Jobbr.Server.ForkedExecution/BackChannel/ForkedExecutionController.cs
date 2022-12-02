@@ -61,8 +61,8 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 JobRunId = jobRunId,
                 JobName = jobRun.UniqueName,
                 JobType = jobRun.Type,
-                JobParameter = jobRun.JobParameters != null ? JsonSerializer.Deserialize<JobRunInfoDto>(jobRun.JobParameters, DefaultJsonOptions.Options) : null,
-                InstanceParameter = jobRun.InstanceParameters != null ? JsonSerializer.Deserialize<JobRunInfoDto>(jobRun.InstanceParameters, DefaultJsonOptions.Options) : null,
+                JobParameter = jobRun.JobParameters != null ? JsonSerializer.Deserialize<object>(jobRun.JobParameters, DefaultJsonOptions.Options) : null,
+                InstanceParameter = jobRun.InstanceParameters != null ? JsonSerializer.Deserialize<object>(jobRun.InstanceParameters) : null,
             };
 
             _logger.LogDebug("Returning job run information for job run '{jobRunId}'", jobRunId);

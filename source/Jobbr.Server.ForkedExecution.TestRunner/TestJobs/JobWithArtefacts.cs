@@ -2,9 +2,9 @@
 
 namespace Jobbr.Server.ForkedExecution.TestRunner.TestJobs
 {
-    public static class JobWithArtefacts
+    public class JobWithArtefacts
     {
-        public static void Run()
+        public void Run()
         {
             File.AppendAllText("testfile.txt", "Testcontent");
         }

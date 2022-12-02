@@ -7,13 +7,13 @@ namespace Jobbr.Server.ForkedExecution.TestRunner.TestJobs
         public bool ShouldFail { get; set; }
     }
 
-    public static class JobWithOneProgress
+    public class JobWithOneProgress
     {
         public static double DefinedProgressValue = 42.135;
 
-        public static void Run(TestArguments runParams)
+        public void Run(object jobParams, TestArguments runParams)
         {
-            Console.WriteLine($"##jobbr[progress percent='{DefinedProgressValue}']");
+            Console.WriteLine("##jobbr[progress percent='" + DefinedProgressValue + "']");
 
             if (runParams?.ShouldFail == true)
             {

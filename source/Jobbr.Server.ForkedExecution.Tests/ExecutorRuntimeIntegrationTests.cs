@@ -322,7 +322,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Assert
-            var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 10000000);
+            var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should have failed in the meantime, but did not within 3s");
 
