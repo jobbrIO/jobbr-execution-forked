@@ -5,8 +5,11 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Jobbr.ComponentModel.Execution;
+using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -27,32 +30,41 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void JobInfoEndpoint_GetNonExistingById_ReturnsNotFound()
         {
+            // Arrange
             GivenARunningServer();
 
+            // Act
             var statusResponse = Get("/fex/jobrun/524868244");
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, statusResponse.StatusCode);
         }
 
         [TestMethod]
         public void JobInfoEndpoint_GetExistingById_ReturnsOk()
         {
+            // Arrange
             GivenARunningServer();
             var createdJobRun = _fakeStore.CreateFakeJobRun(DateTime.UtcNow);
 
+            // Act
             var statusResponse = Get("/fex/jobrun/" + createdJobRun.Id);
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.OK, statusResponse.StatusCode);
         }
 
         [TestMethod]
         public void JobRunEndpoint_UpdateExisting_ReturnsAccepted()
         {
+            // Arrange
             GivenARunningServer();
             var createdJobRun = _fakeStore.CreateFakeJobRun(DateTime.UtcNow);
 
-            var statusResponse = Put("/fex/jobrun/" + createdJobRun.Id, new { State = "Started" });
+            // Act
+            var statusResponse = Put("/fex/jobrun/" + createdJobRun.Id, new { State = JobRunStates.Started });
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.Accepted, statusResponse.StatusCode);
             Assert.AreEqual(1, _channelFakeStore.AllStatusUpdates.SelectMany(u => u.Value).Count(), "There should be one single update");
         }
@@ -60,31 +72,41 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void JobRunEndpoint_UpdateNotExisting_ReturnsNotFound()
         {
+            // Arrange
             GivenARunningServer();
 
+            // Act
             var statusResponse = Put("/fex/jobrun/524868244", new { });
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, statusResponse.StatusCode);
         }
 
         [TestMethod]
         public void JobRunEndpoint_SendInvalidState_ReturnsNotFound()
         {
+            // Arrange
             GivenARunningServer();
             var createdJobRun = _fakeStore.CreateFakeJobRun(DateTime.UtcNow);
+
+            // Act
             var statusResponse = Put("/fex/jobrun/" + createdJobRun.Id, new { State = "MyCustomState" });
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.BadRequest, statusResponse.StatusCode);
         }
 
         [TestMethod]
         public void ArtefactEndpoint_SendForKnownJobRun_ReturnsAccepted()
         {
+            // Arrange
             GivenARunningServer();
             var createdJobRun = _fakeStore.CreateFakeJobRun(DateTime.UtcNow);
 
+            // Act
             var statusResponse = SendImage("/fex/jobrun/" + createdJobRun.Id + "/artefacts", new MemoryStream());
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.Accepted, statusResponse.StatusCode);
             Assert.AreEqual(1, _channelFakeStore.AllUploadedArtefacts.SelectMany(a => a.Value).Count());
         }
@@ -92,10 +114,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void ArtefactEndpoint_SendForUnknownJobRun_ReturnsNotFound()
         {
+            // Arrange
             GivenARunningServer();
 
+            // Act
             var statusResponse = SendImage("/fex/jobrun/524868244/artefacts", new MemoryStream());
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, statusResponse.StatusCode);
         }
 
@@ -123,12 +148,16 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
         private void GivenARunningServer()
         {
-            var config = new ForkedExecutionConfiguration()
+            var config = new ForkedExecutionConfiguration
             {
                 BackendAddress = _configBackendAddress
             };
 
-            var webHost = new BackChannelWebHost(new NullLoggerFactory(), new JobbrServiceProviderMock(new NullLoggerFactory(), new JobRunInfoServiceMock(_fakeStore), _channelFakeStore), config);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<IJobRunInformationService>(new JobRunInfoServiceMock(_fakeStore));
+            serviceCollection.AddSingleton<IJobRunProgressChannel>(_channelFakeStore);
+
+            var webHost = new BackChannelWebHost(new NullLoggerFactory(), serviceCollection, config);
 
             webHost.Start();
         }

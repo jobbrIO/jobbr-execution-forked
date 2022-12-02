@@ -25,10 +25,10 @@ namespace Jobbr.Server.ForkedExecution.Execution
         private readonly IPeriodicTimer _periodicTimer;
         private readonly IDateTimeProvider _dateTimeProvider;
 
-        private readonly List<PlannedJobRun> _plannedJobRuns = new List<PlannedJobRun>();
-        private readonly List<IJobRunContext> _activeContexts = new List<IJobRunContext>();
+        private readonly List<PlannedJobRun> _plannedJobRuns = new ();
+        private readonly List<IJobRunContext> _activeContexts = new ();
 
-        private readonly object _syncRoot = new object();
+        private readonly object _syncRoot = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ForkedJobExecutor"/> class.

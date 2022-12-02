@@ -29,8 +29,8 @@ namespace Jobbr.Runtime.ForkedExecution
             _coreRuntime = new CoreRuntime(runtimeConfiguration);
 
             // Wire Events to publish status
-            _coreRuntime.Initializing += (sender, args) => _forkedExecutionRestClient.PublishState(JobRunState.Initializing);
-            _coreRuntime.Starting += (sender, args) => _forkedExecutionRestClient.PublishState(JobRunState.Processing);
+            _coreRuntime.Initializing += (sender, args) => _forkedExecutionRestClient.PublishState(JobRunStates.Initializing);
+            _coreRuntime.Starting += (sender, args) => _forkedExecutionRestClient.PublishState(JobRunStates.Processing);
 
             _coreRuntime.Ended += CoreRuntimeOnEnded;
         }
@@ -42,7 +42,7 @@ namespace Jobbr.Runtime.ForkedExecution
             _logger.LogInformation("ForkedRuntime started at {now} (UTC) with cmd-arguments {arguments}", DateTime.UtcNow, string.Join(" ", args));
 
             var cmdlineOptions = ParseArguments(args);
-
+            
             _logger.LogInformation("JobRunId: {jobRunId}", cmdlineOptions.JobRunId);
             _logger.LogInformation("JobServer: {jobServer}", cmdlineOptions.JobServer); 
             _logger.LogInformation("IsDebug: {isDebug}", cmdlineOptions.IsDebug);
@@ -51,11 +51,11 @@ namespace Jobbr.Runtime.ForkedExecution
 
             // Create client
             var jobbrRuntimeClient = new ForkedExecutionRestClient(cmdlineOptions.JobServer, cmdlineOptions.JobRunId);
-            this._forkedExecutionRestClient = jobbrRuntimeClient;
+            _forkedExecutionRestClient = jobbrRuntimeClient;
 
-            jobbrRuntimeClient.PublishState(JobRunState.Connected);
+            jobbrRuntimeClient.PublishState(JobRunStates.Connected);
 
-            var jobRunInfoDto = this._forkedExecutionRestClient.GetJobRunInfo();
+            var jobRunInfoDto = _forkedExecutionRestClient.GetJobRunInfo();
 
             var jobRunInfo = new ExecutionMetadata
             {
@@ -118,24 +118,24 @@ namespace Jobbr.Runtime.ForkedExecution
                 Environment.ExitCode = 1;
             }
 
-            _forkedExecutionRestClient.PublishState(JobRunState.Finishing);
+            _forkedExecutionRestClient.PublishState(JobRunStates.Finishing);
 
             // Are there any files to collect?
             var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
 
             if (allFiles.Any())
             {
-                _forkedExecutionRestClient.PublishState(JobRunState.Collecting);
+                _forkedExecutionRestClient.PublishState(JobRunStates.Collecting);
                 _forkedExecutionRestClient.SendFiles(allFiles);
             }
 
             if (executionEndedEventArgs.Succeeded)
             {
-                _forkedExecutionRestClient.PublishState(JobRunState.Completed);
+                _forkedExecutionRestClient.PublishState(JobRunStates.Completed);
             }
             else
             {
-                _forkedExecutionRestClient.PublishState(JobRunState.Failed);
+                _forkedExecutionRestClient.PublishState(JobRunStates.Failed);
             }
         }
 

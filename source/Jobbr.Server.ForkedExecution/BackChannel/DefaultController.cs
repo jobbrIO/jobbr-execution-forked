@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Jobbr.Server.ForkedExecution.BackChannel
@@ -21,9 +22,12 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             _logger = loggerFactory.CreateLogger<DefaultController>();
         }
 
-        [HttpGet]
-        [Route("status")]
-        public IActionResult GetStatus()
+        /// <summary>
+        /// Status health check for the hosting service.
+        /// </summary>
+        /// <returns><see cref="OkObjectResult"/> if the service manages to respond.</returns>
+        [HttpGet("status")]
+        public async Task<IActionResult> GetStatus()
         {
             _logger.LogDebug("Called StatusRoute");
             return Ok("All fine!");

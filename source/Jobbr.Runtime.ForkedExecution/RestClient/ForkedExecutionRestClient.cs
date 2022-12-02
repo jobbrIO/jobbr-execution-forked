@@ -36,17 +36,17 @@ namespace Jobbr.Runtime.ForkedExecution.RestClient
         /// </summary>
         /// <param name="state">State to publish.</param>
         /// <returns>If state publish returned 202 (Accepted).</returns>
-        public bool PublishState(JobRunState state)
+        public bool PublishState(JobRunStates state)
         {
             var url = $"jobRun/{_jobRunId}";
             var content = new JobRunUpdateDto
             {
-                State = state.ToString()
+                State = state
             };
 
-            var serializeObject = JsonSerializer.Serialize(content);
+            var serializedObject = JsonSerializer.Serialize(content, DefaultJsonOptions.Options);
 
-            var request = _httpClient.PutAsync(url, new StringContent(serializeObject, Encoding.UTF8, "application/json"));
+            var request = _httpClient.PutAsync(url, new StringContent(serializedObject, Encoding.UTF8, "application/json"));
             var result = request.Result;
 
             return result.StatusCode == HttpStatusCode.Accepted;
@@ -88,7 +88,7 @@ namespace Jobbr.Runtime.ForkedExecution.RestClient
             {
                 var content = result.Content.ReadAsStringAsync().Result;
 
-                var dto = JsonSerializer.Deserialize<JobRunInfoDto>(content);
+                var dto = JsonSerializer.Deserialize<JobRunInfoDto>(content, DefaultJsonOptions.Options);
 
                 return dto;
             }

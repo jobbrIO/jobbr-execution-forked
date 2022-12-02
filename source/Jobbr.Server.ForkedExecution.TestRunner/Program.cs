@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+﻿using Jobbr.Runtime.ForkedExecution;
+using Jobbr.Runtime;
+using System.Reflection;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Jobbr.Server.ForkedExecution.TestRunner
 {
@@ -7,14 +9,9 @@ namespace Jobbr.Server.ForkedExecution.TestRunner
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
-        }
+            var runtime = new ForkedRuntime(new NullLoggerFactory(), new RuntimeConfiguration { JobTypeSearchAssemblies = new[] { Assembly.GetEntryAssembly() } });
 
-        private static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+            runtime.Run(args);
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <ProjectGuid>{13884A29-7077-49F2-99A1-A71A921773B2}</ProjectGuid>
     <TargetFramework>net6.0</TargetFramework>
@@ -18,11 +18,13 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
-  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <PropertyGroup>
+	<PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
+	<Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.11" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.355802">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -31,6 +33,8 @@
     <PackageReference Include="Jobbr.ComponentModel.JobStorage" Version="1.6.0" />
     <PackageReference Include="Jobbr.ComponentModel.Management" Version="1.6.3" />
     <PackageReference Include="Jobbr.ComponentModel.Registration" Version="1.0.3" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Net.Http" />
@@ -42,7 +46,7 @@
     <ProjectReference Include="..\submodules\devsupport\src\Jobbr.DevSupport.ReferencedVersionAsserter\Jobbr.DevSupport.ReferencedVersionAsserter.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Jobbr.Server" Version="1.0.0" />
+    <PackageReference Include="Jobbr.Server" Version="1.6.0" />
     <PackageReference Include="Moq" Version="4.18.2" />
   </ItemGroup>
   <ItemGroup>

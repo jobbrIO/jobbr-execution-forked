@@ -8,12 +8,14 @@ namespace Jobbr.Server.ForkedExecution.Tests
     [TestClass]
     public class ConfigurationValidatorTests
     {
-        private readonly ConfigurationValidator _configurationValidator;
+        private readonly ConfigurationValidator _workingConfigurationValidator;
+        private readonly ForkedExecutionConfiguration _workingConfiguration;
 
         public ConfigurationValidatorTests()
         {
             var loggerFactory = new LoggerFactory();
-            _configurationValidator = new ConfigurationValidator(loggerFactory);
+            _workingConfigurationValidator = new ConfigurationValidator(loggerFactory);
+            _workingConfiguration = GetWorkingConfiguration();
         }
 
         private static ForkedExecutionConfiguration GetWorkingConfiguration()
@@ -30,10 +32,11 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void WorkingConfiguration_Validated_IsFine()
         {
-            var config = GetWorkingConfiguration();
-
-            var validationResult = _configurationValidator.Validate(config);
-
+            // Arrange
+            // Act
+            var validationResult = _workingConfigurationValidator.Validate(_workingConfiguration);
+            
+            // Assert
             Assert.IsTrue(validationResult);
         }
 
@@ -41,66 +44,72 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void RunnerExecutable_IsNull_ValidationThrowsException()
         {
-            var config = GetWorkingConfiguration();
-
-            config.JobRunnerExecutable = null;
-
-            _configurationValidator.Validate(config);
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunnerExecutable = null;
+            
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void RunnerExecutable_Empty_ValidationThrowsException()
         {
-            var config = GetWorkingConfiguration();
-
-            config.JobRunnerExecutable = string.Empty;
-
-            _configurationValidator.Validate(config);
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunnerExecutable = string.Empty;
+            
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void RunnerExecutable_IsInvalidPath_ValidationThrowsException()
         {
-            var config = GetWorkingConfiguration();
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunnerExecutable = "C:\\bla\\blupp.exe";
 
-            config.JobRunnerExecutable = "C:\\bla\\blupp.exe";
-
-            _configurationValidator.Validate(config);
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void JobRunDirectory_IsNull_ValidationThrowsException()
         {
-            var config = GetWorkingConfiguration();
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunDirectory = null;
 
-            config.JobRunDirectory = null;
-
-            _configurationValidator.Validate(config);
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void JobRunDirectory_Empty_ValidationThrowsException()
         {
-            var config = GetWorkingConfiguration();
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunDirectory = string.Empty;
 
-            config.JobRunDirectory = string.Empty;
-
-            _configurationValidator.Validate(config);
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void JobRunDirectory_IsInvalidPath_ValidationThrowsException()
         {
-            var config = GetWorkingConfiguration();
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunDirectory = "C:\\bla\\";
 
-            config.JobRunDirectory = "C:\\bla\\";
-
-            _configurationValidator.Validate(config);
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Jobbr.ComponentModel.Registration;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -13,29 +13,28 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
     public class BackChannelWebHost : IJobbrComponent
     {
         private readonly ILogger _logger;
-        private readonly IJobbrServiceProvider _jobbrServiceProvider;
+        private readonly IServiceCollection _serviceCollection;
         private readonly ForkedExecutionConfiguration _configuration;
-        private IWebHost _webHost;
+        private WebApplication _webApp;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BackChannelWebHost"/> class.
         /// </summary>
         /// <param name="loggerFactory">The logger factory.</param>
-        /// <param name="jobbrServiceProvider">Service provider.</param>
+        /// <param name="serviceCollection">The service collection.</param>
         /// <param name="configuration">Forked execution configuration.</param>
-        public BackChannelWebHost(ILoggerFactory loggerFactory, IJobbrServiceProvider jobbrServiceProvider, ForkedExecutionConfiguration configuration)
+        public BackChannelWebHost(ILoggerFactory loggerFactory, IServiceCollection serviceCollection, ForkedExecutionConfiguration configuration)
         {
             _logger = loggerFactory.CreateLogger<BackChannelWebHost>();
             _logger.LogDebug("Constructing new BackChannelWebHost");
 
-            _jobbrServiceProvider = jobbrServiceProvider;
+            _serviceCollection = serviceCollection;
             _configuration = configuration;
         }
 
         /// <inheritdoc/>
         public void Dispose()
         {
-            Task.FromResult(_webHost.StopAsync());
             Dispose(true);
             GC.SuppressFinalize(this);
         }
@@ -46,22 +45,29 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// <exception cref="InvalidOperationException">The host is already running.</exception>
         public void Start()
         {
-            if (_webHost != null)
+            if (_webApp != null)
             {
                 throw new InvalidOperationException("The server has already been started.");
             }
 
-            _webHost = new WebHostBuilder()
-                .UseKestrel()
-                .UseUrls(_configuration.BackendAddress)
-                .ConfigureServices(services =>
-                {
-                    services.AddSingleton(_jobbrServiceProvider);
-                })
-                .UseStartup<Startup>()
-                .Build();
+            var builder = WebApplication.CreateBuilder();
 
-            _webHost.Start();
+            foreach (var service in _serviceCollection)
+            {
+                builder.Services.Add(service);
+            }
+
+            // Controllers with endpoints need to be added manually due discovery issues.
+            // https://stackoverflow.com/q/73777145
+            var mvcBuilder = builder.Services.AddControllers();
+            mvcBuilder.AddApplicationPart(typeof(DefaultController).Assembly);
+            mvcBuilder.AddApplicationPart(typeof(ForkedExecutionController).Assembly);
+
+            _webApp = builder.Build();
+            _webApp.MapControllers();
+            _webApp.Urls.Add(_configuration.BackendAddress);
+
+            Task.FromResult(_webApp.StartAsync());
 
             _logger.LogInformation("Started web host for Backchannel at '{backendAddress}'.", _configuration.BackendAddress);
         }
@@ -71,7 +77,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// </summary>
         public void Stop()
         {
-            Task.FromResult(_webHost.StopAsync());
+            Task.FromResult(_webApp.StopAsync());
         }
 
         /// <summary>
@@ -82,8 +88,8 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         {
             if (disposing)
             {
-                Task.FromResult(_webHost.StopAsync());
-                _webHost?.Dispose();
+                Task.FromResult(_webApp.StopAsync());
+                Task.FromResult(_webApp.DisposeAsync());
             }
         }
     }

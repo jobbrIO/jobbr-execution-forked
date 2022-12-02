@@ -12,27 +12,29 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
     /// </summary>
     public class ProgressChannelStore : IJobRunProgressChannel
     {
+        private readonly Dictionary<long, List<JobRunStates>> _jobRunStatusUpdates = new();
+        private readonly Dictionary<long, List<double>> _jobRunProgressUpdates = new();
         private readonly Dictionary<long, List<string>> _jobRunArtefactUploads = new();
         private readonly Dictionary<long, List<Tuple<string, long>>> _jobRunPids = new();
-        private readonly Dictionary<Func<Dictionary<long, List<JobRunStates>>, bool>, AutoResetEvent> _statusUpdateWaitCallBacks = new ();
+        private readonly Dictionary<Func<Dictionary<long, List<JobRunStates>>, bool>, AutoResetEvent> _statusUpdateWaitCallBacks = new();
         private readonly Dictionary<Func<Dictionary<long, List<double>>, bool>, AutoResetEvent> _progressUpdateWaitCallBacks = new();
 
-        public Dictionary<long, List<JobRunStates>> AllStatusUpdates { get; } = new();
+        public Dictionary<long, List<JobRunStates>> AllStatusUpdates => _jobRunStatusUpdates;
 
-        public Dictionary<long, List<double>> AllProgressUpdates { get; } = new();
+        public Dictionary<long, List<double>> AllProgressUpdates => _jobRunProgressUpdates;
 
         public Dictionary<long, List<string>> AllUploadedArtefacts => _jobRunArtefactUploads;
 
         public Dictionary<long, List<Tuple<string, long>>> AllPids => _jobRunPids;
-
+        
         public void PublishStatusUpdate(long jobRunId, JobRunStates state)
         {
-            if (!AllStatusUpdates.ContainsKey(jobRunId))
+            if (!_jobRunStatusUpdates.ContainsKey(jobRunId))
             {
-                AllStatusUpdates.Add(jobRunId, new List<JobRunStates>());
+                _jobRunStatusUpdates.Add(jobRunId, new List<JobRunStates>());
             }
 
-            AllStatusUpdates[jobRunId].Add(state);
+            _jobRunStatusUpdates[jobRunId].Add(state);
 
             foreach (var kvp in _statusUpdateWaitCallBacks)
             {
@@ -40,7 +42,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
                 {
                     var callback = kvp.Key;
 
-                    var callbackHasPermitted = callback(AllStatusUpdates);
+                    var callbackHasPermitted = callback(_jobRunStatusUpdates);
 
                     if (callbackHasPermitted)
                     {
@@ -58,7 +60,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         {
             try
             {
-                var alreadyTrue = updatesFromAllJobs(AllStatusUpdates);
+                var alreadyTrue = updatesFromAllJobs(_jobRunStatusUpdates);
                 if (alreadyTrue)
                 {
                     return true;
@@ -83,7 +85,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
         {
             try
             {
-                var alreadyTrue = updatesFromAllJobs(AllProgressUpdates);
+                var alreadyTrue = updatesFromAllJobs(_jobRunProgressUpdates);
                 if (alreadyTrue)
                 {
                     return true;
@@ -106,12 +108,12 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 
         public void PublishProgressUpdate(long jobRunId, double progress)
         {
-            if (!AllProgressUpdates.ContainsKey(jobRunId))
+            if (!_jobRunProgressUpdates.ContainsKey(jobRunId))
             {
-                AllProgressUpdates.Add(jobRunId, new List<double>());
+                _jobRunProgressUpdates.Add(jobRunId, new List<double>());
             }
 
-            AllProgressUpdates[jobRunId].Add(progress);
+            _jobRunProgressUpdates[jobRunId].Add(progress);
         }
 
         public void PublishArtefact(long uniqueId, string fileName, Stream result)

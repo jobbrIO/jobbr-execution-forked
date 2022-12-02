@@ -5,10 +5,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
+using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.TestRunner.TestJobs;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -23,26 +25,33 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             new ConfigurationValidator(new NullLoggerFactory()).Validate(config);
 
-            var backChannelHost = new BackChannelWebHost(new NullLoggerFactory(), new JobbrServiceProviderMock(new NullLoggerFactory(), JobRunInformationService, ProgressChannelStore), config);
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddSingleton<IJobRunInformationService>(JobRunInformationService);
+            serviceCollection.AddSingleton<IJobRunProgressChannel>(ProgressChannelStore);
+
+            var backChannelHost = new BackChannelWebHost(new NullLoggerFactory(), serviceCollection, config);
             backChannelHost.Start();
         }
 
         [TestMethod]
         public void Startup_ExecutorAndBackChannel_BothRunning()
         {
+            // Arrange
             var config = GivenAMinimalConfiguration();
             GivenAStartedBackChannelHost(config);
             GivenAStartedExecutor(config);
 
+            // Act
             var statusResponse = new HttpClient().GetAsync(config.BackendAddress + "/fex/jobrun/524868244").Result;
 
+            // Assert
             Assert.AreEqual(HttpStatusCode.NotFound, statusResponse.StatusCode);
         }
 
         [TestMethod]
         public void PlannedJob_AfterStart_WillCallback()
         {
-            // Setup
+            // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
@@ -55,7 +64,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeRun.PlannedJobRun }));
 
-            // Test
+            // Assert
             var hasConnected = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Connected), 3000);
 
             Assert.IsTrue(hasConnected, "The runner executable should connect within 1s");
@@ -67,6 +76,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void PlannedJob_AfterStart_PidIsSet()
         {
+            // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
@@ -81,6 +91,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var hasConnected = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Connected), 3000);
 
+            // Assert
             Assert.IsTrue(hasConnected, "The runner executable should connect within 1s");
 
             var hasPid = ProgressChannelStore.AllPids.ContainsKey(fakeRun.Id);
@@ -93,7 +104,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void PlannedJob_AfterStarting_FoldersExist()
         {
-            // Setup
+            // Arrange
             var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
 
             var config = GivenAMinimalConfiguration();
@@ -108,9 +119,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            // Wait
+            // Assert
             var hasStarted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Starting), 3000);
-
             Assert.IsTrue(hasStarted, "The runner executable should have started, but did not within 3s");
 
             Assert.IsTrue(Directory.Exists(tempDir), "The temp directory should haven been created");
@@ -121,7 +131,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void RunnerExecutable_WithInvalidJob_ReturnsFailed()
         {
-            // Setup
+            // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
             
@@ -135,7 +145,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            // Test
+            // Assert
             var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should fail, but did not within 3s");
@@ -145,7 +155,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void RunnerExecutable_GetsValidJob_ReturnsCompleted()
         {
-            // Setup
+            // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
@@ -159,7 +169,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            // Test
+            // Assert
             var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
@@ -169,7 +179,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void RunnerExecutable_ParamsJobWithoutParams_Completes()
         {
-            // Setup
+            // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
@@ -183,7 +193,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            // Test
+            // Assert
             var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should complete, but did not within 3s");
@@ -193,7 +203,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void RunnerExecutable_JobWithArtefacts_UploadsFiles()
         {
-            // Setup
+            // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
@@ -207,7 +217,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            // Test
+            // Assert
             var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
@@ -217,7 +227,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void RunnerExecutable_JobWithProgress_SendsMultipleStates()
         {
-            // Setup
+            // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
@@ -233,6 +243,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
+            // Assert
             Assert.IsTrue(ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Connected), "It should contain the Connected state");
             Assert.IsTrue(ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Initializing), "It should contain the Initializing state");
             Assert.IsTrue(ProgressChannelStore.AllStatusUpdates[fakeRun.Id].Contains(JobRunStates.Processing), "It should contain the Processing state");
@@ -244,7 +255,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void RunnerExecutable_JobWithProgress_MultipleStatus()
         {
-            // Setup
+            // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
@@ -260,13 +271,14 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             ProgressChannelStore.WaitForProgressUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), 3000);
 
+            // Assert
             Assert.IsTrue(ProgressChannelStore.AllProgressUpdates[fakeRun.Id].Contains(JobWithOneProgress.DefinedProgressValue), "The runner executable should have send one progress update");
         }
 
         [TestMethod]
         public void RunnerExecutable_SuccessfulJobWithProgress_SetTo100Percent()
         {
-            // Setup
+            // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
@@ -280,7 +292,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            // Test
+            // Assert
             var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should completed, but did not within 3s");
@@ -294,7 +306,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void RunnerExecutable_FailingJobWithProgress_DontTouchProgress()
         {
-            // Setup
+            // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
 
@@ -303,14 +315,14 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var fakeRun = JobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "JobWithOneProgress";
-            fakeRun.JobRunInfo.InstanceParameters = JsonSerializer.Serialize(new { ShouldFail = true });
+            fakeRun.JobRunInfo.InstanceParameters = JsonSerializer.Serialize(new { ShouldFail = true }, DefaultJsonOptions.Options);
 
             // Act
             ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
-            // Test
-            var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 3000);
+            // Assert
+            var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Failed), 10000000);
 
             Assert.IsTrue(hasCompleted, "The runner executable should have failed in the meantime, but did not within 3s");
 
@@ -324,7 +336,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void RunnerExecutable_AdditionalParameters_PassedToExecutable()
         {
-            // Setup
+            // Arrange
             var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
             Directory.CreateDirectory(tempDir);
 
@@ -346,6 +358,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Wait until process has exited
             var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
+            // Assert
             Assert.IsTrue(hasCompleted, "The Echo Executable did not complete withing the timeout");
             Assert.IsTrue(Directory.Exists(expectedWorkdir), "The run\\work directory should exist");
             Assert.IsTrue(Directory.EnumerateFiles(expectedWorkdir).Any(), "There should be one file");
@@ -358,7 +371,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void RunnerExecutable_WhiteSpaceParameters_PassedToExecutable()
         {
-            // Setup
+            // Arrange
             var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
             Directory.CreateDirectory(tempDir);
 
@@ -380,6 +393,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Wait until process has exited
             var hasCompleted = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Completed), 3000);
 
+            // Assert
             Assert.IsTrue(hasCompleted, "The Echo Executable did not complete withing the timeout");
             Assert.IsTrue(Directory.Exists(expectedWorkdir), "The run\\work directory should exist");
             Assert.IsTrue(Directory.EnumerateFiles(expectedWorkdir).Any(), "There should be one file");

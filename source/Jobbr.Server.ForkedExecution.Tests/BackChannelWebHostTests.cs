@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,7 +15,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
     {
         private LoggerFactory _loggerFactory;
 
-        [TestInitialize()]
+        [TestInitialize]
         public void Startup()
         {
             _loggerFactory = new LoggerFactory();
@@ -24,41 +24,46 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public void BackChannel_StartWebHost_StatusUrlIsAvailable()
         {
+            // Arrange
             var forkedExecutionConfiguration = new ForkedExecutionConfiguration
             {
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
-
-            var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
-
+            
+            var host = new BackChannelWebHost(_loggerFactory, new ServiceCollection(), forkedExecutionConfiguration);
             host.Start();
 
+            // Act
             var response = new HttpClient().GetAsync(forkedExecutionConfiguration.BackendAddress + "/fex/status").Result;
 
+            // Assert
             Assert.IsTrue(response.IsSuccessStatusCode);
         }
 
         [TestMethod]
         public async Task BackChannel_AfterStop_IsNotAvailable()
         {
+            // Arrange
             var forkedExecutionConfiguration = new ForkedExecutionConfiguration
             {
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
-
-            var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
+            
+            var host = new BackChannelWebHost(_loggerFactory, new ServiceCollection(), forkedExecutionConfiguration);
 
             host.Start();
             host.Stop();
 
             try
             {
+                // Act
                 await new HttpClient().GetAsync(forkedExecutionConfiguration.BackendAddress + "/fex/status");
             }
             catch (Exception ex)
             {
-                if (ex.InnerException is WebException == false)
+                if (ex.InnerException is SocketException == false)
                 {
+                    // Assert
                     Assert.Fail("Exception thrown was " + ex.InnerException + ", which is not the expected exception");
                 }
             }
@@ -67,23 +72,27 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [TestMethod]
         public async Task BackChannel_AfterDisposal_IsNotAvailable()
         {
+            // Arrange
             var forkedExecutionConfiguration = new ForkedExecutionConfiguration
             {
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
-
-            var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
             
+            var host = new BackChannelWebHost(_loggerFactory, new ServiceCollection(), forkedExecutionConfiguration);
+
             host.Start();
             host.Dispose();
+
             try
             {
+                // Act
                 await new HttpClient().GetAsync(forkedExecutionConfiguration.BackendAddress + "/fex/status");
             }
             catch (Exception ex)
             {
-                if (ex.InnerException is WebException == false)
+                if (ex.InnerException is SocketException == false)
                 {
+                    // Assert
                     Assert.Fail("Exception thrown was " + ex.InnerException + ", which is not the expected exception");
                 }
             }
@@ -93,33 +102,17 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [ExpectedException(typeof(InvalidOperationException))]
         public void BackChannel_StartedTwice_RaisesException()
         {
+            // Arrange
             var forkedExecutionConfiguration = new ForkedExecutionConfiguration
             {
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
+            
+            var host = new BackChannelWebHost(_loggerFactory, new ServiceCollection(), forkedExecutionConfiguration);
 
-            var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
-
+            // Act
+            // Assert
             host.Start();
-            host.Start();
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(HttpListenerException))]
-        public void BackChannel_PortInUse_RaisesException()
-        {
-            var nextFreeTcpPort = TcpPortHelper.NextFreeTcpPort();
-
-            // intentionally block port
-            new TcpListener(IPAddress.Any, nextFreeTcpPort).Start();
-
-            var forkedExecutionConfiguration = new ForkedExecutionConfiguration
-            {
-                BackendAddress = "http://localhost:" + nextFreeTcpPort
-            };
-
-            var host = new BackChannelWebHost(_loggerFactory, new JobbrServiceProviderMock(_loggerFactory, null, null), forkedExecutionConfiguration);
-
             host.Start();
         }
     }

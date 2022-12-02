@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
+﻿using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.BackChannel.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 
 namespace Jobbr.Server.ForkedExecution.BackChannel
 {
@@ -39,9 +39,8 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// </summary>
         /// <param name="jobRunId">The target job run ID.</param>
         /// <returns>A result containing a <see cref="JobRunInfoDto"/> or 404 if not found.</returns>
-        [HttpGet]
-        [Route("jobrun/{jobRunId}")]
-        public IActionResult GetJobRunInfos(long jobRunId)
+        [HttpGet("jobrun/{jobRunId}")]
+        public async Task<IActionResult> GetJobRunInfosAsync(long jobRunId)
         {
             _logger.LogDebug("ConsoleExecutor is requesting information about a job run with id '{jobRunId}'", jobRunId);
 
@@ -62,8 +61,8 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 JobRunId = jobRunId,
                 JobName = jobRun.UniqueName,
                 JobType = jobRun.Type,
-                JobParameter = jobRun.JobParameters != null ? JsonSerializer.Deserialize<JobRunInfoDto>(jobRun.JobParameters) : null,
-                InstanceParameter = jobRun.InstanceParameters != null ? JsonSerializer.Deserialize<JobRunInfoDto>(jobRun.InstanceParameters) : null,
+                JobParameter = jobRun.JobParameters != null ? JsonSerializer.Deserialize<JobRunInfoDto>(jobRun.JobParameters, DefaultJsonOptions.Options) : null,
+                InstanceParameter = jobRun.InstanceParameters != null ? JsonSerializer.Deserialize<JobRunInfoDto>(jobRun.InstanceParameters, DefaultJsonOptions.Options) : null,
             };
 
             _logger.LogDebug("Returning job run information for job run '{jobRunId}'", jobRunId);
@@ -77,9 +76,8 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// <param name="jobRunId">The ID of the target job run.</param>
         /// <param name="dto">The payload for updating a job run with.</param>
         /// <returns>A result containing either 202(Accepted), 404(NotFound) or 400(BadRequest).</returns>
-        [HttpPut]
-        [Route("jobrun/{jobRunId}")]
-        public IActionResult PutJobRunUpdate(long jobRunId, [FromBody] JobRunUpdateDto dto)
+        [HttpPut("jobrun/{jobRunId}")]
+        public async Task<IActionResult> PutJobRunUpdateAsync(long jobRunId, [FromBody] JobRunUpdateDto dto)
         {
             _logger.LogDebug("ConsoleExecutor is trying to update job with ID '{jobRunId}'", jobRunId);
             var jobRun = _jobRunInformationService.GetByJobRunId(jobRunId);
@@ -99,7 +97,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
             _logger.LogInformation("Publishing state update '{state}' for job run ID '{jobRunId}'", dto.State, jobRunId);
             _progressChannel.PublishStatusUpdate(jobRun.Id, dto.State);
 
-            return StatusCode((int)HttpStatusCode.Accepted);
+            return Accepted();
         }
 
         /// <summary>
@@ -107,9 +105,9 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// </summary>
         /// <param name="jobRunId">The target job run ID.</param>
         /// <returns>A result that contains NotFound(404) or Accepted(202).</returns>
-        [HttpPost]
-        [Route("jobrun/{jobRunId}/artefacts")]
-        public IActionResult AddArtefacts(long jobRunId)
+        [HttpPost("jobrun/{jobRunId}/artefacts")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> AddArtefactsAsync(long jobRunId)
         {
             _logger.LogDebug("ConsoleExecutor is upload job artifacts for job with ID '{jobRunId}'", jobRunId);
             var jobRun = _jobRunInformationService.GetByJobRunId(jobRunId);
@@ -120,20 +118,26 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
                 return NotFound();
             }
 
-            // IEnumerable<HttpContent> parts = Request.Content.ReadAsMultipartAsync().Result.Contents; // TODO: find replacement
-            IEnumerable<HttpContent> parts = new List<HttpContent>();
+            var request = HttpContext.Request;
 
-            foreach (var part in parts)
+            if (!request.HasFormContentType || !MediaTypeHeaderValue.TryParse(request.ContentType, out var mediaTypeHeader) || string.IsNullOrEmpty(mediaTypeHeader.Boundary.Value))
             {
-                var contentDisposition = part.Headers.ContentDisposition;
-
-                var result = part.ReadAsStreamAsync().Result;
-
-                _logger.LogInformation("Publishing job run artifact '{filename}' for JobRun (ID '{jobRunId}') with '{resultLength}' bytes", contentDisposition.FileName, jobRun.Id, result.Length);
-                _progressChannel.PublishArtefact(jobRun.Id, contentDisposition.FileName, result);
+                return new UnsupportedMediaTypeResult();
             }
 
-            return StatusCode((int)HttpStatusCode.Accepted);
+            var files = request.Form.Files;
+
+            foreach (var file in files)
+            {
+                var result = file.OpenReadStream();
+
+                var untrustedFileName = Path.GetFileName(file.FileName);
+
+                _logger.LogInformation("Publishing job run artifact '{filename}' for JobRun (ID '{jobRunId}') with '{resultLength}' bytes", untrustedFileName, jobRun.Id, result.Length);
+                _progressChannel.PublishArtefact(jobRun.Id, untrustedFileName, result);
+            }
+
+            return Accepted();
         }
     }
 }
