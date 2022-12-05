@@ -4,9 +4,9 @@ using System.Text.Json.Serialization;
 namespace Jobbr.Server.ForkedExecution
 {
     /// <summary>
+    /// https://github.com/dotnet/runtime/issues/31094
     /// Default options for JSON serialization and deserialization.
     /// These are required because the System.Text.Json doesn't provide global defaults.
-    /// https://github.com/dotnet/runtime/issues/31094 .
     /// </summary>
     public static class DefaultJsonOptions
     {

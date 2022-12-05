@@ -42,9 +42,9 @@ namespace Jobbr.Runtime.ForkedExecution
             _logger.LogInformation("ForkedRuntime started at {now} (UTC) with cmd-arguments {arguments}", DateTime.UtcNow, string.Join(" ", args));
 
             var cmdlineOptions = ParseArguments(args);
-            
+
             _logger.LogInformation("JobRunId: {jobRunId}", cmdlineOptions.JobRunId);
-            _logger.LogInformation("JobServer: {jobServer}", cmdlineOptions.JobServer); 
+            _logger.LogInformation("JobServer: {jobServer}", cmdlineOptions.JobServer);
             _logger.LogInformation("IsDebug: {isDebug}", cmdlineOptions.IsDebug);
 
             WaitForDebugger(cmdlineOptions.IsDebug);
