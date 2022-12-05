@@ -2,28 +2,26 @@ using System;
 using System.Collections.Generic;
 using Jobbr.ComponentModel.Registration;
 using Jobbr.Server.ForkedExecution.BackChannel;
+using Microsoft.Extensions.Logging;
 
 namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 {
     public class JobbrServiceProviderMock : IJobbrServiceProvider
     {
-        private readonly JobRunInfoServiceMock jobRunInformationService;
-        private readonly ProgressChannelStore progressChannelStore;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly JobRunInfoServiceMock _jobRunInformationService;
+        private readonly ProgressChannelStore _progressChannelStore;
 
-        public JobbrServiceProviderMock(JobRunInfoServiceMock jobRunInformationService, ProgressChannelStore progressChannelStore)
+        public JobbrServiceProviderMock(ILoggerFactory loggerFactory, JobRunInfoServiceMock jobRunInformationService, ProgressChannelStore progressChannelStore)
         {
-            this.jobRunInformationService = jobRunInformationService;
-            this.progressChannelStore = progressChannelStore;
+            _loggerFactory = loggerFactory;
+            _jobRunInformationService = jobRunInformationService;
+            _progressChannelStore = progressChannelStore;
         }
 
         public object GetService(Type serviceType)
         {
-            if (serviceType == typeof(ForkedExecutionController))
-            {
-                return new ForkedExecutionController(this.jobRunInformationService, this.progressChannelStore);
-            }
-
-            return null;
+            return serviceType == typeof(ForkedExecutionController) ? new ForkedExecutionController(_loggerFactory, _jobRunInformationService, _progressChannelStore) : null;
         }
 
         public IEnumerable<object> GetServices(Type serviceType)

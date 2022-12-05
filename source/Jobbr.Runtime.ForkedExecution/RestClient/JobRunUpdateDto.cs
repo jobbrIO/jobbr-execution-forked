@@ -2,6 +2,6 @@
 {
     public class JobRunUpdateDto
     {
-        public string State { get; set; }
+        public JobRunStates State { get; set; }
     }
 }

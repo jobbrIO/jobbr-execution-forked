@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ProjectGuid>{ADFEEB77-10B0-4028-AD62-2D505FD29757}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AssemblyTitle>Jobbr.Server.ForkedExecution.TestEcho</AssemblyTitle>
     <Product>Jobbr.Server.ForkedExecution.TestEcho</Product>
@@ -15,9 +15,4 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 {
-    public class TcpPortHelper
+    public static class TcpPortHelper
     {
         public static int NextFreeTcpPort()
         {

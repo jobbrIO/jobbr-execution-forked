@@ -1,88 +1,95 @@
 ﻿using System;
-using System.Net;
-using System.Reflection;
+using System.Threading.Tasks;
 using Jobbr.ComponentModel.Registration;
-using Jobbr.Server.ForkedExecution.Logging;
-using Microsoft.Owin.Hosting;
-using Microsoft.Owin.Hosting.Services;
-using Microsoft.Owin.Hosting.Starter;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Jobbr.Server.ForkedExecution.BackChannel
 {
+    /// <summary>
+    /// Creates and starts BackChannel web host.
+    /// </summary>
     public class BackChannelWebHost : IJobbrComponent
     {
-        private static readonly ILog Logger = LogProvider.For<BackChannelWebHost>();
+        private readonly ILogger _logger;
+        private readonly IServiceCollection _serviceCollection;
+        private readonly ForkedExecutionConfiguration _configuration;
+        private WebApplication _webApp;
 
-        private readonly IJobbrServiceProvider jobbrServiceProvider;
-        private readonly ForkedExecutionConfiguration configuration;
-
-        private IDisposable webHost;
-
-        public BackChannelWebHost(IJobbrServiceProvider jobbrServiceProvider, ForkedExecutionConfiguration configuration)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BackChannelWebHost"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="serviceCollection">The service collection.</param>
+        /// <param name="configuration">Forked execution configuration.</param>
+        public BackChannelWebHost(ILoggerFactory loggerFactory, IServiceCollection serviceCollection, ForkedExecutionConfiguration configuration)
         {
-            Logger.Debug("Constructing new BackChannelWebHost");
+            _logger = loggerFactory.CreateLogger<BackChannelWebHost>();
+            _logger.LogDebug("Constructing new BackChannelWebHost");
 
-            this.jobbrServiceProvider = jobbrServiceProvider;
-            this.configuration = configuration;
+            _serviceCollection = serviceCollection;
+            _configuration = configuration;
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Start the web host.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">The host is already running.</exception>
         public void Start()
         {
-            if (this.webHost != null)
+            if (_webApp != null)
             {
                 throw new InvalidOperationException("The server has already been started.");
             }
 
-            var services = (ServiceProvider)ServicesFactory.Create();
-            var options = new StartOptions()
+            var builder = WebApplication.CreateBuilder();
+
+            foreach (var service in _serviceCollection)
             {
-                Urls = { this.configuration.BackendAddress },
-                AppStartup = typeof(Startup).FullName
-            };
-
-            // Pass through the IJobbrServiceProvider to allow Startup-Classes to let them inject this dependency to owin components
-            // See: http://servercoredump.com/question/27246240/inject-current-user-owin-host-web-api-service for details
-            services.Add(typeof(IJobbrServiceProvider), () => this.jobbrServiceProvider);
-
-            var hostingStarter = services.GetService<IHostingStarter>();
-
-            try
-            {
-                this.webHost = hostingStarter.Start(options);
-            }
-            catch (TargetInvocationException e)
-            {
-                if (e.InnerException is HttpListenerException)
-                {
-                    throw e.InnerException;
-                }
-
-                throw;
+                builder.Services.Add(service);
             }
 
-            Logger.Info($"Started OWIN-Host for Backchannel at '{this.configuration.BackendAddress}'.");
+            // Controllers with endpoints need to be added manually due discovery issues.
+            // https://stackoverflow.com/q/73777145
+            var mvcBuilder = builder.Services.AddControllers();
+            mvcBuilder.AddApplicationPart(typeof(DefaultController).Assembly);
+            mvcBuilder.AddApplicationPart(typeof(ForkedExecutionController).Assembly);
+
+            _webApp = builder.Build();
+            _webApp.MapControllers();
+            _webApp.Urls.Add(_configuration.BackendAddress);
+
+            Task.FromResult(_webApp.StartAsync());
+
+            _logger.LogInformation("Started web host for Backchannel at '{backendAddress}'.", _configuration.BackendAddress);
         }
 
+        /// <summary>
+        /// Stop the hosting by disposing the host object.
+        /// </summary>
         public void Stop()
         {
-            this.webHost.Dispose();
+            Task.FromResult(_webApp.StopAsync());
         }
 
+        /// <summary>
+        /// Conditional web host dispose.
+        /// </summary>
+        /// <param name="disposing">If true, dispose.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
-                // free managed resources
-                if (this.webHost != null)
-                {
-                    this.webHost.Dispose();
-                }
+                Task.FromResult(_webApp.StopAsync());
+                Task.FromResult(_webApp.DisposeAsync());
             }
         }
     }

@@ -1,4 +1,3 @@
-using System;
 using Jobbr.ComponentModel.Execution.Model;
 
 namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure

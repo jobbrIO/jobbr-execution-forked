@@ -1,64 +1,61 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Jobbr.Runtime;
-using Jobbr.Runtime.Logging;
 using Jobbr.Runtime.ForkedExecution.RestClient;
+using Microsoft.Extensions.Logging;
 
 namespace Jobbr.Runtime.ForkedExecution
 {
     public class ForkedRuntime
     {
-        private static readonly ILog Logger = LogProvider.For<ForkedRuntime>();
+        private readonly ILogger<ForkedRuntime> _logger;
+        private readonly CoreRuntime _coreRuntime;
+        private ForkedExecutionRestClient _forkedExecutionRestClient;
 
-        private readonly CoreRuntime coreRuntime;
-        private ForkedExecutionRestClient forkedExecutionRestClient;
-
-        public ForkedRuntime(RuntimeConfiguration runtimeConfiguration)
+        public ForkedRuntime(ILoggerFactory loggerFactory, RuntimeConfiguration runtimeConfiguration)
         {
             if (runtimeConfiguration == null)
             {
                 throw new ArgumentNullException(nameof(runtimeConfiguration));
             }
 
-            this.coreRuntime = new CoreRuntime(runtimeConfiguration);
+            _logger = loggerFactory.CreateLogger<ForkedRuntime>();
+
+            _coreRuntime = new CoreRuntime(loggerFactory, runtimeConfiguration);
 
             // Wire Events to publish status
-            this.coreRuntime.Initializing += (sender, args) => this.forkedExecutionRestClient.PublishState(JobRunState.Initializing);
-            this.coreRuntime.Starting += (sender, args) => this.forkedExecutionRestClient.PublishState(JobRunState.Processing);
+            _coreRuntime.Initializing += (sender, args) => _forkedExecutionRestClient.PublishState(JobRunStates.Initializing);
+            _coreRuntime.Starting += (sender, args) => _forkedExecutionRestClient.PublishState(JobRunStates.Processing);
 
-            this.coreRuntime.Ended += this.CoreRuntimeOnEnded;
-        }
-
-        public ForkedRuntime() : this(new RuntimeConfiguration())
-        {
+            _coreRuntime.Ended += CoreRuntimeOnEnded;
         }
 
         public void Run(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-
-            Logger.Info($"ForkedRuntime started at {DateTime.UtcNow} (UTC) with cmd-arguments {string.Join(" ", args)}");
+            
+            _logger.LogInformation("ForkedRuntime started at {now} (UTC) with cmd-arguments {arguments}", DateTime.UtcNow, string.Join(" ", args));
 
             var cmdlineOptions = ParseArguments(args);
 
-            Logger.Info($"JobRunId:  {cmdlineOptions.JobRunId}");
-            Logger.Info($"JobServer: {cmdlineOptions.JobServer}");
-            Logger.Info($"IsDebug:   {cmdlineOptions.IsDebug}");
+            _logger.LogInformation("JobRunId: {jobRunId}", cmdlineOptions.JobRunId);
+            _logger.LogInformation("JobServer: {jobServer}", cmdlineOptions.JobServer);
+            _logger.LogInformation("IsDebug: {isDebug}", cmdlineOptions.IsDebug);
 
             WaitForDebugger(cmdlineOptions.IsDebug);
 
             // Create client
             var jobbrRuntimeClient = new ForkedExecutionRestClient(cmdlineOptions.JobServer, cmdlineOptions.JobRunId);
-            this.forkedExecutionRestClient = jobbrRuntimeClient;
+            _forkedExecutionRestClient = jobbrRuntimeClient;
 
-            jobbrRuntimeClient.PublishState(JobRunState.Connected);
+            jobbrRuntimeClient.PublishState(JobRunStates.Connected);
 
-            var jobRunInfoDto = this.forkedExecutionRestClient.GetJobRunInfo();
+            var jobRunInfoDto = _forkedExecutionRestClient.GetJobRunInfo();
 
             var jobRunInfo = new ExecutionMetadata
             {
@@ -69,15 +66,12 @@ namespace Jobbr.Runtime.ForkedExecution
                 UserDisplayName = jobRunInfoDto.UserDisplayName
             };
 
-            this.coreRuntime.Execute(jobRunInfo);
+            _coreRuntime.Execute(jobRunInfo);
         }
 
-        private static CommandlineOptions ParseArguments(string[] args)
+        private static CommandlineOptions ParseArguments(IEnumerable<string> args)
         {
-            var commandlineOptions = new CommandlineOptions();
-            Parser.Default.ParseArguments(args, commandlineOptions);
-            var cmdlineOptions = commandlineOptions;
-            return cmdlineOptions;
+            return Parser.Default.ParseArguments<CommandlineOptions>(args).Value;
         }
 
         private static void WaitForDebugger(bool isDebugEnabled)
@@ -88,14 +82,14 @@ namespace Jobbr.Runtime.ForkedExecution
                 var endWaitForDebugger = beginWaitForDebugger.AddSeconds(10);
                 var pressedEnter = false;
 
-                System.Console.WriteLine(string.Empty);
-                System.Console.WriteLine(">>> DEBUG-Mode is enabled. You have 10s to attach a Debugger");
-                System.Console.Write("    or press enter to continue. Counting...");
+                Console.WriteLine(string.Empty);
+                Console.WriteLine(">>> DEBUG-Mode is enabled. You have 10s to attach a Debugger");
+                Console.Write("    or press enter to continue. Counting...");
 
                 new TaskFactory().StartNew(
                     () =>
                     {
-                        System.Console.ReadLine();
+                        Console.ReadLine();
                         pressedEnter = true;
                     });
 
@@ -111,9 +105,9 @@ namespace Jobbr.Runtime.ForkedExecution
             }
         }
 
-        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
+        private void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
-            Logger.FatalException("Unhandled Infrastructure Exception in Jobbr-Runtime. Please contact the developers!", (Exception)unhandledExceptionEventArgs.ExceptionObject);
+            _logger.LogError((Exception)unhandledExceptionEventArgs.ExceptionObject, "Unhandled Infrastructure Exception in Jobbr-Runtime. Please contact the developers!");
         }
 
         private void CoreRuntimeOnEnded(object sender, ExecutionEndedEventArgs executionEndedEventArgs)
@@ -124,24 +118,24 @@ namespace Jobbr.Runtime.ForkedExecution
                 Environment.ExitCode = 1;
             }
 
-            this.forkedExecutionRestClient.PublishState(JobRunState.Finishing);
+            _forkedExecutionRestClient.PublishState(JobRunStates.Finishing);
 
             // Are there any files to collect?
             var allFiles = Directory.GetFiles(Directory.GetCurrentDirectory());
 
             if (allFiles.Any())
             {
-                this.forkedExecutionRestClient.PublishState(JobRunState.Collecting);
-                this.forkedExecutionRestClient.SendFiles(allFiles);
+                _forkedExecutionRestClient.PublishState(JobRunStates.Collecting);
+                _forkedExecutionRestClient.SendFiles(allFiles);
             }
 
             if (executionEndedEventArgs.Succeeded)
             {
-                this.forkedExecutionRestClient.PublishState(JobRunState.Completed);
+                _forkedExecutionRestClient.PublishState(JobRunStates.Completed);
             }
             else
             {
-                this.forkedExecutionRestClient.PublishState(JobRunState.Failed);
+                _forkedExecutionRestClient.PublishState(JobRunStates.Failed);
             }
         }
 

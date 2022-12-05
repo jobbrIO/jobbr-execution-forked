@@ -1,19 +1,36 @@
-﻿using System.Web.Http;
-using Jobbr.Server.ForkedExecution.Logging;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Jobbr.Server.ForkedExecution.BackChannel
 {
-    [RoutePrefix("fex")]
-    public class DefaultController : ApiController
+    /// <summary>
+    /// The default controller.
+    /// </summary>
+    [ApiController]
+    [Route("fex")]
+    public class DefaultController : ControllerBase
     {
-        private static readonly ILog Logger = LogProvider.For<DefaultController>();
+        private readonly ILogger _logger;
 
-        [HttpGet]
-        [Route("status")]
-        public IHttpActionResult GetStatus()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultController"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">The logger factory.</param>
+        public DefaultController(ILoggerFactory loggerFactory)
         {
-            Logger.Debug("Called StatusRoute");
-            return this.Ok("All fine!");
+            _logger = loggerFactory.CreateLogger<DefaultController>();
+        }
+
+        /// <summary>
+        /// Status health check for the hosting service.
+        /// </summary>
+        /// <returns><see cref="OkObjectResult"/> if the service manages to respond.</returns>
+        [HttpGet("status")]
+        public async Task<IActionResult> GetStatus()
+        {
+            _logger.LogDebug("Called StatusRoute");
+            return Ok("All fine!");
         }
     }
 }
