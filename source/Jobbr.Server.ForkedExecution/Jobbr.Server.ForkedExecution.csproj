@@ -26,9 +26,6 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.355802">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Jobbr.ComponentModel.Execution" Version="1.1.1" />
     <PackageReference Include="Jobbr.ComponentModel.Registration" Version="1.0.3" />
     <PackageReference Include="System.Text.Json" Version="7.0.0" />

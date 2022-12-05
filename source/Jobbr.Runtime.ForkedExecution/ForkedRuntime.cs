@@ -26,7 +26,7 @@ namespace Jobbr.Runtime.ForkedExecution
 
             _logger = loggerFactory.CreateLogger<ForkedRuntime>();
 
-            _coreRuntime = new CoreRuntime(runtimeConfiguration);
+            _coreRuntime = new CoreRuntime(loggerFactory, runtimeConfiguration);
 
             // Wire Events to publish status
             _coreRuntime.Initializing += (sender, args) => _forkedExecutionRestClient.PublishState(JobRunStates.Initializing);

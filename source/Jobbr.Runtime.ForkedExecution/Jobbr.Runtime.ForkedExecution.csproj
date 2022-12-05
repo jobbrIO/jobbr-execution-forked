@@ -16,18 +16,10 @@
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\submodules\jobbr-runtime\source\Jobbr.Runtime\Jobbr.Runtime.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.355802">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="System.Text.Json" Version="7.0.0" />
   </ItemGroup>

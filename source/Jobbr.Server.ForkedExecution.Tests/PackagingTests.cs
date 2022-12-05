@@ -18,7 +18,6 @@ namespace Jobbr.Server.ForkedExecution.Tests
             asserter.Add(new PackageExistsInBothRule("Jobbr.ComponentModel.Execution"));
             asserter.Add(new VersionIsIncludedInRange("Jobbr.ComponentModel.*"));
             asserter.Add(new NoMajorChangesInNuSpec("Jobbr.*"));
-            asserter.Add(new NoMajorChangesInNuSpec("Microsoft.*"));
 
             var result = asserter.Validate();
 
