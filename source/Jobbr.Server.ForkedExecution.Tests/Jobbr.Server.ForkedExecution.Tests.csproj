@@ -24,14 +24,15 @@
 	<Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
     <PackageReference Include="Moq" Version="4.18.2" />
-    <PackageReference Include="Jobbr.ComponentModel.ArtefactStorage" Version="1.1.1" />
-    <PackageReference Include="Jobbr.ComponentModel.Execution" Version="1.1.1" />
-    <PackageReference Include="Jobbr.ComponentModel.JobStorage" Version="1.6.0" />
-    <PackageReference Include="Jobbr.ComponentModel.Management" Version="1.6.3" />
-    <PackageReference Include="Jobbr.ComponentModel.Registration" Version="1.0.3" />
-    <PackageReference Include="Jobbr.Server" Version="1.6.0" />
+    <PackageReference Include="Jobbr.ComponentModel.ArtefactStorage" Version="3.0.0-rc.1" />
+    <PackageReference Include="Jobbr.ComponentModel.Execution" Version="3.0.0-rc.1" />
+    <PackageReference Include="Jobbr.ComponentModel.JobStorage" Version="3.0.0-rc.1" />
+    <PackageReference Include="Jobbr.ComponentModel.Management" Version="3.0.0-rc.1" />
+    <PackageReference Include="Jobbr.ComponentModel.Registration" Version="3.0.0-rc.2" />
+    <PackageReference Include="Jobbr.Server" Version="3.0.0-rc.4" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
   </ItemGroup>

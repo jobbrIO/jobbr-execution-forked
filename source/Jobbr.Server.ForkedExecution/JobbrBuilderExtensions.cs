@@ -31,16 +31,15 @@ namespace Jobbr.Server.ForkedExecution
 
             config(defaultConfig);
 
-            builder.Add<ForkedExecutionConfiguration>(defaultConfig);
-
             builder.Add<IDateTimeProvider>(new UtcNowTimeProvider());
             builder.Add<IPeriodicTimer>(new FixedIntervalTimer());
+            builder.Add<ForkedExecutionConfiguration>(defaultConfig);
 
-            builder.Register<IJobbrComponent>(typeof(BackChannelWebHost));
             builder.Register<IJobExecutor>(typeof(ForkedJobExecutor));
             builder.Register<IJobRunContextFactory>(typeof(JobRunContextFactory));
 
-            builder.Register<IConfigurationValidator>(typeof(ConfigurationValidator));
+            builder.RegisterForCollection<IJobbrComponent>(typeof(BackChannelWebHost));
+            builder.RegisterForCollection<IConfigurationValidator>(typeof(ConfigurationValidator));
         }
     }
 }
