@@ -1,18 +1,18 @@
-﻿using System;
+﻿using Jobbr.ComponentModel.Execution;
+using Jobbr.ComponentModel.Execution.Model;
+using Jobbr.Server.ForkedExecution.BackChannel;
+using Jobbr.Server.ForkedExecution.TestRunner.TestJobs;
+using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SimpleInjector;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
-using Jobbr.ComponentModel.Execution;
-using Jobbr.ComponentModel.Execution.Model;
-using Jobbr.Server.ForkedExecution.BackChannel;
-using Jobbr.Server.ForkedExecution.TestRunner.TestJobs;
-using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
 {
@@ -25,9 +25,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             new ConfigurationValidator(new NullLoggerFactory()).Validate(config);
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton<IJobRunInformationService>(JobRunInformationService);
-            serviceCollection.AddSingleton<IJobRunProgressChannel>(ProgressChannelStore);
+            var serviceCollection = new Container();
+            serviceCollection.RegisterInstance<IJobRunInformationService>(JobRunInformationService);
+            serviceCollection.RegisterInstance<IJobRunProgressChannel>(ProgressChannelStore);
 
             var backChannelHost = new BackChannelWebHost(new NullLoggerFactory(), serviceCollection, config);
             backChannelHost.Start();
@@ -62,7 +62,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             // Act
             ManualTimeProvider.AddSecond();
-            executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeRun.PlannedJobRun }));
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Assert
             var hasConnected = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Connected), 3000);
@@ -134,7 +134,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Arrange
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
-            
+
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
 
@@ -188,7 +188,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var fakeRun = JobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "JobWithParameters";
-            
+
             // Act
             ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
@@ -343,7 +343,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var config = GivenAMinimalConfiguration();
             config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
             config.JobRunDirectory = tempDir;
-            config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new []{ new KeyValuePair<string, string>("argument1", "value1"), });
+            config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new[] { new KeyValuePair<string, string>("argument1", "value1"), });
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);

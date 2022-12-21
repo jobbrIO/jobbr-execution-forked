@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Jobbr.ComponentModel.Execution;
+using Jobbr.ComponentModel.Execution.Model;
+using Jobbr.Server.ForkedExecution.BackChannel;
+using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SimpleInjector;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Jobbr.ComponentModel.Execution;
-using Jobbr.ComponentModel.Execution.Model;
-using Jobbr.Server.ForkedExecution.BackChannel;
-using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
 {
@@ -153,9 +153,9 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 BackendAddress = _configBackendAddress
             };
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton<IJobRunInformationService>(new JobRunInfoServiceMock(_fakeStore));
-            serviceCollection.AddSingleton<IJobRunProgressChannel>(_channelFakeStore);
+            var serviceCollection = new Container();
+            serviceCollection.RegisterInstance<IJobRunInformationService>(new JobRunInfoServiceMock(_fakeStore));
+            serviceCollection.RegisterInstance<IJobRunProgressChannel>(_channelFakeStore);
 
             var webHost = new BackChannelWebHost(new NullLoggerFactory(), serviceCollection, config);
 
