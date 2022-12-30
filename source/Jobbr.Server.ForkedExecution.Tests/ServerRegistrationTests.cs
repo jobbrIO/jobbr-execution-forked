@@ -18,7 +18,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             var backendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort();
 
-            var builder = new JobbrBuilder(new NullLoggerFactory());
+            var builder = new JobbrBuilder(NullLoggerFactory.Instance);
             builder.AddForkedExecution(config =>
             {
                 config.BackendAddress = backendAddress;
@@ -49,7 +49,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var backendAddress = "http://localhost:" + nextFreeTcpPort;
 
-            var builder = new JobbrBuilder(new NullLoggerFactory());
+            var builder = new JobbrBuilder(NullLoggerFactory.Instance);
             builder.AddForkedExecution(config =>
             {
                 config.BackendAddress = backendAddress;
