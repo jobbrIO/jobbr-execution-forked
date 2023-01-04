@@ -21,7 +21,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var fakeJobRun = JobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
             ManualTimeProvider.AddSecond();
-            executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeJobRun.PlannedJobRun, }));
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun.PlannedJobRun, }));
 
             // Wait
             ProgressChannelStore.WaitForStatusUpdate(updatesFromAllJobs => updatesFromAllJobs[fakeJobRun.Id].Contains(JobRunStates.Starting), 3000);
@@ -40,7 +40,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
             var executor = GivenAMockedExecutor(forkedExecutionConfiguration);
 
-            // Act: create jobruns & send plan
+            // Act: create job runs & send plan
             var fakeJobRun1 = JobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             var fakeJobRun2 = JobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             var fakeJobRun3 = JobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
@@ -89,7 +89,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
-        public void StartdateInFuture_GetsChangedToNow_ShouldExecute()
+        public void StartDateInFuture_GetsChangedToNow_ShouldExecute()
         {
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
@@ -148,7 +148,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Setup
             var forkedExecutionConfiguration = GivenAMinimalConfiguration();
-            
+
             // Only run 2 jobs at a time
             forkedExecutionConfiguration.MaxConcurrentProcesses = 2;
             var executor = GivenAMockedExecutor(forkedExecutionConfiguration);
@@ -223,7 +223,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var fakeJobRun3 = JobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
             // Increase current time so that the fake jobs are in the past
-            ManualTimeProvider.AddSecond(); 
+            ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun1.PlannedJobRun, fakeJobRun2.PlannedJobRun, fakeJobRun3.PlannedJobRun }));
 
             // Act 2: Send an empty plan

@@ -20,8 +20,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var fakeJobRun = JobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
 
             ManualTimeProvider.AddSecond();
-            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun.PlannedJobRun, }));
-            
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeJobRun.PlannedJobRun }));
+
             JobRunContextMockFactory[fakeJobRun.Id].RaiseEnded(-3683737);
 
             // Test
@@ -51,7 +51,6 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             Assert.AreEqual(2, allStatesForJob.Count, "There should be two transitions instead of a timeout");
             Assert.AreEqual(JobRunStates.Completed, allStatesForJob[1], "The Mock should have issued the state 'Starting'");
-
         }
 
         [TestMethod]
