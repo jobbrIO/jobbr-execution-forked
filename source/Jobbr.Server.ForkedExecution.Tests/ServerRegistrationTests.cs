@@ -68,7 +68,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 // ignored
             }
-            
+
             Assert.IsNotNull(listener);
             Assert.AreEqual(JobbrState.Error, server.State, "The server should be in error state if a component didn't start");
         }

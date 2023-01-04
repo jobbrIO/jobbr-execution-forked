@@ -1,5 +1,8 @@
 namespace Jobbr.Runtime.ForkedExecution
 {
+    /// <summary>
+    /// Job run states.
+    /// </summary>
     public enum JobRunStates
     {
         Null,
@@ -15,6 +18,6 @@ namespace Jobbr.Runtime.ForkedExecution
         Completed,
         Failed,
         Deleted,
-        Omitted,
+        Omitted
     }
 }

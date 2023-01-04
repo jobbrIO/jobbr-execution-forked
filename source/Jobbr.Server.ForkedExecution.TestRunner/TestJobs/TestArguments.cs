@@ -1,15 +1,13 @@
 ﻿namespace Jobbr.Server.ForkedExecution.TestRunner.TestJobs
 {
     /// <summary>
-    /// Simple test job.
+    /// Test arguments for jobs.
     /// </summary>
-    public class SimpleJob
+    public class TestArguments
     {
         /// <summary>
-        /// Run simple job.
+        /// If job should fail.
         /// </summary>
-        public void Run()
-        {
-        }
+        public bool ShouldFail { get; set; }
     }
 }

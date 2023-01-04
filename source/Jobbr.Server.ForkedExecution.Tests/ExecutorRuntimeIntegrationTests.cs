@@ -1,4 +1,11 @@
-﻿using Jobbr.ComponentModel.Execution;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Text.Json;
+using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.TestRunner.TestJobs;
@@ -6,33 +13,12 @@ using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SimpleInjector;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text.Json;
 
 namespace Jobbr.Server.ForkedExecution.Tests
 {
     [TestClass]
     public class ExecutorRuntimeIntegrationTests : TestBase
     {
-        private void GivenAStartedBackChannelHost(ForkedExecutionConfiguration config)
-        {
-            config.BackendAddress = string.Empty;
-
-            new ConfigurationValidator(new NullLoggerFactory()).Validate(config);
-
-            var serviceCollection = new Container();
-            serviceCollection.RegisterInstance<IJobRunInformationService>(JobRunInformationService);
-            serviceCollection.RegisterInstance<IJobRunProgressChannel>(ProgressChannelStore);
-
-            var backChannelHost = new BackChannelWebHost(new NullLoggerFactory(), serviceCollection, config);
-            backChannelHost.Start();
-        }
-
         [TestMethod]
         public void Startup_ExecutorAndBackChannel_BothRunning()
         {
@@ -401,6 +387,20 @@ namespace Jobbr.Server.ForkedExecution.Tests
             var fileContent = File.ReadAllText(Directory.EnumerateFiles(expectedWorkdir).First());
             Assert.IsNotNull(fileContent);
             Assert.IsTrue(fileContent.Contains("--arg\nv is with wthitespaced"), $"Expected to find arguments in content, but got '{fileContent}'");
+        }
+
+        private void GivenAStartedBackChannelHost(ForkedExecutionConfiguration config)
+        {
+            config.BackendAddress = string.Empty;
+
+            new ConfigurationValidator(new NullLoggerFactory()).Validate(config);
+
+            var serviceCollection = new Container();
+            serviceCollection.RegisterInstance<IJobRunInformationService>(JobRunInformationService);
+            serviceCollection.RegisterInstance<IJobRunProgressChannel>(ProgressChannelStore);
+
+            var backChannelHost = new BackChannelWebHost(new NullLoggerFactory(), serviceCollection, config);
+            backChannelHost.Start();
         }
     }
 }

@@ -5,7 +5,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 {
     /// <summary>
     /// Based on: https://confluence.jetbrains.com/display/TCD8/Build+Script+Interaction+with+TeamCity
-    /// <code> 
+    /// <code>
     ///     ##jobbr[<messageName> name1='value1' name2='value2']
     /// </code>
     /// </summary>
@@ -17,7 +17,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             var parser = new ServiceMessageParser();
 
-            var raw = "##jobbr[double value='55.34']";
+            const string raw = "##jobbr[double value='55.34']";
 
             var message = (DoubleServiceMessage)parser.Parse(raw);
 
@@ -30,7 +30,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             var parser = new ServiceMessageParser();
 
-            var raw = "##jobbr[integer value='57']";
+            const string raw = "##jobbr[integer value='57']";
 
             var message = (IntegerServiceMessage)parser.Parse(raw);
 
@@ -43,7 +43,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             var parser = new ServiceMessageParser();
 
-            var raw = "##jobbr[string value='hello world']";
+            const string raw = "##jobbr[string value='hello world']";
 
             var message = (StringServiceMessage)parser.Parse(raw);
 
@@ -56,7 +56,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             var parser = new ServiceMessageParser();
 
-            var raw = "##jobbr[blabla value='57']";
+            const string raw = "##jobbr[blabla value='57']";
 
             var message = parser.Parse(raw);
 

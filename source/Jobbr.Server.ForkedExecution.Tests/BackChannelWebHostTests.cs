@@ -1,12 +1,12 @@
-﻿using Jobbr.Server.ForkedExecution.BackChannel;
+﻿using System;
+using System.Net.Http;
+using System.Net.Sockets;
+using System.Threading.Tasks;
+using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SimpleInjector;
-using System;
-using System.Net.Http;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 
 namespace Jobbr.Server.ForkedExecution.Tests
 {

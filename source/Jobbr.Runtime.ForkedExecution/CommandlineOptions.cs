@@ -5,8 +5,8 @@ namespace Jobbr.Runtime.ForkedExecution
     /// <summary>
     /// The options.
     /// </summary>
-    public class CommandlineOptions {
-        
+    public class CommandlineOptions
+    {
         /// <summary>
         /// Gets or sets the job run id.
         /// </summary>

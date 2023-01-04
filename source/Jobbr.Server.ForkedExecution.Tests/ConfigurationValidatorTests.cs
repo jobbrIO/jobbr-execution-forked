@@ -18,24 +18,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
             _workingConfiguration = GetWorkingConfiguration();
         }
 
-        private static ForkedExecutionConfiguration GetWorkingConfiguration()
-        {
-            return new ForkedExecutionConfiguration
-            {
-                JobRunnerExecutable = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"),
-                BackendAddress = "http://localhost:1234",
-                JobRunDirectory = Directory.GetCurrentDirectory(),
-                MaxConcurrentProcesses = 4
-            };
-        }
-
         [TestMethod]
         public void WorkingConfiguration_Validated_IsFine()
         {
             // Arrange
             // Act
             var validationResult = _workingConfigurationValidator.Validate(_workingConfiguration);
-            
+
             // Assert
             Assert.IsTrue(validationResult);
         }
@@ -47,7 +36,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Arrange
             // Act
             _workingConfiguration.JobRunnerExecutable = null;
-            
+
             // Assert
             _workingConfigurationValidator.Validate(_workingConfiguration);
         }
@@ -59,7 +48,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Arrange
             // Act
             _workingConfiguration.JobRunnerExecutable = string.Empty;
-            
+
             // Assert
             _workingConfigurationValidator.Validate(_workingConfiguration);
         }
@@ -110,6 +99,17 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             // Assert
             _workingConfigurationValidator.Validate(_workingConfiguration);
+        }
+
+        private static ForkedExecutionConfiguration GetWorkingConfiguration()
+        {
+            return new ForkedExecutionConfiguration
+            {
+                JobRunnerExecutable = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"),
+                BackendAddress = "http://localhost:1234",
+                JobRunDirectory = Directory.GetCurrentDirectory(),
+                MaxConcurrentProcesses = 4
+            };
         }
     }
 }

@@ -11,12 +11,21 @@ using Microsoft.Extensions.Logging;
 
 namespace Jobbr.Runtime.ForkedExecution
 {
+    /// <summary>
+    /// Forked runtime.
+    /// </summary>
     public class ForkedRuntime
     {
         private readonly ILogger<ForkedRuntime> _logger;
         private readonly CoreRuntime _coreRuntime;
         private ForkedExecutionRestClient _forkedExecutionRestClient;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ForkedRuntime"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="runtimeConfiguration">Runtime configuration.</param>
+        /// <exception cref="ArgumentNullException">Runtime configuration is null.</exception>
         public ForkedRuntime(ILoggerFactory loggerFactory, RuntimeConfiguration runtimeConfiguration)
         {
             if (runtimeConfiguration == null)
@@ -35,10 +44,14 @@ namespace Jobbr.Runtime.ForkedExecution
             _coreRuntime.Ended += CoreRuntimeOnEnded;
         }
 
+        /// <summary>
+        /// Execute runtime.
+        /// </summary>
+        /// <param name="args">Execution arguments.</param>
         public void Run(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-            
+
             _logger.LogInformation("ForkedRuntime started at {now} (UTC) with cmd-arguments {arguments}", DateTime.UtcNow, string.Join(" ", args));
 
             var cmdlineOptions = ParseArguments(args);
@@ -129,15 +142,7 @@ namespace Jobbr.Runtime.ForkedExecution
                 _forkedExecutionRestClient.SendFiles(allFiles);
             }
 
-            if (executionEndedEventArgs.Succeeded)
-            {
-                _forkedExecutionRestClient.PublishState(JobRunStates.Completed);
-            }
-            else
-            {
-                _forkedExecutionRestClient.PublishState(JobRunStates.Failed);
-            }
+            _forkedExecutionRestClient.PublishState(executionEndedEventArgs.Succeeded ? JobRunStates.Completed : JobRunStates.Failed);
         }
-
     }
 }
