@@ -35,7 +35,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.BackChannel
             _progressChannelStoreMock = new Mock<IJobRunProgressChannel>();
             _jobRunInfoServiceMock = new Mock<IJobRunInformationService>();
 
-            _controller = new ForkedExecutionController(new NullLoggerFactory(), _jobRunInfoServiceMock.Object, _progressChannelStoreMock.Object);
+            _controller = new ForkedExecutionController(NullLoggerFactory.Instance, _jobRunInfoServiceMock.Object, _progressChannelStoreMock.Object);
         }
 
         [TestMethod]

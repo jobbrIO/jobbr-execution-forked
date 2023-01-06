@@ -16,7 +16,7 @@ namespace Jobbr.Server.ForkedExecution.TestRunner
         /// <param name="args">Execution arguments.</param>
         public static void Main(string[] args)
         {
-            var runtime = new ForkedRuntime(new NullLoggerFactory(), new RuntimeConfiguration { JobTypeSearchAssemblies = new[] { Assembly.GetEntryAssembly() } });
+            var runtime = new ForkedRuntime(NullLoggerFactory.Instance, new RuntimeConfiguration { JobTypeSearchAssemblies = new[] { Assembly.GetEntryAssembly() } });
 
             runtime.Run(args);
         }

@@ -41,7 +41,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             PeriodicTimerMock = new PeriodicTimerMock();
             ManualTimeProvider = new ManualTimeProvider();
 
-            var executor = new ForkedJobExecutor(new NullLoggerFactory(), JobRunContextMockFactory, JobRunInformationService, ProgressChannelStore, PeriodicTimerMock, ManualTimeProvider, forkedExecutionConfiguration);
+            var executor = new ForkedJobExecutor(NullLoggerFactory.Instance, JobRunContextMockFactory, JobRunInformationService, ProgressChannelStore, PeriodicTimerMock, ManualTimeProvider, forkedExecutionConfiguration);
 
             return executor;
         }
@@ -51,9 +51,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             PeriodicTimerMock = new PeriodicTimerMock();
             ManualTimeProvider = new ManualTimeProvider();
 
-            var jobRunContextFactory = new JobRunContextFactory(new NullLoggerFactory(), forkedExecutionConfiguration, ProgressChannelStore);
+            var jobRunContextFactory = new JobRunContextFactory(NullLoggerFactory.Instance, forkedExecutionConfiguration, ProgressChannelStore);
 
-            var executor = new ForkedJobExecutor(new NullLoggerFactory(), jobRunContextFactory, JobRunInformationService, ProgressChannelStore, PeriodicTimerMock, ManualTimeProvider, forkedExecutionConfiguration);
+            var executor = new ForkedJobExecutor(NullLoggerFactory.Instance, jobRunContextFactory, JobRunInformationService, ProgressChannelStore, PeriodicTimerMock, ManualTimeProvider, forkedExecutionConfiguration);
 
             executor.Start();
 

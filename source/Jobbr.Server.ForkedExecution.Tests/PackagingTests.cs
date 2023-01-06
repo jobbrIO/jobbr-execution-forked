@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Jobbr.DevSupport.ReferencedVersionAsserter;
+﻿using Jobbr.DevSupport.ReferencedVersionAsserter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
@@ -7,8 +6,6 @@ namespace Jobbr.Server.ForkedExecution.Tests
     [TestClass]
     public class PackagingTests
     {
-        private readonly bool isPre = Assembly.GetExecutingAssembly().GetInformalVersion().Contains("-");
-
         [TestMethod]
         public void Feature_NuSpec_IsCompliant()
         {
@@ -16,7 +13,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             asserter.Add(new PackageExistsInBothRule("Jobbr.ComponentModel.Registration"));
             asserter.Add(new PackageExistsInBothRule("Jobbr.ComponentModel.Execution"));
+            asserter.Add(new PackageExistsInBothRule("SimpleInjector"));
+            asserter.Add(new PackageExistsInBothRule("System.Text.Json"));
+
             asserter.Add(new VersionIsIncludedInRange("Jobbr.ComponentModel.*"));
+            asserter.Add(new VersionIsIncludedInRange("SimpleInjector"));
+            asserter.Add(new VersionIsIncludedInRange("System.Text.Json"));
+
             asserter.Add(new NoMajorChangesInNuSpec("Jobbr.*"));
 
             var result = asserter.Validate();
