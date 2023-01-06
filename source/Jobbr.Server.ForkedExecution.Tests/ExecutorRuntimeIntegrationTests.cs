@@ -393,13 +393,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             config.BackendAddress = string.Empty;
 
-            new ConfigurationValidator(new NullLoggerFactory()).Validate(config);
+            new ConfigurationValidator(NullLoggerFactory.Instance).Validate(config);
 
             var serviceCollection = new Container();
             serviceCollection.RegisterInstance<IJobRunInformationService>(JobRunInformationService);
             serviceCollection.RegisterInstance<IJobRunProgressChannel>(ProgressChannelStore);
 
-            var backChannelHost = new BackChannelWebHost(new NullLoggerFactory(), serviceCollection, config);
+            var backChannelHost = new BackChannelWebHost(NullLoggerFactory.Instance, serviceCollection, config);
             backChannelHost.Start();
         }
     }

@@ -156,7 +156,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             serviceCollection.RegisterInstance<IJobRunInformationService>(new JobRunInfoServiceMock(_fakeStore));
             serviceCollection.RegisterInstance<IJobRunProgressChannel>(_channelFakeStore);
 
-            var webHost = new BackChannelWebHost(new NullLoggerFactory(), serviceCollection, config);
+            var webHost = new BackChannelWebHost(NullLoggerFactory.Instance, serviceCollection, config);
 
             webHost.Start();
         }
