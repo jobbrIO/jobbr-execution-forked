@@ -9,14 +9,14 @@
     <license type="expression">GPL-3.0-only</license>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Component to execute jobs in forked processes</description>
-    <copyright>Copyright 2022</copyright>
+    <copyright>Copyright 2023</copyright>
     <icon>images\icon.png</icon>
     <dependencies>
       <group targetFramework="net6.0">
         <dependency id="Jobbr.ComponentModel.Registration" version="[2.9,3.1)"/>
         <dependency id="Jobbr.ComponentModel.Execution" version="[2.9,3.1)"/>
         <dependency id="SimpleInjector" version="[5.4,5.5)" />
-        <dependency id="System.Text.Json" version="[7.0,7.1)" />
+        <dependency id="System.Text.Json" version="[6.0,6.1)" />
       </group>
     </dependencies>
   </metadata>

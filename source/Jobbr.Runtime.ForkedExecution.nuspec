@@ -9,7 +9,7 @@
     <license type="expression">GPL-3.0-only</license>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Component to execute jobs in forked processes</description>
-    <copyright>Copyright 2022</copyright>
+    <copyright>Copyright 2023</copyright>
     <icon>images\icon.png</icon>
     <dependencies>
       <group targetFramework="netstandard2.0" />
