@@ -31,7 +31,14 @@ namespace Jobbr.Server.ForkedExecution.Tests
         public void Runtime_NuSpec_IsCompliant()
         {
             var asserter = new Asserter(Asserter.ResolveProjectFile("Jobbr.Runtime.ForkedExecution", "Jobbr.Runtime.ForkedExecution.csproj"), Asserter.ResolveRootFile("Jobbr.Runtime.ForkedExecution.nuspec"));
-            asserter.Add(new NoExternalDependenciesRule());
+
+            asserter.Add(new PackageExistsInBothRule("CommandLineParser"));
+            asserter.Add(new PackageExistsInBothRule("Microsoft.Extensions.Logging.Abstractions"));
+            asserter.Add(new PackageExistsInBothRule("System.Text.Json"));
+
+            asserter.Add(new VersionIsIncludedInRange("CommandLineParser"));
+            asserter.Add(new VersionIsIncludedInRange("Microsoft.Extensions.Logging.Abstractions"));
+            asserter.Add(new VersionIsIncludedInRange("System.Text.Json"));
 
             var result = asserter.Validate();
 
