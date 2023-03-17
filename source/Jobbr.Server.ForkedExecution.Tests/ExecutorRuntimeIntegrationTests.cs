@@ -39,7 +39,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -64,7 +64,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -91,10 +91,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
         public void PlannedJob_AfterStarting_FoldersExist()
         {
             // Arrange
-            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", string.Empty));
 
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestEcho");
             config.JobRunDirectory = tempDir;
 
             var executor = GivenAStartedExecutor(config);
@@ -119,7 +119,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -143,7 +143,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -167,7 +167,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -191,7 +191,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -215,7 +215,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -243,7 +243,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -266,7 +266,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -294,7 +294,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -323,11 +323,11 @@ namespace Jobbr.Server.ForkedExecution.Tests
         public void RunnerExecutable_AdditionalParameters_PassedToExecutable()
         {
             // Arrange
-            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", string.Empty));
             Directory.CreateDirectory(tempDir);
 
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestEcho");
             config.JobRunDirectory = tempDir;
             config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new[] { new KeyValuePair<string, string>("argument1", "value1"), });
 
@@ -358,13 +358,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
         public void RunnerExecutable_WhiteSpaceParameters_PassedToExecutable()
         {
             // Arrange
-            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", string.Empty));
             Directory.CreateDirectory(tempDir);
 
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestEcho");
             config.JobRunDirectory = tempDir;
-            config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new[] { new KeyValuePair<string, string>("arg", "v is with wthitespaced"), });
+            config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new[] { new KeyValuePair<string, string>("arg", "v is with whitespace"), });
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -386,7 +386,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var fileContent = File.ReadAllText(Directory.EnumerateFiles(expectedWorkdir).First());
             Assert.IsNotNull(fileContent);
-            Assert.IsTrue(fileContent.Contains("--arg\nv is with wthitespaced"), $"Expected to find arguments in content, but got '{fileContent}'");
+            Assert.IsTrue(fileContent.Contains("--arg\nv is with whitespace"), $"Expected to find arguments in content, but got '{fileContent}'");
         }
 
         private void GivenAStartedBackChannelHost(ForkedExecutionConfiguration config)

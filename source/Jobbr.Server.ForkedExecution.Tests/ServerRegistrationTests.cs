@@ -1,7 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using Jobbr.Server.Builder;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +25,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 config.BackendAddress = backendAddress;
                 config.JobRunDirectory = Path.GetTempPath();
-                config.JobRunnerExecutable = @"c:\windows\System32\cmd.exe";
+                config.JobRunnerExecutable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe") : "/bin/sh";
             });
 
             builder.Add<IServiceCollection>(new ServiceCollection());
@@ -54,7 +56,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 config.BackendAddress = backendAddress;
                 config.JobRunDirectory = Path.GetTempPath();
-                config.JobRunnerExecutable = @"c:\windows\System32\cmd.exe";
+                config.JobRunnerExecutable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe") : "/bin/sh";
             });
 
             builder.Add<IServiceCollection>(new ServiceCollection());
