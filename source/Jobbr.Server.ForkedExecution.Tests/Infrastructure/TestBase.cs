@@ -1,4 +1,5 @@
 using System.IO;
+using System.Runtime.InteropServices;
 using Jobbr.Server.ForkedExecution.Execution;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -21,13 +22,18 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             JobRunInformationService = new JobRunInfoServiceMock(JobRunFakeTuples);
         }
 
+        protected static string GetPlatformIndependentExecutableName(string executableName)
+        {
+            return executableName + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : string.Empty);
+        }
+
         protected static ForkedExecutionConfiguration GivenAMinimalConfiguration()
         {
             var forkedExecutionConfiguration = new ForkedExecutionConfiguration
             {
                 BackendAddress = "notNeeded",
                 JobRunDirectory = Path.GetTempPath(),
-                JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe",
+                JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestEcho"),
                 MaxConcurrentProcesses = 4
             };
 
@@ -41,7 +47,7 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             PeriodicTimerMock = new PeriodicTimerMock();
             ManualTimeProvider = new ManualTimeProvider();
 
-            var executor = new ForkedJobExecutor(new NullLoggerFactory(), JobRunContextMockFactory, JobRunInformationService, ProgressChannelStore, PeriodicTimerMock, ManualTimeProvider, forkedExecutionConfiguration);
+            var executor = new ForkedJobExecutor(NullLoggerFactory.Instance, JobRunContextMockFactory, JobRunInformationService, ProgressChannelStore, PeriodicTimerMock, ManualTimeProvider, forkedExecutionConfiguration);
 
             return executor;
         }
@@ -51,9 +57,9 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
             PeriodicTimerMock = new PeriodicTimerMock();
             ManualTimeProvider = new ManualTimeProvider();
 
-            var jobRunContextFactory = new JobRunContextFactory(new NullLoggerFactory(), forkedExecutionConfiguration, ProgressChannelStore);
+            var jobRunContextFactory = new JobRunContextFactory(NullLoggerFactory.Instance, forkedExecutionConfiguration, ProgressChannelStore);
 
-            var executor = new ForkedJobExecutor(new NullLoggerFactory(), jobRunContextFactory, JobRunInformationService, ProgressChannelStore, PeriodicTimerMock, ManualTimeProvider, forkedExecutionConfiguration);
+            var executor = new ForkedJobExecutor(NullLoggerFactory.Instance, jobRunContextFactory, JobRunInformationService, ProgressChannelStore, PeriodicTimerMock, ManualTimeProvider, forkedExecutionConfiguration);
 
             executor.Start();
 

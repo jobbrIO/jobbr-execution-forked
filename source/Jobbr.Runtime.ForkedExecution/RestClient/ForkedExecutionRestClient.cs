@@ -8,7 +8,7 @@ using System.Text.Json;
 namespace Jobbr.Runtime.ForkedExecution.RestClient
 {
     /// <summary>
-    /// The jobbr run time client.
+    /// The Jobbr runtime client.
     /// </summary>
     public class ForkedExecutionRestClient : IDisposable
     {
@@ -69,7 +69,7 @@ namespace Jobbr.Runtime.ForkedExecution.RestClient
 
             var url = $"jobRun/{_jobRunId}/artefacts";
             var response = _httpClient.PostAsync(url, multipartContent).Result;
-        
+
             return response.StatusCode == HttpStatusCode.Accepted;
         }
 
@@ -102,6 +102,10 @@ namespace Jobbr.Runtime.ForkedExecution.RestClient
             Dispose(true);
         }
 
+        /// <summary>
+        /// Conditional dispose.
+        /// </summary>
+        /// <param name="isDisposing">Condition for disposing.</param>
         protected virtual void Dispose(bool isDisposing)
         {
             if (isDisposing)

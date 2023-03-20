@@ -2,15 +2,21 @@
 
 namespace Jobbr.Server.ForkedExecution.TestRunner.TestJobs
 {
-    public class TestArguments
-    {
-        public bool ShouldFail { get; set; }
-    }
-
+    /// <summary>
+    /// Job with one progress update.
+    /// </summary>
     public class JobWithOneProgress
     {
+        /// <summary>
+        /// Hardcoded progress value for the test job.
+        /// </summary>
         public static double DefinedProgressValue = 42.135;
 
+        /// <summary>
+        /// Run job with one progress update.
+        /// </summary>
+        /// <param name="jobParams">Job parameters.</param>
+        /// <param name="runParams">Run parameters.</param>
         public void Run(object jobParams, TestArguments runParams)
         {
             Console.WriteLine("##jobbr[progress percent='" + DefinedProgressValue + "']");

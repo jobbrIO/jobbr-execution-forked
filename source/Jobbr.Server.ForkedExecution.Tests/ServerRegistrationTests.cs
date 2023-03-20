@@ -1,9 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using Jobbr.Server.Builder;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
@@ -12,18 +16,19 @@ namespace Jobbr.Server.ForkedExecution.Tests
     public class ServerRegistrationTests
     {
         [TestMethod]
-        [Ignore("Jobbr.Server has to be updated to .NET 6 first.")]
         public void WithInMemoryServer_ServerHasStarted_StatusEndpointIsAvailable()
         {
             var backendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort();
 
-            var builder = new JobbrBuilder();
+            var builder = new JobbrBuilder(NullLoggerFactory.Instance);
             builder.AddForkedExecution(config =>
             {
                 config.BackendAddress = backendAddress;
                 config.JobRunDirectory = Path.GetTempPath();
-                config.JobRunnerExecutable = @"c:\windows\System32\cmd.exe";
+                config.JobRunnerExecutable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe") : "/bin/sh";
             });
+
+            builder.Add<IServiceCollection>(new ServiceCollection());
 
             var server = builder.Create();
 
@@ -35,7 +40,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         }
 
         [TestMethod]
-        [Ignore("Jobbr.Server has to be updated to .NET 6 first.")]
+        [Ignore("Setting the port on Jobbr.Server should be debugged.")]
         public void WithInMemoryServer_InvalidPort_ServerStartFails()
         {
             var nextFreeTcpPort = TcpPortHelper.NextFreeTcpPort();
@@ -46,13 +51,15 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var backendAddress = "http://localhost:" + nextFreeTcpPort;
 
-            var builder = new JobbrBuilder();
+            var builder = new JobbrBuilder(NullLoggerFactory.Instance);
             builder.AddForkedExecution(config =>
             {
                 config.BackendAddress = backendAddress;
                 config.JobRunDirectory = Path.GetTempPath();
-                config.JobRunnerExecutable = @"c:\windows\System32\cmd.exe";
+                config.JobRunnerExecutable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe") : "/bin/sh";
             });
+
+            builder.Add<IServiceCollection>(new ServiceCollection());
 
             var server = builder.Create();
             try
@@ -63,7 +70,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 // ignored
             }
-            
+
             Assert.IsNotNull(listener);
             Assert.AreEqual(JobbrState.Error, server.State, "The server should be in error state if a component didn't start");
         }

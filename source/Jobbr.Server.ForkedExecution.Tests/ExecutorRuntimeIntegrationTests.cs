@@ -10,29 +10,15 @@ using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.TestRunner.TestJobs;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SimpleInjector;
 
 namespace Jobbr.Server.ForkedExecution.Tests
 {
     [TestClass]
     public class ExecutorRuntimeIntegrationTests : TestBase
     {
-        private void GivenAStartedBackChannelHost(ForkedExecutionConfiguration config)
-        {
-            config.BackendAddress = string.Empty;
-
-            new ConfigurationValidator(new NullLoggerFactory()).Validate(config);
-
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton<IJobRunInformationService>(JobRunInformationService);
-            serviceCollection.AddSingleton<IJobRunProgressChannel>(ProgressChannelStore);
-
-            var backChannelHost = new BackChannelWebHost(new NullLoggerFactory(), serviceCollection, config);
-            backChannelHost.Start();
-        }
-
         [TestMethod]
         public void Startup_ExecutorAndBackChannel_BothRunning()
         {
@@ -53,7 +39,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -62,7 +48,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             // Act
             ManualTimeProvider.AddSecond();
-            executor.OnPlanChanged(new List<PlannedJobRun>(new [] { fakeRun.PlannedJobRun }));
+            executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
 
             // Assert
             var hasConnected = ProgressChannelStore.WaitForStatusUpdate(allUpdates => allUpdates[fakeRun.Id].Contains(JobRunStates.Connected), 3000);
@@ -78,7 +64,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -105,10 +91,10 @@ namespace Jobbr.Server.ForkedExecution.Tests
         public void PlannedJob_AfterStarting_FoldersExist()
         {
             // Arrange
-            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", string.Empty));
 
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestEcho");
             config.JobRunDirectory = tempDir;
 
             var executor = GivenAStartedExecutor(config);
@@ -133,8 +119,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
-            
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
+
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
 
@@ -157,7 +143,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -181,14 +167,14 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
 
             var fakeRun = JobRunFakeTuples.CreateFakeJobRun(DateTime.UtcNow);
             fakeRun.JobRunInfo.Type = "JobWithParameters";
-            
+
             // Act
             ManualTimeProvider.AddSecond();
             executor.OnPlanChanged(new List<PlannedJobRun>(new[] { fakeRun.PlannedJobRun }));
@@ -205,7 +191,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -229,7 +215,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -257,7 +243,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -280,7 +266,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -308,7 +294,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestRunner.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestRunner");
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -337,13 +323,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
         public void RunnerExecutable_AdditionalParameters_PassedToExecutable()
         {
             // Arrange
-            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", string.Empty));
             Directory.CreateDirectory(tempDir);
 
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestEcho");
             config.JobRunDirectory = tempDir;
-            config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new []{ new KeyValuePair<string, string>("argument1", "value1"), });
+            config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new[] { new KeyValuePair<string, string>("argument1", "value1"), });
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -372,13 +358,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
         public void RunnerExecutable_WhiteSpaceParameters_PassedToExecutable()
         {
             // Arrange
-            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", ""));
+            var tempDir = Path.Combine(Path.GetTempPath(), Path.GetTempFileName().Replace(".", string.Empty));
             Directory.CreateDirectory(tempDir);
 
             var config = GivenAMinimalConfiguration();
-            config.JobRunnerExecutable = "Jobbr.Server.ForkedExecution.TestEcho.exe";
+            config.JobRunnerExecutable = GetPlatformIndependentExecutableName("Jobbr.Server.ForkedExecution.TestEcho");
             config.JobRunDirectory = tempDir;
-            config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new[] { new KeyValuePair<string, string>("arg", "v is with wthitespaced"), });
+            config.AddJobRunnerArguments = infos => new List<KeyValuePair<string, string>>(new[] { new KeyValuePair<string, string>("arg", "v is with whitespace"), });
 
             GivenAStartedBackChannelHost(config);
             var executor = GivenAStartedExecutor(config);
@@ -400,7 +386,21 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
             var fileContent = File.ReadAllText(Directory.EnumerateFiles(expectedWorkdir).First());
             Assert.IsNotNull(fileContent);
-            Assert.IsTrue(fileContent.Contains("--arg\nv is with wthitespaced"), $"Expected to find arguments in content, but got '{fileContent}'");
+            Assert.IsTrue(fileContent.Contains("--arg\nv is with whitespace"), $"Expected to find arguments in content, but got '{fileContent}'");
+        }
+
+        private void GivenAStartedBackChannelHost(ForkedExecutionConfiguration config)
+        {
+            config.BackendAddress = string.Empty;
+
+            new ConfigurationValidator(NullLoggerFactory.Instance).Validate(config);
+
+            var serviceCollection = new Container();
+            serviceCollection.RegisterInstance<IJobRunInformationService>(JobRunInformationService);
+            serviceCollection.RegisterInstance<IJobRunProgressChannel>(ProgressChannelStore);
+
+            var backChannelHost = new BackChannelWebHost(NullLoggerFactory.Instance, serviceCollection, config);
+            backChannelHost.Start();
         }
     }
 }

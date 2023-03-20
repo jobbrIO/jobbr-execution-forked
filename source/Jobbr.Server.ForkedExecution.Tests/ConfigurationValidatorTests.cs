@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -18,24 +19,13 @@ namespace Jobbr.Server.ForkedExecution.Tests
             _workingConfiguration = GetWorkingConfiguration();
         }
 
-        private static ForkedExecutionConfiguration GetWorkingConfiguration()
-        {
-            return new ForkedExecutionConfiguration
-            {
-                JobRunnerExecutable = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"),
-                BackendAddress = "http://localhost:1234",
-                JobRunDirectory = Directory.GetCurrentDirectory(),
-                MaxConcurrentProcesses = 4
-            };
-        }
-
         [TestMethod]
         public void WorkingConfiguration_Validated_IsFine()
         {
             // Arrange
             // Act
             var validationResult = _workingConfigurationValidator.Validate(_workingConfiguration);
-            
+
             // Assert
             Assert.IsTrue(validationResult);
         }
@@ -47,7 +37,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Arrange
             // Act
             _workingConfiguration.JobRunnerExecutable = null;
-            
+
             // Assert
             _workingConfigurationValidator.Validate(_workingConfiguration);
         }
@@ -59,7 +49,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
             // Arrange
             // Act
             _workingConfiguration.JobRunnerExecutable = string.Empty;
-            
+
             // Assert
             _workingConfigurationValidator.Validate(_workingConfiguration);
         }
@@ -70,7 +60,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             // Act
-            _workingConfiguration.JobRunnerExecutable = "C:\\bla\\blupp.exe";
+            _workingConfiguration.JobRunnerExecutable = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "bla", "blupp.exe");
 
             // Assert
             _workingConfigurationValidator.Validate(_workingConfiguration);
@@ -106,10 +96,21 @@ namespace Jobbr.Server.ForkedExecution.Tests
         {
             // Arrange
             // Act
-            _workingConfiguration.JobRunDirectory = "C:\\bla\\";
+            _workingConfiguration.JobRunDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "bla");
 
             // Assert
             _workingConfigurationValidator.Validate(_workingConfiguration);
+        }
+
+        private static ForkedExecutionConfiguration GetWorkingConfiguration()
+        {
+            return new ForkedExecutionConfiguration
+            {
+                JobRunnerExecutable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe") : "/bin/sh",
+                BackendAddress = "http://localhost:1234",
+                JobRunDirectory = Directory.GetCurrentDirectory(),
+                MaxConcurrentProcesses = 4
+            };
         }
     }
 }

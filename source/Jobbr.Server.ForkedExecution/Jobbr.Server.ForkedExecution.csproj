@@ -5,9 +5,9 @@
     <AssemblyTitle>Jobbr.Server.ForkedExecution</AssemblyTitle>
     <Product>Jobbr.Server.ForkedExecution</Product>
     <Copyright>Copyright © 2022</Copyright>
-    <CodeAnalysisRuleSet>..\JobbrRuleSet.ruleset</CodeAnalysisRuleSet>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <RunCodeAnalysis>false</RunCodeAnalysis>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -21,13 +21,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Jobbr.ComponentModel.Execution" Version="1.1.1" />
-    <PackageReference Include="Jobbr.ComponentModel.Registration" Version="1.0.3" />
-    <PackageReference Include="System.Text.Json" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
+    <PackageReference Include="SimpleInjector" Version="5.4.1" />
+    <PackageReference Include="Jobbr.ComponentModel.Execution" Version="3.0.0" />
+    <PackageReference Include="Jobbr.ComponentModel.Registration" Version="3.0.0" />
+    <PackageReference Include="System.Text.Json" Version="6.0.7" />
   </ItemGroup>
+  <ImportGroup>
+    <Import Project="..\submodules\devsupport\src\Jobbr.DevSupport.StyleCopAnalyzer\Jobbr.DevSupport.StyleCopAnalyzer.targets" />
+  </ImportGroup>
 </Project>

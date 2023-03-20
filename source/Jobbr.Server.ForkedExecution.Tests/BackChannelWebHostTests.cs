@@ -4,9 +4,9 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SimpleInjector;
 
 namespace Jobbr.Server.ForkedExecution.Tests
 {
@@ -29,8 +29,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
-            
-            var host = new BackChannelWebHost(_loggerFactory, new ServiceCollection(), forkedExecutionConfiguration);
+
+            var host = new BackChannelWebHost(_loggerFactory, new Container(), forkedExecutionConfiguration);
             host.Start();
 
             // Act
@@ -48,8 +48,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
-            
-            var host = new BackChannelWebHost(_loggerFactory, new ServiceCollection(), forkedExecutionConfiguration);
+
+            var host = new BackChannelWebHost(_loggerFactory, new Container(), forkedExecutionConfiguration);
 
             host.Start();
             host.Stop();
@@ -77,8 +77,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
-            
-            var host = new BackChannelWebHost(_loggerFactory, new ServiceCollection(), forkedExecutionConfiguration);
+
+            var host = new BackChannelWebHost(_loggerFactory, new Container(), forkedExecutionConfiguration);
 
             host.Start();
             host.Dispose();
@@ -107,8 +107,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
             {
                 BackendAddress = "http://localhost:" + TcpPortHelper.NextFreeTcpPort()
             };
-            
-            var host = new BackChannelWebHost(_loggerFactory, new ServiceCollection(), forkedExecutionConfiguration);
+
+            var host = new BackChannelWebHost(_loggerFactory, new Container(), forkedExecutionConfiguration);
 
             // Act
             // Assert

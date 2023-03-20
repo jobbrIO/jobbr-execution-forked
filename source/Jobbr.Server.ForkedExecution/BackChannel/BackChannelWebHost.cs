@@ -4,6 +4,8 @@ using Jobbr.ComponentModel.Registration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SimpleInjector;
+using Container = SimpleInjector.Container;
 
 namespace Jobbr.Server.ForkedExecution.BackChannel
 {
@@ -13,7 +15,7 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
     public class BackChannelWebHost : IJobbrComponent
     {
         private readonly ILogger _logger;
-        private readonly IServiceCollection _serviceCollection;
+        private readonly InstanceProducer[] _serviceCollection;
         private readonly ForkedExecutionConfiguration _configuration;
         private WebApplication _webApp;
 
@@ -21,14 +23,14 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
         /// Initializes a new instance of the <see cref="BackChannelWebHost"/> class.
         /// </summary>
         /// <param name="loggerFactory">The logger factory.</param>
-        /// <param name="serviceCollection">The service collection.</param>
+        /// <param name="container">The service injector container.</param>
         /// <param name="configuration">Forked execution configuration.</param>
-        public BackChannelWebHost(ILoggerFactory loggerFactory, IServiceCollection serviceCollection, ForkedExecutionConfiguration configuration)
+        public BackChannelWebHost(ILoggerFactory loggerFactory, Container container, ForkedExecutionConfiguration configuration)
         {
             _logger = loggerFactory.CreateLogger<BackChannelWebHost>();
             _logger.LogDebug("Constructing new BackChannelWebHost");
 
-            _serviceCollection = serviceCollection;
+            _serviceCollection = container.GetCurrentRegistrations();
             _configuration = configuration;
         }
 
@@ -52,9 +54,9 @@ namespace Jobbr.Server.ForkedExecution.BackChannel
 
             var builder = WebApplication.CreateBuilder();
 
-            foreach (var service in _serviceCollection)
+            foreach (var instanceProducer in _serviceCollection)
             {
-                builder.Services.Add(service);
+                builder.Services.Add(new ServiceDescriptor(instanceProducer.ServiceType, instanceProducer.GetInstance()));
             }
 
             // Controllers with endpoints need to be added manually due discovery issues.

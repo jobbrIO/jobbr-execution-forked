@@ -9,9 +9,9 @@ using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.BackChannel;
 using Jobbr.Server.ForkedExecution.Tests.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SimpleInjector;
 
 namespace Jobbr.Server.ForkedExecution.Tests
 {
@@ -19,8 +19,8 @@ namespace Jobbr.Server.ForkedExecution.Tests
     public class EndpointTests
     {
         private readonly string _configBackendAddress;
-        private readonly FakeGeneratedJobRunsStore _fakeStore = new();
-        private readonly ProgressChannelStore _channelFakeStore = new();
+        private readonly FakeGeneratedJobRunsStore _fakeStore = new ();
+        private readonly ProgressChannelStore _channelFakeStore = new ();
 
         public EndpointTests()
         {
@@ -136,8 +136,7 @@ namespace Jobbr.Server.ForkedExecution.Tests
 
         private HttpResponseMessage SendImage(string url, MemoryStream fileStream)
         {
-            var requestContent = new MultipartFormDataContent();
-            //    here you can specify boundary if you need---^
+            var requestContent = new MultipartFormDataContent(); // here you can specify boundary if you need
             var imageContent = new ByteArrayContent(fileStream.ToArray());
             imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/jpeg");
 
@@ -153,11 +152,11 @@ namespace Jobbr.Server.ForkedExecution.Tests
                 BackendAddress = _configBackendAddress
             };
 
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton<IJobRunInformationService>(new JobRunInfoServiceMock(_fakeStore));
-            serviceCollection.AddSingleton<IJobRunProgressChannel>(_channelFakeStore);
+            var serviceCollection = new Container();
+            serviceCollection.RegisterInstance<IJobRunInformationService>(new JobRunInfoServiceMock(_fakeStore));
+            serviceCollection.RegisterInstance<IJobRunProgressChannel>(_channelFakeStore);
 
-            var webHost = new BackChannelWebHost(new NullLoggerFactory(), serviceCollection, config);
+            var webHost = new BackChannelWebHost(NullLoggerFactory.Instance, serviceCollection, config);
 
             webHost.Start();
         }
