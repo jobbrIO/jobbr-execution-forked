@@ -3,53 +3,70 @@ using System.Threading;
 
 namespace Jobbr.Server.ForkedExecution.Execution
 {
+    /// <summary>
+    /// Fixed interval timer.
+    /// </summary>
     internal class FixedIntervalTimer : IPeriodicTimer, IDisposable
     {
-        private Action callback;
+        private Action _callback;
 
-        private Timer timer;
-        private TimeSpan interval;
+        private Timer _timer;
+        private TimeSpan _interval;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FixedIntervalTimer"/> class.
+        /// </summary>
         public FixedIntervalTimer()
         {
-            this.timer = new Timer(state => this.callback());
+            _timer = new Timer(state => _callback());
         }
 
+        /// <summary>
+        /// Finalizes an instance of the <see cref="FixedIntervalTimer"/> class.
+        /// </summary>
         ~FixedIntervalTimer()
         {
-            this.Dispose(false);
+            Dispose(false);
         }
 
+        /// <inheritdoc/>
         public void Setup(Action value, long intervalInSeconds)
         {
-            this.callback = value;
-            this.interval = TimeSpan.FromSeconds(intervalInSeconds);
+            _callback = value;
+            _interval = TimeSpan.FromSeconds(intervalInSeconds);
         }
 
+        /// <inheritdoc/>
         public void Start()
         {
-            this.timer.Change(this.interval, this.interval);
+            _timer.Change(_interval, _interval);
         }
 
+        /// <inheritdoc/>
         public void Stop()
         {
-            this.timer.Change(int.MaxValue, int.MaxValue);
+            _timer.Change(int.MaxValue, int.MaxValue);
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Conditional dispose.
+        /// </summary>
+        /// <param name="disposing">Condition for disposing.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
-                if (this.timer != null)
+                if (_timer != null)
                 {
-                    this.timer.Dispose();
-                    this.timer = null;
+                    _timer.Dispose();
+                    _timer = null;
                 }
             }
         }

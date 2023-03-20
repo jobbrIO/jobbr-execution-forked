@@ -7,44 +7,49 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 {
     public class MockedJobContext : IJobRunContext
     {
-        private readonly JobRunInfo jobRunInfo;
-        private readonly IJobRunProgressChannel progressChannel;
-        private bool didReportProgress;
+        private readonly JobRunInfo _jobRunInfo;
+        private readonly IJobRunProgressChannel _progressChannel;
+        private bool _didReportProgress;
 
         public MockedJobContext(JobRunInfo jobRunInfo, IJobRunProgressChannel progressChannel)
         {
-            this.jobRunInfo = jobRunInfo;
-            this.progressChannel = progressChannel;
+            _jobRunInfo = jobRunInfo;
+            _progressChannel = progressChannel;
         }
 
         public event EventHandler<JobRunEndedEventArgs> Ended;
 
-        public long JobRunId => this.jobRunInfo.Id;
+        public long JobRunId => _jobRunInfo.Id;
 
         public void Start()
         {
-            this.progressChannel.PublishStatusUpdate(this.jobRunInfo.Id, JobRunStates.Starting);
+            _progressChannel.PublishStatusUpdate(_jobRunInfo.Id, JobRunStates.Starting);
         }
 
         public void RaiseProgressUpdate(double progress)
         {
-            this.didReportProgress = true;
-            this.progressChannel.PublishProgressUpdate(this.jobRunInfo.Id, progress);
+            _didReportProgress = true;
+            _progressChannel.PublishProgressUpdate(_jobRunInfo.Id, progress);
         }
 
         public void RaiseStatusChange(JobRunStates state)
         {
-            this.progressChannel.PublishStatusUpdate(this.jobRunInfo.Id, state);
+            _progressChannel.PublishStatusUpdate(_jobRunInfo.Id, state);
         }
 
         public void RaiseEnded(int exitCode = 0)
         {
-            this.OnEnded(new JobRunEndedEventArgs() { ExitCode = exitCode, JobRun = this.jobRunInfo, DidReportProgress = this.didReportProgress });
+            OnEnded(new JobRunEndedEventArgs
+            {
+                ExitCode = exitCode,
+                JobRun = _jobRunInfo,
+                DidReportProgress = _didReportProgress,
+            });
         }
 
         protected virtual void OnEnded(JobRunEndedEventArgs e)
         {
-            this.Ended?.Invoke(this, e);
+            Ended?.Invoke(this, e);
         }
     }
 }

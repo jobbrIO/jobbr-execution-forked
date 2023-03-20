@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Jobbr.Server.ForkedExecution.Tests
@@ -7,31 +9,24 @@ namespace Jobbr.Server.ForkedExecution.Tests
     [TestClass]
     public class ConfigurationValidatorTests
     {
-        private readonly ConfigurationValidator sut;
+        private readonly ConfigurationValidator _workingConfigurationValidator;
+        private readonly ForkedExecutionConfiguration _workingConfiguration;
 
         public ConfigurationValidatorTests()
         {
-            this.sut = new ConfigurationValidator();
-        }
-
-        private ForkedExecutionConfiguration GetWorkingConfiguration()
-        {
-            return new ForkedExecutionConfiguration()
-            {
-                JobRunnerExecutable = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe"),
-                BackendAddress = "http://localhost:1234",
-                JobRunDirectory = Directory.GetCurrentDirectory(),
-                MaxConcurrentProcesses = 4
-            };
+            var loggerFactory = new LoggerFactory();
+            _workingConfigurationValidator = new ConfigurationValidator(loggerFactory);
+            _workingConfiguration = GetWorkingConfiguration();
         }
 
         [TestMethod]
         public void WorkingConfiguration_Validated_IsFine()
         {
-            var config = this.GetWorkingConfiguration();
+            // Arrange
+            // Act
+            var validationResult = _workingConfigurationValidator.Validate(_workingConfiguration);
 
-            var validationResult = this.sut.Validate(config);
-
+            // Assert
             Assert.IsTrue(validationResult);
         }
 
@@ -39,66 +34,83 @@ namespace Jobbr.Server.ForkedExecution.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void RunnerExecutable_IsNull_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunnerExecutable = null;
 
-            config.JobRunnerExecutable = null;
-
-            this.sut.Validate(config);
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void RunnerExecutable_Empty_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunnerExecutable = string.Empty;
 
-            config.JobRunnerExecutable = string.Empty;
-
-            this.sut.Validate(config);
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void RunnerExecutable_IsInvalidPath_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunnerExecutable = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "bla", "blupp.exe");
 
-            config.JobRunnerExecutable = "C:\\bla\\blupp.exe";
-
-            this.sut.Validate(config);
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void JobRunDirectory_IsNull_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunDirectory = null;
 
-            config.JobRunDirectory = null;
-
-            this.sut.Validate(config);
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void JobRunDirectory_Empty_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunDirectory = string.Empty;
 
-            config.JobRunDirectory = string.Empty;
-
-            this.sut.Validate(config);
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void JobRunDirectory_IsInvalidPath_ValidationThrowsException()
         {
-            var config = this.GetWorkingConfiguration();
+            // Arrange
+            // Act
+            _workingConfiguration.JobRunDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "bla");
 
-            config.JobRunDirectory = "C:\\bla\\";
+            // Assert
+            _workingConfigurationValidator.Validate(_workingConfiguration);
+        }
 
-            this.sut.Validate(config);
+        private static ForkedExecutionConfiguration GetWorkingConfiguration()
+        {
+            return new ForkedExecutionConfiguration
+            {
+                JobRunnerExecutable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe") : "/bin/sh",
+                BackendAddress = "http://localhost:1234",
+                JobRunDirectory = Directory.GetCurrentDirectory(),
+                MaxConcurrentProcesses = 4
+            };
         }
     }
 }

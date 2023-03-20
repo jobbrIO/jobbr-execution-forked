@@ -9,17 +9,21 @@
     <license type="expression">GPL-3.0-only</license>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>Component to execute jobs in forked processes</description>
-    <copyright>Copyright 2022</copyright>
+    <copyright>Copyright 2023</copyright>
     <icon>images\icon.png</icon>
     <dependencies>
-      <dependency id="Microsoft.Owin.Host.HttpListener" version="[4,5)"/>
-      <dependency id="Jobbr.ComponentModel.Registration" version="[1,1.1)"/>
-      <dependency id="Jobbr.ComponentModel.Execution" version="[1,1.1)"/>
+      <group targetFramework="net6.0">
+        <dependency id="Jobbr.ComponentModel.Registration" version="[2.9,3.1)"/>
+        <dependency id="Jobbr.ComponentModel.Execution" version="[2.9,3.1)"/>
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="[6.0,6.1)" />
+        <dependency id="SimpleInjector" version="[5.4.1,5.5)" />
+        <dependency id="System.Text.Json" version="[6.0,6.1)" />
+      </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="..\ilmerged\Jobbr.Server.ForkedExecution.dll" target="lib\net462"/>
-    <file src="..\ilmerged\Jobbr.Server.ForkedExecution.pdb" target="lib\net462"/>
+    <file src="Jobbr.Server.ForkedExecution\bin\$target$\net6.0\Jobbr.Server.ForkedExecution.dll" target="lib\net6.0"/>
+    <file src="Jobbr.Server.ForkedExecution\bin\$target$\net6.0\Jobbr.Server.ForkedExecution.pdb" target="lib\net6.0"/>
     <file src="icon.png" target="images/"/>
   </files>
 </package>

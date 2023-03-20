@@ -8,23 +8,28 @@ namespace Jobbr.Server.ForkedExecution.Tests.Infrastructure
 {
     internal class JobRunContextMockFactory : IJobRunContextFactory
     {
-        private readonly IJobRunProgressChannel progressChannel;
-        private readonly List<MockedJobContext> contexts = new List<MockedJobContext>();
+        private readonly IJobRunProgressChannel _progressChannel;
+        private readonly List<MockedJobContext> _contexts = new ();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JobRunContextMockFactory"/> class.
+        /// </summary>
+        /// <param name="progressChannel">The job run progress channel.</param>
         public JobRunContextMockFactory(IJobRunProgressChannel progressChannel)
         {
-            this.progressChannel = progressChannel;
+            _progressChannel = progressChannel;
         }
 
-        public MockedJobContext this[long jobRunId] => this.contexts.Single(c => c.JobRunId == jobRunId);
+        public long Count => _contexts.Count;
 
-        public long Count => this.contexts.Count;
+        public MockedJobContext this[long jobRunId] => _contexts.Single(c => c.JobRunId == jobRunId);
 
+        /// <inheritdoc/>
         public IJobRunContext CreateJobRunContext(JobRunInfo jobRunInfo)
         {
-            var mockedJobContext = new MockedJobContext(jobRunInfo, this.progressChannel);
+            var mockedJobContext = new MockedJobContext(jobRunInfo, _progressChannel);
 
-            this.contexts.Add(mockedJobContext);
+            _contexts.Add(mockedJobContext);
 
             return mockedJobContext;
         }

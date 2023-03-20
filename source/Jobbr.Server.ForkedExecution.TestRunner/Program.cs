@@ -1,14 +1,22 @@
 ﻿using System.Reflection;
 using Jobbr.Runtime;
 using Jobbr.Runtime.ForkedExecution;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Jobbr.Server.ForkedExecution.TestRunner
 {
-    class Program
+    /// <summary>
+    /// Root.
+    /// </summary>
+    public static class Program
     {
-        static void Main(string[] args)
+        /// <summary>
+        /// Main entry point.
+        /// </summary>
+        /// <param name="args">Execution arguments.</param>
+        public static void Main(string[] args)
         {
-            var runtime = new ForkedRuntime(new RuntimeConfiguration() { JobTypeSearchAssemblies = new [] { Assembly.GetEntryAssembly() }});
+            var runtime = new ForkedRuntime(NullLoggerFactory.Instance, new RuntimeConfiguration { JobTypeSearchAssemblies = new[] { Assembly.GetEntryAssembly() } });
 
             runtime.Run(args);
         }

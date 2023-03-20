@@ -3,16 +3,37 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using Jobbr.ComponentModel.Registration;
-using Jobbr.Server.ForkedExecution.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Jobbr.Server.ForkedExecution
 {
+    /// <summary>
+    /// Validates configuration.
+    /// </summary>
     public class ConfigurationValidator : IConfigurationValidator
     {
-        private static readonly ILog Logger = LogProvider.For<ConfigurationValidator>();
+        private readonly ILogger _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConfigurationValidator"/> class.
+        /// </summary>
+        /// <param name="loggerFactory">The logger factory.</param>
+        public ConfigurationValidator(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory.CreateLogger<ConfigurationValidator>();
+        }
+
+        /// <summary>
+        /// Configuration type.
+        /// </summary>
         public Type ConfigurationType { get; set; } = typeof(ForkedExecutionConfiguration);
 
+        /// <summary>
+        /// Validate configuration.
+        /// </summary>
+        /// <param name="configuration">Configuration.</param>
+        /// <returns>If configuration was valid.</returns>
+        /// <exception cref="ArgumentException">Issue in the configuration.</exception>
         public bool Validate(object configuration)
         {
             var config = (ForkedExecutionConfiguration)configuration;
@@ -25,7 +46,7 @@ namespace Jobbr.Server.ForkedExecution
             if (string.IsNullOrWhiteSpace(config.BackendAddress))
             {
                 // Fallback to automatic endpoint port
-                Logger.Warn("There was no BackendAdress specified. Falling back to random port, which is not guaranteed to work in production scenarios");
+                _logger.LogWarning("There was no backend address specified. Falling back to random port, which is not guaranteed to work in production scenarios.");
                 var port = NextFreeTcpPort();
 
                 config.BackendAddress = $"http://localhost:{port}";

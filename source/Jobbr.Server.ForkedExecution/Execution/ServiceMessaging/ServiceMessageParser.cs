@@ -6,6 +6,9 @@ using System.Text.RegularExpressions;
 
 namespace Jobbr.Server.ForkedExecution.Execution.ServiceMessaging
 {
+    /// <summary>
+    /// Parser for service messages.
+    /// </summary>
     public class ServiceMessageParser
     {
         private static readonly IEnumerable<Type> KnownTypes;
@@ -15,16 +18,21 @@ namespace Jobbr.Server.ForkedExecution.Execution.ServiceMessaging
             KnownTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(asm => asm.GetTypes());
         }
 
+        /// <summary>
+        /// Parses a service message string to <see cref="ServiceMessage"/>.
+        /// </summary>
+        /// <param name="serviceMessage">Service message as string.</param>
+        /// <returns>A <see cref="ServiceMessage"/> object.</returns>
         public ServiceMessage Parse(string serviceMessage)
         {
             var messageTypeRaw = string.Empty;
             var parametersRaw = string.Empty;
 
-            Regex regex = new Regex(@"##jobbr\[([a-z]*[A-Z]*) (.*)\]");
+            var regex = new Regex(@"##jobbr\[([a-z]*[A-Z]*) (.*)\]");
 
             foreach (Match match in regex.Matches(serviceMessage))
             {
-                GroupCollection collection = match.Groups;
+                var collection = match.Groups;
 
                 if (collection.Count == 3)
                 {
@@ -45,12 +53,12 @@ namespace Jobbr.Server.ForkedExecution.Execution.ServiceMessaging
             }
 
             // Identity Parameters
-            var splitted = parametersRaw.Split(new[] { '\'', '=' }, StringSplitOptions.RemoveEmptyEntries);
+            var split = parametersRaw.Split(new[] { '\'', '=' }, StringSplitOptions.RemoveEmptyEntries);
             var parameters = new Dictionary<string, string>();
 
-            for (int i = 0; i < splitted.Length - 1; i = i + 2)
+            for (var i = 0; i < split.Length - 1; i += 2)
             {
-                parameters.Add(splitted[i], splitted[i + 1]);
+                parameters.Add(split[i], split[i + 1]);
             }
 
             var instance = (ServiceMessage)Activator.CreateInstance(type);

@@ -4,7 +4,7 @@ using System.IO;
 using Jobbr.ComponentModel.Execution;
 using Jobbr.ComponentModel.Execution.Model;
 using Jobbr.Server.ForkedExecution.Execution.ServiceMessaging;
-using Jobbr.Server.ForkedExecution.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Jobbr.Server.ForkedExecution.Execution
 {
@@ -13,74 +13,89 @@ namespace Jobbr.Server.ForkedExecution.Execution
     /// </summary>
     internal class JobRunContext : IJobRunContext
     {
-        private static readonly ILog Logger = LogProvider.For<JobRunContext>();
+        private readonly ILogger _logger;
 
-        private readonly JobRunInfo jobRunInfo;
+        private readonly JobRunInfo _jobRunInfo;
+        private readonly ForkedExecutionConfiguration _configuration;
+        private readonly IJobRunProgressChannel _progressChannel;
+        private readonly ServiceMessageParser _serviceMessageParser;
 
-        private readonly ForkedExecutionConfiguration configuration;
-
-        private readonly IJobRunProgressChannel progressChannel;
-
-        private readonly ServiceMessageParser serviceMessageParser;
-
-        private bool didReportProgress;
+        private bool _didReportProgress;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JobRunContext"/> class.
         /// </summary>
-        public JobRunContext(JobRunInfo jobRunInfoIfo, ForkedExecutionConfiguration configuration, IJobRunProgressChannel progressChannel)
+        public JobRunContext(ILoggerFactory loggerFactory, JobRunInfo jobRunInfo, ForkedExecutionConfiguration configuration, IJobRunProgressChannel progressChannel)
         {
-            this.jobRunInfo = jobRunInfoIfo;
-            this.configuration = configuration;
-            this.progressChannel = progressChannel;
+            _logger = loggerFactory.CreateLogger<JobRunContext>();
+            _jobRunInfo = jobRunInfo;
+            _configuration = configuration;
+            _progressChannel = progressChannel;
 
-            this.serviceMessageParser = new ServiceMessageParser();
+            _serviceMessageParser = new ServiceMessageParser();
         }
 
-        public long JobRunId => this.jobRunInfo.Id;
-
+        /// <summary>
+        /// Job run ended event.
+        /// </summary>
         public event EventHandler<JobRunEndedEventArgs> Ended;
 
+        /// <summary>
+        /// Job run ID.
+        /// </summary>
+        public long JobRunId => _jobRunInfo.Id;
+
+        /// <inheritdoc />
         public void Start()
         {
-            Logger.Info($"[{this.jobRunInfo.Id}] A new JobRunContext is starting for JobRun with id: '{this.jobRunInfo.Id}'. (JobId: '{this.jobRunInfo.JobId}', TriggerId: '{this.jobRunInfo.TriggerId}'");
+            _logger.LogInformation("[{jobRunId}] A new JobRunContext is starting for JobRun with ID: '{jobRunId}'. (JobID: '{jobId}', TriggerID: '{triggerId}'", _jobRunInfo.Id, _jobRunInfo.Id, _jobRunInfo.JobId, _jobRunInfo.TriggerId);
 
             try
             {
-                var workDir = this.SetupDirectories(this.jobRunInfo);
+                var workDir = SetupDirectories(_jobRunInfo);
 
-                this.StartProcess(this.jobRunInfo, workDir);
+                StartProcess(_jobRunInfo, workDir);
 
-                this.progressChannel.PublishStatusUpdate(this.jobRunInfo.Id, JobRunStates.Started);
+                _progressChannel.PublishStatusUpdate(_jobRunInfo.Id, JobRunStates.Started);
             }
             catch (Exception e)
             {
-                Logger.ErrorException($"[{this.jobRunInfo.Id}] Exception thrown while starting JobRun with id: '{this.jobRunInfo.Id}'. (JobId: '{this.jobRunInfo.JobId}', TriggerId: '{this.jobRunInfo.TriggerId}'", e);
+                _logger.LogError(e, "[{jobRunId}] Exception thrown while starting JobRun with ID: '{jobRunId}'. (JobID: '{jobId}', TriggerID: '{triggerId}'", _jobRunInfo.Id, _jobRunInfo.Id, _jobRunInfo.JobId, _jobRunInfo.TriggerId);
             }
         }
 
-        protected virtual void OnEnded(JobRunEndedEventArgs e)
+        /// <summary>
+        /// Event handler for the job run ended event.
+        /// </summary>
+        /// <param name="eventArgs">Event arguments.</param>
+        protected virtual void OnEnded(JobRunEndedEventArgs eventArgs)
         {
-            Logger.Info($"[{this.jobRunInfo.Id}] The Runner with ProcessId '{e.ProcInfo.Id}' has ended at '{e.ProcInfo.ExitTime}'. ExitCode: '{e.ProcInfo.ExitCode}'");
+            _logger.LogInformation("[{jobRunId}] The runner with process ID '{processId}' has ended at '{exitTime}'. Exit code: '{exitCode}'", _jobRunInfo.Id, eventArgs.ProcInfo.Id, eventArgs.ProcInfo.ExitTime, eventArgs.ProcInfo.ExitCode);
 
-            this.Ended?.Invoke(this, e);
+            Ended?.Invoke(this, eventArgs);
         }
 
         private void StartProcess(JobRunInfo jobRun, string workDir)
         {
-            var runnerFileExe = Path.GetFullPath(this.configuration.JobRunnerExecutable);
-            Logger.Info($"[{jobRun.Id}] Preparing to start the runner from '{runnerFileExe}' in '{workDir}'");
+            var runnerFileExe = Path.GetFullPath(_configuration.JobRunnerExecutable);
+            _logger.LogInformation("[{jobRunId}] Preparing to start the runner from '{executablePath}' in '{workDir}'", jobRun.Id, runnerFileExe, workDir);
 
-            var proc = new Process { EnableRaisingEvents = true, StartInfo = { FileName = runnerFileExe } };
+            var proc = new Process
+            {
+                EnableRaisingEvents = true,
+                StartInfo =
+                {
+                    FileName = runnerFileExe,
+                },
+            };
 
-            var arguments = $"--jobRunId {jobRun.Id} --server {this.configuration.BackendAddress}";
-
-            if (this.configuration.IsRuntimeWaitingForDebugger)
+            var arguments = $"--jobRunId {jobRun.Id} --server {_configuration.BackendAddress}";
+            if (_configuration.IsRuntimeWaitingForDebugger)
             {
                 arguments += " --debug";
             }
 
-            if (this.configuration.AddJobRunnerArguments != null)
+            if (_configuration.AddJobRunnerArguments != null)
             {
                 var model = new JobRunStartInfo
                 {
@@ -89,10 +104,10 @@ namespace Jobbr.Server.ForkedExecution.Execution
                     JobRunId = jobRun.Id,
                     JobId = jobRun.JobId,
                     TriggerId = jobRun.TriggerId,
-                    UserId = jobRun.UserId
+                    UserId = jobRun.UserId,
                 };
 
-                var additionalArguments = this.configuration.AddJobRunnerArguments(model);
+                var additionalArguments = _configuration.AddJobRunnerArguments(model);
 
                 foreach (var additionalArgument in additionalArguments)
                 {
@@ -114,15 +129,21 @@ namespace Jobbr.Server.ForkedExecution.Execution
             proc.StartInfo.CreateNoWindow = true;
 
             // Wire events
-            proc.OutputDataReceived += this.ProcOnOutputDataReceived;
-            proc.Exited += (o, args) => this.OnEnded(new JobRunEndedEventArgs() { ExitCode = proc.ExitCode, JobRun = jobRun, ProcInfo = proc, DidReportProgress = this.didReportProgress });
+            proc.OutputDataReceived += ProcOnOutputDataReceived;
+            proc.Exited += (o, args) => OnEnded(new JobRunEndedEventArgs
+            {
+                ExitCode = proc.ExitCode,
+                JobRun = jobRun,
+                ProcInfo = proc,
+                DidReportProgress = _didReportProgress,
+            });
 
-            this.progressChannel.PublishStatusUpdate(this.jobRunInfo.Id, JobRunStates.Starting);
-            Logger.Info($"[{jobRun.Id}] Starting '{runnerFileExe} {arguments}' in '{workDir}'");
+            _progressChannel.PublishStatusUpdate(_jobRunInfo.Id, JobRunStates.Starting);
+            _logger.LogInformation("[{jobRunId}] Starting '{executablePath} {arguments}' in '{workDir}'", jobRun.Id, runnerFileExe, arguments, workDir);
             proc.Start();
 
-            Logger.Info($"[{jobRun.Id}] Started Runner with ProcessId '{proc.Id}' at '{proc.StartTime}'");
-            this.progressChannel.PublishPid(jobRun.Id, proc.Id, Environment.MachineName);
+            _logger.LogInformation("[{jobRunId}] Started Runner with process ID '{processId}' at '{startTime}'", jobRun.Id, proc.Id, proc.StartTime);
+            _progressChannel.PublishPid(jobRun.Id, proc.Id, Environment.MachineName);
 
             proc.BeginOutputReadLine();
         }
@@ -130,18 +151,18 @@ namespace Jobbr.Server.ForkedExecution.Execution
         private string SetupDirectories(JobRunInfo jobRun)
         {
             // Create the WorkingDir and TempDir for the execution
-            var jobRunPath = Path.Combine(this.configuration.JobRunDirectory, "jobbr-" + jobRun.Id);
+            var jobRunPath = Path.Combine(_configuration.JobRunDirectory, "jobbr-" + jobRun.Id);
 
-            Logger.Info($"[{jobRun.Id}] Preparing filesytem directories in '{this.configuration.JobRunDirectory}'");
+            _logger.LogInformation("[{jobRunId}] Preparing filesystem directories in '{jobRunDirectory}'", jobRun.Id, _configuration.JobRunDirectory);
 
             var tempDir = Path.Combine(jobRunPath, "temp");
             var workDir = Path.Combine(jobRunPath, "work");
 
             Directory.CreateDirectory(tempDir);
-            Logger.Info($"[{jobRun.Id}] Created Temp-Directory '{tempDir}'");
+            _logger.LogInformation("[{jobRun.Id}] Created Temp-Directory '{tempDir}'", jobRun.Id, tempDir);
 
             Directory.CreateDirectory(workDir);
-            Logger.Info($"[{jobRun.Id}] Created Working-Directory '{workDir}'");
+            _logger.LogInformation("[{jobRun.Id}] Created Working-Directory '{workDir}'", jobRun.Id, tempDir);
 
             return workDir;
         }
@@ -162,29 +183,29 @@ namespace Jobbr.Server.ForkedExecution.Execution
                 // Detect ServiceMessage
                 if (line.StartsWith("##jobbr"))
                 {
-                    var message = this.serviceMessageParser.Parse(line);
+                    var message = _serviceMessageParser.Parse(line);
 
                     try
                     {
                         if (message != null)
                         {
-                            if (this.HandleMessage(message as dynamic))
+                            if (HandleMessage(message as dynamic))
                             {
-                                Logger.Debug($"[{this.jobRunInfo.Id}] Handled service-message of type '{message.GetType().Name}'. RawValue: '{line}'");
+                                _logger.LogDebug("[{jobRunId}] Handled service-message of type '{messageType}'. Raw value: '{line}'", _jobRunInfo.Id, message.GetType().Name, line);
                             }
                             else
                             {
-                                Logger.Warn($"[{this.jobRunInfo.Id}] Cannot handle messages of type '{message.GetType().Name}'. RawValue: '{line}'");
+                                _logger.LogWarning("[{jobRunId}] Cannot handle messages of type '{messageType}'. Raw value: '{line}'", _jobRunInfo.Id, message.GetType().Name, line);
                             }
                         }
                         else
                         {
-                            Logger.Warn($"[{this.jobRunInfo.Id}] Parsing Error while processing service message '{line}'");
+                            _logger.LogWarning("[{jobRunId}] Parsing Error while processing service message '{line}'", _jobRunInfo.Id, line);
                         }
                     }
                     catch (Exception e)
                     {
-                        Logger.ErrorException($"[{this.jobRunInfo.Id}] Exception while processing service message '{line}'", e);
+                        _logger.LogError(e, "[{jobRunId}] Exception while processing service message '{line}'", _jobRunInfo.Id, line);
                     }
                 }
             }
@@ -192,8 +213,8 @@ namespace Jobbr.Server.ForkedExecution.Execution
 
         private bool HandleMessage(ProgressServiceMessage message)
         {
-            this.progressChannel.PublishProgressUpdate(this.jobRunInfo.Id, message.Percent);
-            this.didReportProgress = true;
+            _progressChannel.PublishProgressUpdate(_jobRunInfo.Id, message.Percent);
+            _didReportProgress = true;
 
             return true;
         }
