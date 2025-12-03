@@ -1,3 +1,7 @@
+> [!IMPORTANT]  
+> This repository is obsolete.  
+> Development of Jobbr has been moved to the [jobbr mono-repo](https://github.com/jobbrIO/jobbr).
+
 # Jobbr Forked Process Execution [![Develop build status](https://img.shields.io/appveyor/ci/Jobbr/jobbr-execution-forked/develop.svg?label=develop)](https://ci.appveyor.com/project/Jobbr/jobbr-execution-forked)
 
 An alternative execution model that starts new processes and executes jobs in these different processes to increase stability.
